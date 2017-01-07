@@ -5,8 +5,8 @@
 (defun qingeditor/layer-cfg-setup ()
   "`layer'层相关的设置，您不能再这个函数中放任何用户代码，只能在这个函数中存放设置配置
 信息的函数。"
-  ;; 最基本的`layer'层，当前包含两个组件 `qingeditor-base' 或者 `qingeditor'.
-  (setq qingeditor/core/user-cfg/distribution 'qingeditor)
+  ;; 最基本的`layer'层，当前包含两个组件 `qingeditor-base' 或者 `qingeditor-standard'.
+  (setq qingeditor/core/user-cfg/distribution 'qingeditor-standard)
 
   ;; 迟延安装`qingeditor'的配置层选项，有如下几种选项`all', `unused'和`nil'.`unused'选项只迟延
   ;; 安装不在`qingeditor/core/user-cfg/cfg-layers'里面的层。`all'迟延安装所有的配置层哪怕配置层在

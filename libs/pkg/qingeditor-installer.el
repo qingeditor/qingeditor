@@ -34,7 +34,7 @@
 
 (defun qingeditor/pkg/installer/load-or-install-package  (pkg &optional log file-to-load)
   "加载指定的ELPA软件包`pkg',如果指定的软件包不存在，那么系统将自动安装。如果`log'不为`nil'将在
-qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在安装ELPA软件包成功之后自动加载
+qingeditoreditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在安装ELPA软件包成功之后自动加载
 相应的软件包。"
   (let ((warning-minimum-level :error))
     (unless (require pkg nil :noerror)
@@ -157,22 +157,22 @@ qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在
             (side . bottom)
             (window-height . 0.2)))))
     ;; 保证quelpa可用
-    (qws/core/pkg-installer/install-quelpa)
-    (let* ((upkg-names (qws/core/pkg-installer/get-uninstalled-packages packages))
+    (qingeditor/pkg/installer/install-quelpa)
+    (let* ((upkg-names (qingeditor/pkg/installer/get-uninstalled-packages packages))
            (not-inst-count (length upkg-names))
            installed-count)
       ;; 开始安装相关的elpa软件包
       (when upkg-names
-        (qws/ui/editor/buffer-append
+        (qingeditor/ui/editor/buffer-append
          (format "发现有%s个软件包需要安装...\n"
                  not-inst-count))
-        (qws/core/pkg-installer/retrieve-package-archives)
+        (qingeditor/pkg/installer/retrieve-package-archives)
         (setq installed-count 0)
-        (qws/ui/editor/redisplay)
+        (qingeditor/ui/editor/redisplay)
         (dolist (pkg-name upkg-names)
           (setq installed-count (1+ installed-count))
-          (qws/core/pkg-installer/install-package (qws/layer/layer/get-package pkg-name)))
-        (qws/ui/editor/buffer-append "\n")))))
+          (qingeditor/pkg/installer/install-package (qingeditor/layer/layer/get-package pkg-name)))
+        (qingeditor/ui/editor/buffer-append "\n")))))
 
 (defun qingeditor/pkg/installer/install-package (pkg-obj)
   "无条件安装指定的`pkg-obj'软件包。"
@@ -191,21 +191,21 @@ qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在
           (cond
            ((or (null pkg-obj) (eq 'elpa location))
             (qingeditor/pkg/installer/install-from-elpa pkg-name)
-            (when pkg-obj (qws-package-set-property pkg-obj :lazy-install nil)))
+            (when pkg-obj (qingeditor-package-set-property pkg-obj :lazy-install nil)))
            ((and (listp location) (eq 'recipe (car location)))
             (qingeditor/pkg/installer/install-from-recipe pkg-obj)
             (qingeditor/pkg/installer/package-set-property pkg-obj :lazy-install nil))
-           (t (qws/core/buffer-io/warning "安装软件包%S失败。" pkg-name)))
+           (t (qingeditor/core/io/warning "安装软件包%S失败。" pkg-name)))
         ('error
-         (qws/core/runtime/increment-error-count)
-         (qws/ui/editor/buffer-append
+         (qingeditor/core/runtime/increment-error-count)
+         (qingeditor/ui/editor/buffer-append
           (format "\n安装软件包%s出现错误，错误信息：(%S)\n" pkg-name err))
-         (qws/ui/editor/redisplay))))))
+         (qingeditor/ui/editor/redisplay))))))
 
 (defun qingeditor/pkg/installer/install-from-elpa (pkg-name)
   "从ELPA源安装`pkg-name'软件包。"
   (if (not (assq pkg-name package-archive-contents))
-      (qws/ui/editor/buffer-append 
+      (qingeditor/ui/editor/buffer-append 
        (format "\n软件包%s当前不可用, 您可以检查一下是否将软件包的名字写错了"
                pkg-name))
     (let ((pkg-desc (assq pkg-name package-archive-contents)))
@@ -226,7 +226,7 @@ qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在
   "返回传入的`pkg-names'列表的pkg中还没有安装的package列表。"
   (qingeditor/pkg/installer/filter-packages-with-deps
    pkg-names (lambda (pkg-name)
-               (let* ((pkg-obj (qws/layer/layer/get-package pkg-name))
+               (let* ((pkg-obj (qingeditor/layer/layer/get-package pkg-name))
                       (min-version (when pkg-obj (oref pkg-obj :min-version))))
                  (not (package-installed-p pkg-name min-version))))))
 
@@ -262,7 +262,7 @@ qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在
     ;; (message "悬空软件包: %s" orphans)
     (if orphans
         (progn
-          (qws/ui/editor/buffer-append 
+          (qingeditor/ui/editor/buffer-append 
            (format "发现%s个悬空软件包，系统将删除他们...\n"
                    orphans-count))
           (setq deleted-count 0)
@@ -276,7 +276,7 @@ qwseditor buffer进行log的输出，如果`file-to-load'不为`nil'函数将在
             (qingeditor/pkg/installer/package-delete orphan)
             (qingeditor/ui/editor/redisplay))
           (qingeditor/ui/editor/buffer-append "\n"))
-      (qingeditor/core/buffer-io/message "没有悬空软件包需要删除\n"))))
+      (qingeditor/core/io/message "没有悬空软件包需要删除\n"))))
 
 (defun qingeditor/pkg/installer/get-orphan-packages (dist-pkgs implicit-pkgs dependencies)
   "获取悬空的`packages'，悬空的`package'可以理解为`qingeditoreditor'不再使用了，但是还存在在我们的elpa文件夹里面。"

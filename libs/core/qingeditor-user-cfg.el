@@ -302,7 +302,7 @@
 (defun qingeditor/core/user-cfg/install-user-cfg-file (confirm)
   "安装用户配置脚本，如果脚本已经存在返回`nil'，如果`confirm'不为`nil'
 那么在安装配置脚本之前会询问用户。"
-  ;; 用户配置是`qingeditoreditor'配置选项的plist，在这里我们进行搜索替换
+  ;; 用户配置是`qingeditor'配置选项的plist，在这里我们进行搜索替换
   (let ((preferences
          (when confirm
            ;; editing style
@@ -313,17 +313,17 @@
                                          '(("神的编辑器 (emacs)" emacs)
                                            ("编辑器之神 (vim)" vim)))
                 ))
-             ("distribution 'qingeditor"
+             ("distribution 'qingeditor-standard"
               ,(format
                 "distribution '%S"
                 (qingeditor/core/user-cfg/ido-completing-read "选择`qingeditor'的发行版类型"
-                                         `(("标准的发行类型，也是推荐的类型 (qingeditor)" qingeditoreditor)
-                                           ( "最小化发行类型，最小化安装 (qingeditor-base)" qingeditoreditor-base)))))
+                                         `(("标准的发行类型，也是推荐的类型 (qingeditor-standard)" qingeditor-standard)
+                                           ( "最小化发行类型，最小化安装 (qingeditor-base)" qingeditor-base)))))
              ("helm"
               ,(qingeditor/core/user-cfg/ido-completing-read "选择一个自动补全的框架"
                                         '(("重量级全功能型补全框架 (helm)" "helm")
                                           ("轻量级但是也非常强大的框架 (ivy)" "ivy")
-                                          ;; 到目前为止，如果不选的话只有发行类型为`qingeditoreditor-base'的
+                                          ;; 到目前为止，如果不选的话只有发行类型为`qingeditor-base'的
                                           ;; 时候才可以。
                                           ("什么都不选 None (不推荐此选项)" ""))))))))
     (with-current-buffer (find-file-noselect
