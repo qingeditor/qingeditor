@@ -1,0 +1,5 @@
+基础结构研发
+
+当前qwseditor已经快完成对整个启动过程的重构
+
+添加了几个Ascii Art Banner,增加了qwseditor-base，qwseditor-bootstrap配置层的支持，未来将继续移植更多的配置层
