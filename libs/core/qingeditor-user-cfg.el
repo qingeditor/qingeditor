@@ -351,4 +351,10 @@
     (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates))
                  candidates))))
 
+(defun qingeditor/core/user-cfg/defer-until-after-user-cfg-ready (func)
+  "如果函数否则注册钩子函数，当`user-cfg'加载完成后执行，通过`qingeditor/gvars/post-user-cfg-hook'执行。"
+  (if qingeditor/gvars/post-user-cfg-hook-run
+      (funcall func)
+    (add-hook 'qingeditor/gvars/post-user-cfg-hook func)))
+
 (provide 'qingeditor-user-cfg)
