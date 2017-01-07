@@ -1,7 +1,7 @@
 ;; qingeditor-pkg-meta 类定义
 ;; 类属性定义
 
-(defclass qingeditor-pkg-meta ()
+(defclass qingeditor/layer/pkg-meta ()
   ((name
     :initarg :name
     :type symbol
@@ -74,13 +74,13 @@
 
 ;; 类方法定义
 
-(defmethod qingeditor-package-enabledp ((this qingeditor/layer/package-meta) &optional inhibit-message)
+(defmethod qingeditor-package-enabledp ((this qingeditor/layer/pkg-meta) &optional inhibit-message)
   "对当前的ELPA包的`toggle'属性进行求值并且返回结果。"
   (let ((message-log-max (unless inhibit-message message-log-max))
         (toggle (oref this toggle)))
     (eval toggle)))
 
-(defmethod qingeditor-package-get-safe-owner ((this qingeditor/layer/package-meta))
+(defmethod qingeditor-package-get-safe-owner ((this qingeditor/layer/pkg-meta))
   "获取所有的拥有当前ELPA软件包的配置层列表。"
   ;; The owner of a package is the first *used* layer in `:owners' slot.
   ;; Note: for packages in `qingeditor/layer/layer/used-packages' the owner is
@@ -92,7 +92,7 @@
     (when (qingeditor/layer/layer/layer-usedp (car layers))
       (car layers))))
 
-(defmethod qingeditor-package-set-property ((this qingeditor/layer/package-meta) slot value)
+(defmethod qingeditor-package-set-property ((this qingeditor/layer/pkg-meta) slot value)
   "给当前的ELPA软件包对象设置键值对，如果`qingeditor/layer/layer/package-properties-read-onlyp-private'不为
 `nil', 那么久忽略此次设置请求。"
   (unless qingeditor/layer/layer/package-properties-read-onlyp-private

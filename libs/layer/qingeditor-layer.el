@@ -1,3 +1,5 @@
+;; 配置层相关函数
+
 (require 'qingeditor-layer-meta)
 (require 'qingeditor-pkg-meta)
 
@@ -5,7 +7,7 @@
   "如果不为`nil'的话，系统将不加载除了`distributions'之外的所有layer配置层。")
 
 (defvar qingeditor/layer/layer/force-distribution nil
-  "强制安装默认的发行的layer配置层，忽略用户的选择`qingeditor/core/user-cfg::distribution'选项。")
+  "强制安装默认的发行的layer配置层，忽略用户的选择`qingeditor/core/user-cfg/distribution'选项。")
 
 (defvar qingeditor/layer/layer/layer-categories '()
   "layer配置层的分类名称列表，分类列表是一个以`+'开头的文件夹。")
@@ -24,9 +26,9 @@
 
 (defvar qingeditor/layer/layer/private-layer-dir
   (let ((user-cfg-layer-dir
-         (when qingeditor/core/editor-cfg-dir
-           (expand-file-name (concat qingeditor/core/editor-cfg-dir "layers/")))))
-    (if (and qingeditor/core/editor-cfg-dir
+         (when qingeditor/core/user-cfg/target-cfg-dir
+           (expand-file-name (concat qingeditor/core/user-cfg/target-cfg-dir "layers/")))))
+    (if (and qingeditor/core/user-cfg/target-cfg-dir
              (file-exists-p user-cfg-layer-dir))
         user-cfg-layer-dir
       (expand-file-name (concat qingeditor/start-dir "private/"))))
@@ -46,7 +48,7 @@
   "按照字母表顺序排列的使用的ELPA软件包的名字。")
 
 (defvar qingeditor/layer/layer/indexed-packages-private (make-hash-table :size 2048)
-  "保存了ELPA软件包名称到软件包元信息类`qingeditor/layer/package-meta'对象的映射。")
+  "保存了ELPA软件包名称到软件包元信息类`qingeditor/layer/pkg-meta'对象的映射。")
 
 (defvar qingeditor/layer/layer/package-archives-refreshed-private nil
   "此字段不为`nil'代表我们已经刷新过ELPA软件包了。")
@@ -81,8 +83,8 @@
   (qingeditor/core/call-func qingeditor/core/layer-cfg-setup "正在调用配置脚本的layer配置初始化函数...")
   (setq qingeditor/core/user-cfg/cfg-layers-saved-private
         qingeditor/core/user-cfg/cfg-layers)
-  (when (qingeditor/ui/startup-drawer/choose-banner)
-    (qingeditor/ui/startup-drawer/inject-version))
+  (when (qingeditor/ui/editor-drawer/choose-banner)
+    (qingeditor/ui/editor-drawer/inject-version))
   ;; 定义layer配置层对象，让package能尽早的探测使用情况和依赖关系
   (qingeditor/layer/layer/discover-layers)
   (qingeditor/layer/layer/declare-used-layers qingeditor/core/user-cfg/cfg-layers)
@@ -338,7 +340,7 @@
           (qingeditor/layer/layer/add-pkg pkg-obj (and (qingeditor-package-get-safe-owner pkg-obj) usedp)))))))
 
 (defmethod qingeditor/layer/layer/make-pkg (pkg-specs layer-name &optional pkg-obj)
-  "根据`pkg-specs'创建一个`qingeditor/layer/package-meta'类的实例，如果
+  "根据`pkg-specs'创建一个`qingeditor/layer/pkg-meta'类的实例，如果
 `obj'不为`nil'那么我们将`pkg-specs'相关的属性复制进`obj'对象中。能复制的属性有：
 `:location', `:step'和`:excluded'。如果`TOGGLEP'为`nil',那么`:toggle'属性忽略。"
   (let* ((pkg-name (if (listp pkg-specs) (car pkg-specs) pkg-specs))
@@ -355,7 +357,7 @@
          (pre-init-func (intern (format "qingeditor/%S/pre-init-%S" layer-name pkg-name)))
          (post-init-func (intern (format "qingeditor/%S/post-init-%S" layer-name pkg-name)))
          (copyp (not (null pkg-obj)))
-         (pkg-obj (if pkg-obj pkg-obj (qingeditor/layer/package-meta pkg-name-str :name pkg-name)))
+         (pkg-obj (if pkg-obj pkg-obj (qingeditor/layer/pkg-meta pkg-name-str :name pkg-name)))
          (ownerp (or (and (eq 'dotfile layer-name)
                           (null (oref pkg-obj owners)))
                      (fboundp init-func))))
@@ -398,7 +400,7 @@
                  pkg-name (car (oref pkg-obj owners)) layer-name)))
       ;; 最后一个owner优先级最高
       (object-add-to-list pkg-obj :owners layer-name))
-    ;; 检查`qingeditor/layer/package-meta'对象和其定义的初始化函数之间的一致性
+    ;; 检查`qingeditor/layer/pkg-meta'对象和其定义的初始化函数之间的一致性
     (unless (or ownerp
                 (eq 'dotfile layer-name)
                 (fboundp pre-init-func)
@@ -522,8 +524,8 @@
   (let ((search-paths (append (list qingeditor/layer/layer/layer-dir)
                               qingeditor/core/user-cfg/cfg-layer-dir
                               (list qingeditor/layer/layer/private-layer-dir)
-                              (when qingeditor/core/editor-cfg-dir
-                                (list qingeditor/core/editor-cfg-dir))))
+                              (when qingeditor/core/user-cfg/target-cfg-dir
+                                (list qingeditor/core/user-cfg/target-cfg-dir))))
         (discovered '()))
     ;; 深度优先搜索所有的子目录
     (while search-paths
