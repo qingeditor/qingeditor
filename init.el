@@ -16,5 +16,6 @@
   (require 'qingeditor-boot)
   (qingeditor/core/boot/init)
   (qingeditor/core/user-cfg/maybe-install-user-cfg-file)
+  (qingeditor/layer/layer/sync)
   )
 

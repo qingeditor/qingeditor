@@ -10,6 +10,7 @@
 (require 'qingeditor-installer)
 (require 'qingeditor-editor-theme)
 (require 'qingeditor-editor-font)
+(require 'qingeditor-layer)
 
 ;; 负责`qingeditor'用户界面绘制
 (require 'qingeditor-editor)

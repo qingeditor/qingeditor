@@ -2,9 +2,6 @@
 (require 'qingeditor-user-cfg)
 (require 'qingeditor-runtime)
 
-(defvar qingeditor/ui/editor-drawer/var-export/release-note-version nil
-  "这个变量主要用于保存导出的`release-note-version'数据，内部使用。")
-
 (defvar qingeditor/ui/editor-drawer/last-width-private nil
   "上次计算出的`qingeditor'buffer的宽度。")
 
@@ -396,10 +393,7 @@ Cate special text banner can de reachable via `998', `cat' or `random*'.
 (defun qingeditor/ui/editor-drawer/display-info-box ()
   "在启动界面绘制一个显示信息的框。"
   (when (file-exists-p qingeditor/ui/editor-drawer/cache-file-private)
-    (load qingeditor/ui/editor-drawer/cache-file-private)
-    (when (boundp 'qingeditor/ui/editor-drawer/var-export/release-note-version)
-      (setq qingeditor/ui/editor-drawer/release-note-version-private
-            qingeditor/ui/editor-drawer/var-export/release-note-version)))
+    (load qingeditor/ui/editor-drawer/cache-file-private))
   (cond
    (qingeditor/core/runtime/fresh-install
     ;; 首先假设用户是全新安装,我们默认打开信息显示框
@@ -437,8 +431,7 @@ Cate special text banner can de reachable via `998', `cat' or `random*'.
                              qingeditor/ui/editor/ui-version-info)
                      widget-func))
   (setq qingeditor/ui/editor-drawer/release-note-version-private nil)
-  (setq qingeditor/ui/editor-drawer/var-export/release-note-version nil)
-  (qingeditor/core/dump-vars-to-file '(qingeditor/ui/editor-drawer/var-export/release-note-version)
+  (qingeditor/core/dump-vars-to-file '(qingeditor/ui/editor-drawer/release-note-version-private)
                               qingeditor/ui/editor-drawer/cache-file-private)
   (setq qingeditor/ui/editor-drawer/previous-insert-type-private 'release-note))
 
@@ -472,9 +465,8 @@ Cate special text banner can de reachable via `998', `cat' or `random*'.
 (defun qingeditor/ui/editor-drawer/remove-note-widgets ()
   (mapc 'widget-delete qingeditor/ui/editor-drawer/note-widgets-private)
   (setq qingeditor/ui/editor-drawer/note-widgets-private nil)
-  (setq qingeditor/ui/editor-drawer/release-note-version-private qingeditor-version)
-  (setq qingeditor/ui/editor-drawer/var-export/release-note-version qingeditor-version)
-  (qingeditor/core/dump-vars-to-file '(qingeditor/ui/editor-drawer/var-export/release-note-version)
+  (setq qingeditor/ui/editor-drawer/release-note-version-private qingeditor/version)
+  (qingeditor/core/dump-vars-to-file '(qingeditor/ui/editor-drawer/release-note-version-private)
                               qingeditor/ui/editor-drawer/cache-file-private))
 
 (defun qingeditor/ui/editor-drawer/insert-quickhelp-widget (file)

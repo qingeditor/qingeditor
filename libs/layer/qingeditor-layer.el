@@ -91,11 +91,11 @@
   (qingeditor/layer/layer/declare-used-packages qingeditor/layer/layer/used-layers-private)
   ;; 加载配置层相关的文件，然后配置相关信息
   (qingeditor/layer/layer/load-layers-files qingeditor/layer/layer/used-layers-private
-                         '("funcs.el"))
+					    '("funcs.el"))
   (qingeditor/layer/layer/configure-layers qingeditor/layer/layer/used-layers-private)
   ;; 去掉一些elpa软件包，加快qingeditoreditor的加载速度
   (setq qingeditor/layer/layer/used-distant-packages-private
-                (qingeditor/layer/layer/get-distant-packages qingeditor/layer/layer/used-packages-private t))
+	(qingeditor/layer/layer/get-distant-packages qingeditor/layer/layer/used-packages-private t))
   (qingeditor/layer/layer/load-auto-layer-file)
   ;; 在这里我们开始安装需要的package或者删除不再需要的packages
   (unless no-install
@@ -135,8 +135,8 @@
 (defun qingeditor/layer/layer/configure-packages (packages)
   "配置所有传入的package软件包。"
   (setq qingeditor/ui/editor/loading-dots-chunk-threshold
-                (/ (length qingeditor/layer/layer/used-packages-private)
-                   qingeditor/ui/editor/loading-dots-chunk-count))
+	(/ (length qingeditor/layer/layer/used-packages-private)
+	   qingeditor/ui/editor/loading-dots-chunk-count))
   (qingeditor/core/io/message "+ 正在配置bootstrap软件包...")
   (qingeditor/layer/layer/do-configure-packages
    (qingeditor/layer/layer/filter-objects
@@ -368,8 +368,8 @@
     (when toggle
       (qingeditor-package-set-property pkg-obj :toggle toggle))
     (qingeditor-package-set-property pkg-obj :excluded
-                              (and (qingeditor/layer/layer/layer-usedp layer-name)
-                                   (or excluded (oref pkg-obj :excluded))))
+				     (and (qingeditor/layer/layer/layer-usedp layer-name)
+					  (or excluded (oref pkg-obj :excluded))))
     (when location
       (if (and (listp location)
                (eq (car location) 'recipe)
@@ -554,9 +554,9 @@
                       ;; 我们在这里进行容错处理
                       (unless (string-equal (oref indexed-layer dir) sub-dir)
                         (qingeditor/layer/layer/warning (concat
-                                           "在文件路径\"%s\"发现重复的配置层%s"
-                                           "请将旧得配置层文件夹名称\"%s\"重命名成新的名称。")
-                                     layer-name-str sub-dir (oref indexed-layer dir)))
+							 "在文件路径\"%s\"发现重复的配置层%s"
+							 "请将旧得配置层文件夹名称\"%s\"重命名成新的名称。")
+							layer-name-str sub-dir (oref indexed-layer dir)))
                     (qingeditor/core/io/message "-> 发现配置层：%S" layer-name-str)
                     (qingeditor/layer/layer/add-layer (qingeditor/layer/layer/make-layer layer-name nil nil sub-dir)))
                   )
@@ -565,7 +565,7 @@
                 ;; 当前的文件夹没有发现配置层对象，把当前的文件夹添加到搜索列表继续进行搜索
                 (setq search-paths (cons sub-dir search-paths)))))))))))
 
- (defun qingeditor/layer/layer/make-layer (layer-specs &optional obj usedp dir)
+(defun qingeditor/layer/layer/make-layer (layer-specs &optional obj usedp dir)
   "根据`layer-specs'创建一个`qingeditor/layer/layer-meta'对象，如果`LOAD-PKGS'不为`nil'那么加载配置层的`packages.el'
 `dir'是配置层的所在文件夹，如果为`nil'那么搜索indexed layers里面的数据。"
   (let* ((layer-name (if (listp layer-specs) (car layer-specs) layer-specs))
@@ -709,10 +709,10 @@ nil         --   当前文件夹是一个普通文件夹"
                           (and (listp location)
                                (eq 'recipe (car location))))))))
     (local ,(length (qingeditor/layer/layer/filter-objects
-                      packages
-                      (lambda (pkg-name)
-                        (let ((pkg-obj (qingeditor/layer/layer/get-package pkg-name)))
-                          (memq (oref pkg-obj :location) '(local site)))))))
+		     packages
+		     (lambda (pkg-name)
+		       (let ((pkg-obj (qingeditor/layer/layer/get-package pkg-name)))
+			 (memq (oref pkg-obj :location) '(local site)))))))
     (built-in ,(length (qingeditor/layer/layer/filter-objects
                         packages
                         (lambda (pkg-name)
