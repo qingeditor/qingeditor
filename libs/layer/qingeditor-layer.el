@@ -22,7 +22,7 @@
   "layer配置层的根文件夹。")
 
 (defvar qingeditor/layer/layer/private-dir (expand-file-name (concat qingeditor/start-dir "private/"))
-  "`qingeditoreditor'私有配置层根目录。")
+  "`qingeditor'私有配置层根目录。")
 
 (defvar qingeditor/layer/layer/private-layer-dir
   (let ((user-cfg-layer-dir
@@ -32,7 +32,7 @@
              (file-exists-p user-cfg-layer-dir))
         user-cfg-layer-dir
       (expand-file-name (concat qingeditor/start-dir "private/"))))
-  "`qingeditoreditor'私有配置层默认文件夹。如果存在`~/.qingeditor.d/layers'返回这个文件夹
+  "`qingeditor'私有配置层默认文件夹。如果存在`~/.qingeditor.d/layers'返回这个文件夹
 否则的话，返回`~/.emacs.d/private'文件夹。")
 
 (defvar qingeditor/layer/layer/load-packages-files-private nil
@@ -80,7 +80,7 @@
 (defun qingeditor/layer/layer/sync (&optional no-install)
   "同步我们在`qingeditor/core/user-cfg'里面配置的层，如果`no-install'不为`nil'函数将跳过
 安装相应的layer的过程。"
-  (qingeditor/core/call-func qingeditor/core/layer-cfg-setup "正在调用配置脚本的layer配置初始化函数...")
+  (qingeditor/core/call-func qingeditor/layer-cfg-setup "正在调用配置脚本的layer配置初始化函数...")
   (setq qingeditor/core/user-cfg/cfg-layers-saved-private
         qingeditor/core/user-cfg/cfg-layers)
   (when (qingeditor/ui/editor-drawer/choose-banner)
@@ -93,7 +93,7 @@
   (qingeditor/layer/layer/load-layers-files qingeditor/layer/layer/used-layers-private
 					    '("funcs.el"))
   (qingeditor/layer/layer/configure-layers qingeditor/layer/layer/used-layers-private)
-  ;; 去掉一些elpa软件包，加快qingeditoreditor的加载速度
+  ;; 去掉一些elpa软件包，加快qingeditor的加载速度
   (setq qingeditor/layer/layer/used-distant-packages-private
 	(qingeditor/layer/layer/get-distant-packages qingeditor/layer/layer/used-packages-private t))
   (qingeditor/layer/layer/load-auto-layer-file)
@@ -202,7 +202,7 @@
           (qingeditor/layer/layer/activate-package pkg-name))
         (cond
          ((eq 'dotfile (car (oref pkg-obj :owners)))
-          (qingeditor/core/io/message (format "软件包%S已经在`.qingeditoreditor'文件中进行了配置。" pkg-name)))
+          (qingeditor/core/io/message (format "软件包%S已经在`.qingeditor'文件中进行了配置。" pkg-name)))
          (t
           (qingeditor/layer/layer/configure-package pkg-obj))))))))
 
@@ -455,9 +455,9 @@
     (let* ((force-dist qingeditor/layer/layer/force-distribution)
            (distribution (if force-dist force-dist
                            qingeditor/core/user-cfg/distribution)))
-      (unless (eq 'qingeditoreditor-bootstrap distribution)
+      (unless (eq 'editor-bootstrap distribution)
         (qingeditor/layer/layer/declare-layer distribution)))
-    (qingeditor/layer/layer/declare-layer 'qingeditoreditor-bootstrap)))
+    (qingeditor/layer/layer/declare-layer 'editor-bootstrap)))
 
 (defun qingeditor/layer/layer/declare-layers (layers-specs)
   "定义配置层列表中指定的layer配置层。"

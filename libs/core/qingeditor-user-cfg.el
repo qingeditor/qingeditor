@@ -33,8 +33,8 @@
      然后是默认的`~/.qingeditor.d/init.el'
      最后是强行指定为`~/.qingeditor'。"))
 
-(defvar qingeditor/core/user-cfg/distribution 'qingeditor
-  "最基本的layer层，当前包含两个组件 `qingeditor-base' 或者 `qingeditor'。")
+(defvar qingeditor/core/user-cfg/distribution 'editor-standard
+  "最基本的layer层，当前包含两个组件 `editor-base' 或者 `editor-standard'。")
 
 (defvar qingeditor/core/user-cfg/elpa-https t
   "是否通过https连接GNU的ELPA软件仓库, 如果您的环境不支持https请设置成`nil',强烈建议您将此参数设置成`t'。")
@@ -313,12 +313,12 @@
                                          '(("神的编辑器 (emacs)" emacs)
                                            ("编辑器之神 (vim)" vim)))
                 ))
-             ("distribution 'qingeditor-standard"
+             ("distribution 'editor-standard"
               ,(format
                 "distribution '%S"
                 (qingeditor/core/user-cfg/ido-completing-read "选择`qingeditor'的发行版类型"
-                                         `(("标准的发行类型，也是推荐的类型 (qingeditor-standard)" qingeditor-standard)
-                                           ( "最小化发行类型，最小化安装 (qingeditor-base)" qingeditor-base)))))
+                                         `(("标准的发行类型，也是推荐的类型 (editor-standard)" editor-standard)
+                                           ( "最小化发行类型，最小化安装 (editor-base)" editor-base)))))
              ("helm"
               ,(qingeditor/core/user-cfg/ido-completing-read "选择一个自动补全的框架"
                                         '(("重量级全功能型补全框架 (helm)" "helm")

@@ -11,6 +11,10 @@
 (require 'qingeditor-editor-theme)
 (require 'qingeditor-editor-font)
 (require 'qingeditor-layer)
+(require 'qingeditor-jumper)
+(require 'qingeditor-key-binder)
+(require 'qingeditor-transient-state)
+(require 'qingeditor-toggle)
 
 ;; 负责`qingeditor'用户界面绘制
 (require 'qingeditor-editor)
@@ -55,7 +59,7 @@
    ;; 他们设置的客户端字体将不会再第一个实例化EmacsClient的时候使用或者至少看着不像他们设置的字体
    ;; 如果你不相信我，那么你删除把，如果如我所说把下面的计数器加1，以增加我说的话的分量。
    ;; Counter = 1
-   (qingeditor/core/message "正在设置QwsEditor字体...")
+   (qingeditor/core/message "正在设置qingeditor字体...")
    (unless (qingeditor/ui/editor-font/set-default-font qingeditor/core/user-cfg/default-font)
      (qingeditor/core/io/warning "没有找到指定的字体(%s)！字体配置可能不正确。"
                   (if (listp (car qingeditor/core/user-cfg/default-font))
