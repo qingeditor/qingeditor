@@ -29,8 +29,8 @@
 		;; 将`evil-want-C-i-jump'设置成`nil'是为了避免`TAB'在终端模式下被覆盖。使用`<C-i>'代替。
 		evil-want-C-i-jump nil)
   (qingeditor/core/user-cfg/load-user-cfg-file)
-  (qingeditor/core/call-func qingeditor/core/user-cfg-init "正在调用配置脚本初始化函数...")
-  (qingeditor/core/call-func qingeditor/core/user-cfg-custom-init "正在调用配置脚本自定义初始化函数...")
+  (qingeditor/core/call-func qingeditor/user-cfg-init "正在调用配置脚本初始化函数...")
+  (qingeditor/core/call-func qingeditor/user-cfg-custom-init "正在调用配置脚本自定义初始化函数...")
   (setq qingeditor/user-cfg/editing-style
 	(qingeditor/core/user-cfg/read-editing-style-cfg qingeditor/core/user-cfg/editing-style))
   (qingeditor/pkg/installer/initialize)

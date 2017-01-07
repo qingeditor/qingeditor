@@ -1,0 +1,302 @@
+;; -*- mode: emacs-lisp -*-
+;; 这个文件在`qingeditor'初始化过程中加载
+;; 您必须把这个文件放在您的home文件夹下面 `~/.qwseditor'
+
+(defun qingeditor/layer-cfg-setup ()
+  "`layer'层相关的设置，您不能再这个函数中放任何用户代码，只能在这个函数中存放设置配置
+信息的函数。"
+  ;; 最基本的`layer'层，当前包含两个组件 `qingeditor-base' 或者 `qingeditor'.
+  (setq qingeditor/core/user-cfg/distribution 'qingeditor)
+
+  ;; 迟延安装`qingeditor'的配置层选项，有如下几种选项`all', `unused'和`nil'.`unused'选项只迟延
+  ;; 安装不在`qingeditor/core/user-cfg/cfg-layers'里面的层。`all'迟延安装所有的配置层哪怕配置层在
+  ;; `qingeditor/core/user-cfg/cfg-layers'里面。`nil'不迟延安装所有的配置层，如果您需要安装某个配置层您需要将其
+  ;; 添加到`qingeditor/core/user-cfg/cfg-layers'配置项里面。
+  (setq qingeditor/core/user-cfg/lazy-installation-type 'unused)
+
+  ;; 当指定为`t'时候，迟延安装某个配置层时候qingeditor editor会去询问用户是否要进行安装。
+  (setq qingeditor/core/user-cfg/ask-for-lazy-installation t)
+
+  ;; `qingeditor'的`layer'层存放的文件夹，必须以`/'结尾。
+  (setq qingeditor/core/user-cfg/cfg-layer-dir '())
+
+  ;; qingeditor启动默认加载的配置层列表。
+  (setq
+   qingeditor/core/user-cfg/cfg-layers
+   '(
+     ;; ----------------------------------------------------------------
+     ;; 在这个列表中列表是qingeditor默认开启的配置层
+     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
+     ;; <M-m f e R> (Emacs style) to install them.
+     ;; ----------------------------------------------------------------
+     helm
+     ;; auto-compilation
+     ;; beter-defaults
+     emacs-lisp
+     ;; git
+     ;; markdown
+     ;; org
+     ;; (shell :variables
+     ;;        shell-default-height 30
+     ;;        shell-default-position 'bottom)
+     ;; spell-checking
+     ;; syntax-checking
+     ;; version-control
+     ))
+  ;; 额外的不包含在任何配置层里面的package包，如果您需要配置这些package您可以考虑新建一个layer
+  ;; 当然您可以在`qingeditor/user-cfg'函数中进行相关的配置。
+  (setq qingeditor/core/user-cfg/additional-packages '())
+
+  ;; 默认系统不会去升级的包列表，将如果升级可能会影响兼容性的时候可以将包名称加入到这个列表
+  (setq qingeditor/core/user-cfg/frozen-packages '())
+
+  ;; 默认不被安装和加载的包的列表。
+  (setq qingeditor/core/user-cfg/excluded-packages '())
+
+  ;; `qingeditor'安装`packages'选项，有如下值
+  ;; `used-only', `used-but-keep-unused'和`all'. `used=only'只安装需要的`packages'，卸载不需要的`packages'和这些`packages'
+  ;; 依赖的`packages'。`used-but-keep-unused'安装需要的`packages'，但是不卸载不需要的packages，
+  ;; `all'安装所有的`packages'，从不卸载`packages'
+  (setq qingeditor/core/user-cfg/install-packages 'used-only))
+
+(defun qingeditor/user-cfg-init ()
+  "默认的初始化函数
+这个函数在初始化`qingeditor'之前进行调用，这个函数里面只能进行对象常量的修改或者全局变量的设置
+不要放任何其他用途的代码在里面。"
+  ;; 是否通过`https'连接`GNU'的`ELPA'软件仓库, 如果您的环境不支持https请设置成`nil',强烈建议您将此参数设置成`t'。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/elpa-https t)
+
+  ;; `ELAP'软件仓库的乱接超时时间。
+  (setq qingeditor/core/user-cfg/elpa-timeout 5)
+
+  ;; 如果不为`nil' `qingeditor'的分支如果不是`devel'的话将在启动的时候去检测新版本。注意，我们
+  ;; 这里是通过访问`github'相关服务进行版本检测的。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/check-for-update nil)
+
+  ;; 是否按照Emacs的版本号建立各自的`ELAP'库的文件夹。
+  ;; 你通常可以将这个参数设置成 `emacs-version'
+  (setq qingeditor/core/user-cfg/elpa-subdir nil)
+
+  ;; `qingeditor'编辑风格，目前支持三个选项`emacs', `vim'和`hybrid'。
+  ;; `hybrid'跟`vim'很相似，除了将`insert state'换成`hybrid state'并且使用`emacs'按键绑定。这个值也可以指定为一个list，像配置层那样
+  ;; 使用`:variables'关键字。详情请看文档中关于编辑风格相关的章节。
+  (setq qingeditor/core/user-cfg/editing-style 'emacs)
+
+  ;; 当这个配置值不为`nil'的时候，系统将在`*Message*' buffer里面显示加载进度。默认为`nil'。
+  (setq qingeditor/core/user-cfg/verbose-loading nil)
+
+  ;; 指定`qingeditor editor'启动的时候的`banner'图片，有三个选项：`official', `random'和自定义的字符串。
+  ;; `offical'显示官方默认的`banner'图片，`random'随机从内置的`banner'图片 库选择一张。自定义字符串必须指定一张png格式的图片路径。如果这个
+  ;; 选项为`nil'的话不显示`banner'。
+  (setq qingeditor/core/user-cfg/startup-banner 'official)
+
+  ;; "qingeditor欢迎页面的两个列表的显示调试
+  ;; 格式为 `(list-type . list-size)',如果为`nil'就不显示任何的列表，list-type支持的选项有：
+  ;; `recents', `bookmarks', `projects', `agenda'和 `todos'
+  (setq qingeditor/core/user-cfg/startup-lists '((recents  . 5)
+                                                  (projects . 7)))
+  ;; `qingeditor'的欢迎页是否响应系统的resize事件。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/startup-buffer-responsive t)
+
+  ;; 默认的`scratch buffer'默认的`major mode'。
+  ;; 默认`text-mode'
+  (setq qingeditor/core/user-cfg/scratch-mode 'text-mode)
+
+  ;; `qingeditor'的主题列表，第一个在启动时候默认选择，再运行时您可以通过`SPC T n'进行循环切换。
+  (setq qingeditor/core/user-cfg/themes '(spacemacs-dark
+					  spacemacs-light))
+
+  ;;  如果不为`nil' `GUI Emacs'将会对匹配的括号进行着色。
+  (setq qingeditor/core/user-cfg/colorize-cursor-according-to-state t)
+
+  ;; 默认的字体，或者默认的字体列表。`powerline-scale'可以用来调`mode line'的大小，让里面的内容看起来不那么挤。
+  (setq qingeditor/core/user-cfg/default-font  '("Source Code Pro"
+						 :size 15
+						 :weight normal
+						 :width normal
+						 :powerline-scale 1.1))
+  
+  ;; `qingeditor'默认的`leader key'。
+  (setq qingeditor/core/user-cfg/leader-key "SPC")
+
+  ;; 当按了`leader key'之后执行`Emacs command (M-x)'命令的`key'。
+  (setq qingeditor/core/user-cfg/emacs-command-key "SPC")
+
+  ;; `Vim Ex'命令模式激活`key'。
+  (setq qingeditor/core/user-cfg/ex-command-key ":")
+
+  ;; qingeditor的`emacs state'和`insert state'默认的`leader key'。
+  (setq qingeditor/core/user-cfg/emacs-leader-key "M-m")
+
+  ;; `qingeditor'的`major leader key'是`<leader> m'快捷方式。设置成`nil'禁止这个行为。
+  (setq qingeditor/core/user-cfg/major-mode-leader-key ",")
+
+  ;; `qingeditor'在`emacs state'和`insert state'的`leader key'。
+  (setq qingeditor/core/user-cfg/major-mode-emacs-leader-key "C-M-m")
+
+  ;; 在GUI模式下是否区分`TAB'和`c-i'。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/distinguish-gui-tab nil)
+
+  ;; 当不为`nil'的时候，在Evil mode中将`Y'按键remapped为$y。
+  (setq qingeditor/core/user-cfg/remap-Y-to-y$ nil)
+
+  ;; 如果不为`nil', shit mappings `<'和`>'按键将保持可视模式。
+  (setq qingeditor/core/user-cfg/retain-visual-state-on-shift t)
+
+  ;; 当不为`nil'在visual mode按键`J'和`K'将往上和往下移动行。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/visual-line-move-text nil)
+
+  ;; If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/ex-substitute-global nil)
+
+  ;; 默认的布局名称
+  ;; (default "Default")
+  (setq qingeditor/core/user-cfg/default-layout-name "Default")
+
+  ;; 是否在mode-line显示默认布局的名称。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/display-default-layout nil)
+
+  ;; 是否自动恢复上一次保存的布局。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/auto-resume-layouts nil)
+
+  ;; 超过这个阈值，qingeditor会提示用户进行选择是否打开大文件。打开大文件将使用literal模式。
+  ;; `cache'在cache目录中进行保存，设置成`nil'就禁止auto-save功能。
+  ;; (default 2)
+  (setq qingeditor/core/user-cfg/large-file-size 2)
+
+  ;; auto-save保存文件的目标文件夹地址，可能的选项有`original'就在文件的当前文件夹进行保存。
+  ;; `cache'在cache目录中进行保存，设置成`nil'就禁止auto-save功能。
+  ;; (default 'cache)
+  (setq qingeditor/core/user-cfg/auto-save-file-location 'cache)
+
+  ;; 在缓存中保存rollback slots最大的数量。
+  ;; (default 5)
+  (setq qingeditor/core/user-cfg/max-rollback-slots 5)
+
+  ;; 如果不为`nil'那么helm模式将最小化使用占用空间。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/helm-resize nil)
+
+  ;; 如果不为`nil'，当结果就一个结果时候不显示helm header。
+  (setq qingeditor/core/user-cfg/helm-no-header nil)
+
+  ;; 指定helm在minibuffer的那个位置进行显示。
+  (setq qingeditor/core/user-cfg/helm-position nil)
+
+  ;; 模糊匹配选项，如果设置成`always'那个强制模糊匹配所有非异步的来源。如果
+  ;; 设置成`source'保留各自来源的模糊匹配的设置。`nil'禁止所有的数据来源的模糊匹配。
+  ;; (default 'always)
+  (setq qingeditor/core/user-cfg/helm-use-fuzzy 'always)
+
+  ;; 是否开启`transient-mode'，当开启时按`p'循环粘贴`kill ring'里面的内容。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/enable-paste-transient-state t)
+
+  ;; 按键只能提示的延迟时间，一般是最后一个按键完成开始算起。设置这个选项等价于
+  ;; 设置`which-key-idle-delay'。
+  (setq qingeditor/core/user-cfg/whick-key-delay 0.4)
+
+  ;; `which key'弹出框的位置，可能的值有`bottom'和`right-then-bottom',当设置为
+  ;; `right-then-bottom'先是尝试在右边进行显示，显示不了就在下面显示。
+  ;; (default 'bottom)
+  (setq qingeditor/core/user-cfg/which-key-position 'bottom)
+
+  ;; 设置为`t'将在qingeditor启动的时候显示一个进度条，这个选项开启可能会影响启动速度。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/loading-progress-bar t)
+
+  ;; 是否在初始化的时候全屏显示`qingeditor' frame，这个特性要求(Emacs 24.4+)。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/fullscreen-at-startup nil)
+
+  ;; 不使用原生的全屏接口，用于取消Mac OSX的全屏动画。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/fullscreen-use-non-native nil)
+
+  ;; 在`qingeditor'启动的时候最大化qingeditor frame，这个选项只在
+  ;; `qingeditor/core/user-cfg/fullscreen-at-startup'为`nil'的时候起作用。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/maximized-at-startup nil)
+
+  ;; 设置当前frame的激活的或者选中的时候的透明度，取值范围为(0...100)。
+  ;; (default 90)
+  (setq qingeditor/core/user-cfg/active-transparency 90)
+
+  ;; 设置当前的frame没激活或者没有被选中的透明度，取值的范围为(0...100)。
+  ;; (default 90)
+  (setq qingeditor/core/user-cfg/inactive-transparency 90)
+
+  ;; 如果不为`nil'在transient states显示当前的frame的标题。
+  ;; (default 90)
+  (setq qingeditor/core/user-cfg/show-transient-state-title t)
+
+  ;; 如果不为`nil',那么在transient keys显示彩色的提示信息。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/show-transient-state-color-guide t)
+
+  ;; 是否在`mode-line'显示`unicode'字符。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/show-mode-line-unicode-symbols t)
+
+  ;; 是否开启平滑滚动，如果为`t'则使用原生接口平滑滚动代替Emacs的跳跃滚动方式。
+  ;; (default t)
+  (setq qingeditor/core/user-cfg/smooth-scrolling t)
+
+  ;; 设置为`t'为`prog-mode'和`text-mode'开启行号，如果设置为`relative'则显示相对的行号。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/line-numbers nil)
+
+  ;; 默认的代码折叠方法，可选的值有`evil'和`origami'。
+  ;; (default 'evil)
+  (setq qingeditor/core/user-cfg/folding-method 'evil)
+
+  ;; "当为`t'的时候会在`insert mode'自动插入相应的反向括号，当开启这个想选个的时候可以在`)'之前
+  ;; 按`c-q'暂时来禁止这个行为。(默认为`nil')。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/smart-closing-parenthesis nil)
+
+  ;; 如果这个选项不为`nil'的话`smartparens-strict-mode'将在编程模型。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/smartparens-strict-mode nil)
+
+  ;; 设置高亮显示分割符的范围，可能的作用域选项有`any', `current', `all' 或者 `nil'. 默认是`all'
+  ;; 高亮显示所有的作用域，特别突出当前的作用域
+  ;; (default 'all)
+  (setq qingeditor/core/user-cfg/highlight-delimiters 'all)
+
+  ;; 设置为`t'当用户退出的时候`qingeditor'会提示用户在退出编辑器的时候是否让Emacs服务器继续运行。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/persistent-server nil)
+
+  ;; `qingeditor'支持的搜索工具的名称列表，系统将使用出现在列表第一个的工具。默认支持：
+  ;; `ag', `pt', `ack'和`grep'。
+  ;; (default '("ag" "pt" "ack" "grep"))
+  (setq qingeditor/core/user-cfg/search-tools '("ag" "pt" "ack" "grep"))
+
+  ;; `qingeditor'默认使用的包仓库的源，这个参数暂时还没有启用。
+  ;; (default 'melpa-stable)
+  (setq qingeditor/core/user-cfg/default-package-repository 'melpa-stable)
+
+  ;; "是否在保存`buffer'的时候删除相关的空白符.可能的取值有`all', `trailing', `changed'或者`nil'。
+  ;; `all'侵入式删除的空格，删除所有的空行和内部的连续的空格。`trailing'删除行尾部的空格。`changed'只删除有改动的行的空白。
+  ;; `nil'关闭删除空格的功能。
+  ;; (default nil)
+  (setq qingeditor/core/user-cfg/whitespace-cleanup nil))
+
+(defun qingeditor/user-cfg-custom-init ()
+  "默认的用户包的初始化函数，这个函数在`qingeditor/core/user-cfg-init'函数之后调用，在`qingeditor'初始化之前调用
+您一般可以在这跟函数中设置一些必须在第三方package加载之前设置的变量等等。如果您不确定，您可以把设置代码放在
+函数`qingeditor/core/user-config-setup'中，这个函数在所有的`layer'加载完成后进行调用。")
+
+(defun qingeditor/user-config-setup ()
+  "配置用户自定义的package函数
+这个函数在`qingeditor'初始化完成之后进行调用，次数`qingeditor'所有的层已经完成加载，您应该把大部分的自定义的初始化代码
+都放在这个函数里面，出示您非常确定相关的设置必须在`package'加载之前进行设置。")

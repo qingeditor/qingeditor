@@ -7,7 +7,7 @@
        (no-env-dir-default (expand-file-name
 			    (concat qingeditor/user-home-dir ".qingeditor.d/")))
        (default-init (expand-file-name ".qingeditor" qingeditor/user-home-dir)))
-  (defconst qingeditor/core/editor-cfg/target-cfg-dir
+  (defconst qingeditor/core/user-cfg/target-cfg-dir
     (cond
      ((and env (file-exists-p env-dir))
       env-dir)
@@ -17,14 +17,14 @@
     "首先判断环境变量指定的文件夹，然后判断是否存在`~/.qingeditor.d/'文件夹是否存在，如果
 都存在返回`nil'。")
 
-  (defconst qingeditor/core/editor-cfg/target-cfg-filename
-    (let ((qingeditor-dir-init (when qingeditor/core/editor-cfg/target-cfg-dir
-				 (concat qingeditor/core/editor-cfg/target-cfg-dir
+  (defconst qingeditor/core/user-cfg/target-cfg-filename
+    (let ((qingeditor-dir-init (when qingeditor/core/user-cfg/target-cfg-dir
+				 (concat qingeditor/core/user-cfg/target-cfg-dir
 					 "init.el"))))
       (cond
        (env-init)
        ((file-exists-p default-init) default-init)
-       ((and qingeditor/core/editor-cfg/target-cfg-dir
+       ((and qingeditor/core/user-cfg/target-cfg-dir
 	     (file-exists-p qingeditor-dir-init))
 	qingeditor-dir-init)
        (t default-init)))
@@ -257,7 +257,7 @@
 
 (defun qingeditor/core/user-cfg/user-cfg-filename ()
   "获取`qingeditor'配置文件的绝对路径。"
-  qingeditor/core/editor-cfg/target-cfg-filename)
+  qingeditor/core/user-cfg/target-cfg-filename)
 
 (defun qingeditor/core/user-cfg/load-user-cfg-file ()
   "在家系统探测得到的`qingeditor'的配置文件。"
@@ -290,5 +290,66 @@
                                   "请确定一下是否quote变量名称。") var err))))
             (qingeditor/core/io/warning "变量%s没有指定值" var)))))
     (car config))))
+
+(defun qingeditor/core/user-cfg/maybe-install-user-cfg-file ()
+  "探测`qingeditor'的配置文件是否安装，如果没有安装，我们就认为是全新安装然后进行相关文件的安装。"
+  (unless (file-exists-p qingeditor/core/user-cfg/target-cfg-filename)
+    (qingeditor/ui/editor/set-mode-line " qingeditor配置脚本安装向导")
+    (qingeditor/ui/editor/redisplay)
+    (when (qingeditor/core/user-cfg/install-user-cfg-file 'with-wizard)
+      (qws/layer/layer/sync))))
+
+(defun qingeditor/core/user-cfg/install-user-cfg-file (confirm)
+  "安装用户配置脚本，如果脚本已经存在返回`nil'，如果`confirm'不为`nil'
+那么在安装配置脚本之前会询问用户。"
+  ;; 用户配置是`qingeditoreditor'配置选项的plist，在这里我们进行搜索替换
+  (let ((preferences
+         (when confirm
+           ;; editing style
+           `(("editing-style 'emacs"
+              ,(format
+                "editing-style '%S"
+                (qingeditor/core/user-cfg/ido-completing-read "选择您的偏好编辑风格"
+                                         '(("神的编辑器 (emacs)" emacs)
+                                           ("编辑器之神 (vim)" vim)))
+                ))
+             ("distribution 'qingeditor"
+              ,(format
+                "distribution '%S"
+                (qingeditor/core/user-cfg/ido-completing-read "选择`qingeditor'的发行版类型"
+                                         `(("标准的发行类型，也是推荐的类型 (qingeditor)" qingeditoreditor)
+                                           ( "最小化发行类型，最小化安装 (qingeditor-base)" qingeditoreditor-base)))))
+             ("helm"
+              ,(qingeditor/core/user-cfg/ido-completing-read "选择一个自动补全的框架"
+                                        '(("重量级全功能型补全框架 (helm)" "helm")
+                                          ("轻量级但是也非常强大的框架 (ivy)" "ivy")
+                                          ;; 到目前为止，如果不选的话只有发行类型为`qingeditoreditor-base'的
+                                          ;; 时候才可以。
+                                          ("什么都不选 None (不推荐此选项)" ""))))))))
+    (with-current-buffer (find-file-noselect
+                          (concat qingeditor/template-dir
+                                  ".qingeditor.template"))
+      (dolist (p preferences)
+        (goto-char (point-min))
+        (re-search-forward (car p))
+        (replace-match (cadr p)))
+      (let* ((init-filename qingeditor/core/user-cfg/target-cfg-filename)
+             (install
+              (if (file-exists-p init-filename)
+                  (y-or-n-p
+                   (format "%s 已经存在，您想要覆盖它吗？"
+                           init-filename)) t)))
+        (when install
+          (write-file init-filename)
+          (qingeditor/core/message "配置脚本%s已经成功安装。" init-filename)
+          t))))
+  (load-file qingeditor/core/user-cfg/target-cfg-filename))
+
+(defun qingeditor/core/user-cfg/ido-completing-read (prompt candidates)
+  "调用`ido-completing-read'，传入`CANDIDATES'，键是显示出来的字符串，值是实际返回的值。"
+  (let ((ido-max-window-height (1+ (length candidates))))
+    (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates))
+                 candidates))))
+
 
 (provide 'qingeditor-user-cfg)

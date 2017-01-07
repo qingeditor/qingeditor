@@ -18,7 +18,7 @@
 (defvar qingeditor/core/runtime/initialized nil
   "标志变量，显示当前`qingeditor'是否已经初始化完成，这个字段会在`emacs-startup-hook'，里面进行设置。")
 
-(defvar qingeditor/core/runtime/fresh-install (file-exists-p qingeditor/core/editor-cfg/target-cfg-filename)
+(defvar qingeditor/core/runtime/fresh-install (file-exists-p qingeditor/core/user-cfg/target-cfg-filename)
   "判断是否是全新安装`qingeditor'。")
 
 (defun qingeditor/core/runtime/increment-error-count ()
