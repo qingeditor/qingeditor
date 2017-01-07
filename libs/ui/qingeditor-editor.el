@@ -24,10 +24,6 @@
   (expand-file-name (concat qingeditor/banner-dir "img/heart.png"))
   "`qingeditor'官方心跳图标的文件名")
 
-(defvar qingeditor/ui/editor/badge-official-png
-  (expand-file-name (concat qingeditor/banner-dir "img/qingeditor-badge.png"))
-  "`qingeditor'官方徽章文件名")
-
 (defvar qingeditor/ui/editor/init-redisplay-count 0 "`qingeditor'初始化刷新计数器。")
 
 (defvar qingeditor/ui/editor/after-display-system-init-list-hooks '()

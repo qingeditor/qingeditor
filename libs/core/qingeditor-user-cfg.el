@@ -297,7 +297,7 @@
     (qingeditor/ui/editor/set-mode-line " qingeditor配置脚本安装向导")
     (qingeditor/ui/editor/redisplay)
     (when (qingeditor/core/user-cfg/install-user-cfg-file 'with-wizard)
-      (qws/layer/layer/sync))))
+      (qingeditor/layer/layer/sync))))
 
 (defun qingeditor/core/user-cfg/install-user-cfg-file (confirm)
   "安装用户配置脚本，如果脚本已经存在返回`nil'，如果`confirm'不为`nil'
@@ -350,6 +350,5 @@
   (let ((ido-max-window-height (1+ (length candidates))))
     (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates))
                  candidates))))
-
 
 (provide 'qingeditor-user-cfg)

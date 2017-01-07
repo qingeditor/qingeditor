@@ -101,12 +101,6 @@
   "渲染`QingEditor'的底部一些界面。"
   (save-excursion
     (let* ((maxcol qingeditor/ui/editor-drawer/banner-length-private)
-           (badge-path qingeditor/ui/editor/badge-official-png)
-           (badge (when (and (display-graphic-p)
-                             (image-type-available-p
-                              (intern (file-name-extension badge-path))))
-                    (create-image badge-path)))
-           (badge-size (when badge (car (image-size badge))))
            (heart-path qingeditor/ui/editor/purple-heart-png)
            (heart (when (and (display-graphic-p)
                              (image-type-available-p
@@ -116,16 +110,11 @@
            (build-lhs "Made with ")
            (build-rhs " by the community")
            (buffer-read-only nil))
-      (when (or badge heart)
+      (when heart
         (goto-char (point-max))
         (qingeditor/ui/editor/insert-page-break)
         (insert "\n")
-        (when badge
-          (insert (make-string (floor (/ (- maxcol badge-size) 2)) ?\ ))
-          (insert-image badge))
         (when heart
-          (when badge
-            (insert "\n\n"))
           (insert (make-string (floor (/ (- maxcol
                                             (length build-lhs)
                                             heart-size
