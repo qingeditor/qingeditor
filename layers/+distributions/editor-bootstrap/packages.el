@@ -79,6 +79,5 @@
          which-key-sort-order 'which-key-key-order-alpha
          which-key-idle-delay qingeditor/core/user-cfg/which-key-delay
          which-key-allow-evil-operators t)
-
    (which-key-mode)
    (qingeditor/ui/editor-font/diminish which-key-mode " Ⓚ" " k"))
