@@ -61,7 +61,7 @@
       (concat qingeditor/core/user-cfg/emacs-leader-key " " qingeditor/core/user-cfg/emacs-command-key) "M-x")
 
    (which-key-declare-prefixes
-     qingeditor/core/user-cfg/emacs-leader-key '("root" . "qingeditor根空间")
+     qingeditor/core/user-cfg/emacs-leader-key '("root" . "qingeditor主按键映射")
      (concat qingeditor/core/user-cfg/emacs-leader-key " m")
      '("major-mode-cmd" . "主模式命令"))
 

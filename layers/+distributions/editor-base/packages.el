@@ -11,9 +11,6 @@
     (electric-indent-mode :location built-in)
     (ediff :location built-in)
     (eldoc :location built-in)
-    evil-escape
-    (evil-evilified-state :location local :step pre :protected t)
-    evil-visualstar
     (exec-path-from-shell :step pre)
     help-fns+
     (hi-lock :location built-in)
@@ -62,14 +59,18 @@
       ;; 设置`ace-window'按键到`home-row'
       (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))))
 
-(defun qingeditor/editor-base/init-archive-mode ()
-  ;;;(evilified-state-evilify-map
-  ;; archive-mode-map
-  ;; :mode archive-mode
-  ;; :eval-after-load archive-mode)
-  )
+(defun qingeditor/editor-base/init-archive-mode ())
 
-(defun qingeditor/editor-base/init-bookmark ())
+(defun qingeditor/editor-base/init-bookmark ()
+  (use-package bookmark
+    :defer t
+    :init
+    (progn
+      (setq bookmark-default-file (concat qingeditor/cache-dir "bookmarks")
+	    ;; 自动保存每一次改变
+	    bookmark-save-flag 1)
+      (qingeditor/core/key-binder/set-leader-keys "fb" 'bookmark-jump))))
+
 (defun qingeditor/editor-base/init-centered-buffer-mode ())
 (defun qingeditor/editor-base/init-conf-mode ())
 (defun qingeditor/editor-base/init-dired ())

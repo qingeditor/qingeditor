@@ -6,7 +6,7 @@
   "将命令的缩写映射到全名的`alist'。")
 
 (defvar qingeditor/core/key-binder/default-map (make-sparse-keymap)
-  "所有的qingeditoreditor leader按键命令的基础`keymap'。")
+  "所有的qingeditor leader按键命令的基础`keymap'。")
 
 (defun qingeditor/core/key-binder/translate-C-i (_)
   "If `qingeditor/core/user-cfg/distinguish-gui-tab' is non nil, the raw key
@@ -69,9 +69,9 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
         (which-key-declare-prefixes-for-mode mode major-mode-prefix-emacs prefix-name)))))
 
 (defun qingeditor/core/key-binder/set-leader-keys (key def &rest bindings)
-  "在`qingeditor/core/user-cfg/leader-key'和`qingeditor/core/user-cfg/emacs-leader-key'下面添加按键`key'和这个按键的
-绑定。`key'必须是一个能用在`kbd'里面的字符串，`def'是一个命令的名称。详情可以看`define-key'，这个函数文档有对
-`def'格式有详细的描述。
+  "在`qingeditor/core/user-cfg/leader-key'和`qingeditor/core/user-cfg/emacs-leader-key'
+下面添加按键`key'和这个按键的绑定。`key'必须是一个能用在`kbd'里面的字符串，`def'是一个命令的名称。
+详情可以看`define-key'，这个函数文档有对`def'格式有详细的描述。
 为了方便，这个函数接受一下的键值对
 
 \(qingeditor/core/key-binder/set-leader-keys
@@ -82,9 +82,7 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
     (define-key qingeditor/core/key-binder/default-map (kbd key) def)
     (setq key (pop bindings)
           def (pop bindings))))
-
 (put 'qingeditor/core/key-binder/set-leader-keys 'lisp-indent-function 'defun)
-(defalias 'evil-leader/set-key 'qingeditor/core/key-binder/set-leader-keys)
 
 (defun qingeditor/core/key-binder/acceptable-leader-p (key)
   "当`key'是一个字符串并且不为空的时候返回`t'。"
@@ -95,13 +93,6 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
 和`qingeditor/core/user-cfg/major-mode-emacs-leader-key'。如果`mode'是minor mode，那么第三个
 参数不能为`nil'。"
   (let* ((prefix (intern (format "%s-prefix" map)))
-         (leader1 (when (qingeditor/core/key-binder/acceptable-leader-p
-                         qingeditor/core/user-cfg/major-mode-leader-key)
-                    qingeditor/core/user-cfg/major-mode-leader-key))
-         (leader2 (when (qingeditor/core/key-binder/acceptable-leader-p
-                         qingeditor/core/user-cfg/leader-key)
-                    (concat qingeditor/core/user-cfg/leader-key
-                            (unless minor " m"))))
          (emacs-leader1 (when (qingeditor/core/key-binder/acceptable-leader-p
                                qingeditor/core/user-cfg/major-mode-emacs-leader-key)
                           qingeditor/core/user-cfg/major-mode-emacs-leader-key))
@@ -109,7 +100,6 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
                                qingeditor/core/user-cfg/emacs-leader-key)
                           (concat qingeditor/core/user-cfg/emacs-leader-key
                                   (unless minor " m"))))
-         (leaders (delq nil (list leader1 leader2)))
          (emacs-leaders (delq nil (list emacs-leader1 emacs-leader2))))
     (or (boundp prefix)
         (progn
@@ -117,16 +107,15 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
            `(bind-map ,map
               :prefix-cmd ,prefix
               ,(if minor :minor-modes :major-modes) (,mode)
-              :keys ,emacs-leaders
-              :evil-keys ,leaders
-              :evil-states (normail motion visual evilifies)))
+              :keys ,emacs-leaders))
           (boundp prefix)))))
 
 (defun qingeditor/core/key-binder/set-leader-keys-for-major-mode (mode key def &rest bindings)
-  "在`qingeditor/core/user-cfg/major-mode-leader-key'和`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
+  "在`qingeditor/core/user-cfg/major-mode-leader-key'和
+`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
 下为`mode'增加按键绑定`key'->`def',`mode'必须是一个quote符号并且是major mode。其他的参数函数跟在
 函数`qingeditor/core/kye-binder/set-leader-keys'里面一样。"
-  (let* ((map (intern (format "qingeditoreditor-%s-map" mode))))
+  (let* ((map (intern (format "qingeditor-%s-map" mode))))
     (when (qingeditor/core/key-binder/init-leader-mode-map mode map)
       (while key
         (define-key (symbol-value map) (kbd key) def)
@@ -134,13 +123,12 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
               def (pop bindings))))))
 (put 'qingeditor/core/key-bninder/set-leader-keys-for-major-mode 'lisp-indent-function 'defun)
 
-(defalias 'evil-leader/set-key-for-mode 'qingeditor/core/key-binder/set-leader-keys-for-major-mode)
-
 (defun qingeditor/core/key-binder/set-leader-keys-for-minor-mode (mode key def &rest bindings)
-  "在`qingeditor/core/user-cfg/major-mode-leader-key'和`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
+  "在`qingeditor/core/user-cfg/major-mode-leader-key'和
+`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
 下为`mode'增加按键绑定`key'->`def',`mode'必须是一个quote符号并且是minor mode。其他的参数函数跟在
 函数`qingeditor/core/kye-binder/set-leader-keys'里面一样。"
-  (let* ((map (intern (format "qingeditoreditor-%s-map" mode))))
+  (let* ((map (intern (format "qingeditor-%s-map" mode))))
     (when (qingeditor/core/key-binder/init-leader-mode-map mode map t)
       (while key
         (define-key (symbol-value map) (kbd key) def)
@@ -151,12 +139,6 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
 (defun qingeditor/core/key-binder/create-key-binding-form (props func)
   "帮助函数，根据`props'绑定一个`key'到`func'。
 支持的属性有：
-`:evil-leader string'
-     一个或者多个按键序列，使用`qingeditor/core/key-binder/set-leader-keys'进行设置。
-
-`evil-leader-for-mode cons cell'
-     一个或者多个cons cell \(MODE . KEY\)其中`mode'的主模式的符号, `key'是一个字符序列，使用
-`qingeditor/core/key-binder/set-leader-keys-for-major-mode'进行设置。
 
 `:global-key string'
      一个或者多个按键序列，调用`global-set-key'进行设置。
@@ -164,18 +146,9 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
 `:define-key cons cell'
      一个或者多个cons cell \(MAP . KEY\)，其中`map'是一个`keymap',`key'是一个
 按键序列，使用`define-key'进行设置。"
-  (let ((evil-leader (qingeditor/core/mplist-get props :evil-leader))
-        (evil-leader-for-mode (qingeditor/core/mplist-get props :evil-leader-for-mode))
-        (global-key (qingeditor/core/mplist-get props :global-key))
+  (let ((global-key (qingeditor/core/mplist-get props :global-key))
         (def-key (qingeditor/core/mplist-get props :define-key)))
     (append
-     (when evil-leader
-       `((dolist (key ',evil-leader)
-           (qingeditor/core/key-binder/set-leader-keys key ',func))))
-     (when evil-leader-for-mode
-       `((dolist (val ',evil-leader-for-mode)
-           (qingeditor/core/key-binder/set-leader-keys-for-major-mode
-            (car val) (cdr val) ',func))))
      (when global-key
        `((dolist (key ',global-key)
            (global-set-key (kbd key) ',func))))
