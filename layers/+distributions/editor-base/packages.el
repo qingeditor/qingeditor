@@ -83,12 +83,38 @@
     "jd" 'dired-jump
     "jD" 'dired-jump-other-window))
 
+(defun qingeditor/editor-base/init-dired-x ()
+  (use-package dired-x
+    :commands (dired-jump
+	       dired-jump-other-window
+	       dired-omit-mode)))
+
+(defun qingeditor/editor-base/init-electric-indent-mode ()
+  (electric-indent-mode))
+
+(defun qingeditor/editor-base/init-visual-line-mode ()
+  (qingeditor/ui/editor-font/diminish visual-line-mode " Ⓛ" " L"))
+
 (defun qingeditor/editor-base/init-centered-buffer-mode ())
 
+(defun qingeditor/editor-base/init-ediff ()
+  (use-package ediff
+    :defer t
+    :init
+    (progn
+      ;; 首先我们先设置一些默认配置
+      (setq-default
+       ediff-window-setup-function 'ediff-setup-window-plain
+       ;; TODO
+       ;; 这里的配置需要检查，因为我们不是evil为基础的
+       ediff-split-window-function 'split-window-horizontally
+       ediff-merge-split-window-function 'split-window-horizentally)
+      ;; 使用org ediff展开
+      (require 'outline)
+      (add-hook 'ediff-prepare-buffer-hook #'show-all)
+      ;; 完成比较之后恢复窗口布局
+      (add-hook 'ediff-quit-hook #'winner-undo))))
 
-(defun qingeditor/editor-base/init-dired-x ())
-(defun qingeditor/editor-base/init-electric-indent-mode ())
-(defun qingeditor/editor-base/init-ediff ())
 (defun qingeditor/editor-base/init-eldoc ())
 (defun qingeditor/editor-base/init-evil-escape ())
 
@@ -121,6 +147,6 @@
 (defun qingeditor/editor-base/init-tar-mode ())
 (defun qingeditor/editor-base/init-uniquify ())
 (defun qingeditor/editor-base/init-url ())
-(defun qingeditor/editor-base/init-visual-line-mode ())
+
 (defun qingeditor/editor-base/init-whitespace ())
 (defun qingeditor/editor-base/init-winner ())
