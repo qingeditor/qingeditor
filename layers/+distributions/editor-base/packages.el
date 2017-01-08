@@ -71,9 +71,21 @@
 	    bookmark-save-flag 1)
       (qingeditor/core/key-binder/set-leader-keys "fb" 'bookmark-jump))))
 
+(defun qingeditor/editor-base/init-conf-mode ()
+  ;; 初始化
+  ;; 强制的指定`conf-mode'继承`text-mode'和`major-mode'。
+  (add-hook 'conf-mode-hook 'qingeditor/core/run-text-mode-hooks))
+
+(defun qingeditor/editor-base/init-dired ()
+  (qingeditor/core/key-binder/set-leader-keys
+    "ad" 'dired
+    "fj" 'dired-jump
+    "jd" 'dired-jump
+    "jD" 'dired-jump-other-window))
+
 (defun qingeditor/editor-base/init-centered-buffer-mode ())
-(defun qingeditor/editor-base/init-conf-mode ())
-(defun qingeditor/editor-base/init-dired ())
+
+
 (defun qingeditor/editor-base/init-dired-x ())
 (defun qingeditor/editor-base/init-electric-indent-mode ())
 (defun qingeditor/editor-base/init-ediff ())

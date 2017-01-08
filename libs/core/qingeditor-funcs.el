@@ -60,4 +60,8 @@
       (window-configuration-to-register ?_)
       (delete-other-windows))))
 
+(defun qingeditor/core/run-text-mode-hooks ()
+  "运行`text-mode-hook'。这个函数对那些不是从`text-mode'继承而来的`mode'非常有用。"
+  (run-hooks 'text-mode-hook))
+
 (provide 'qingeditor-funcs)
