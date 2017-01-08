@@ -234,9 +234,6 @@
     map)
   "qingeditor buffer的keymap。")
 
-(with-eval-after-load 'evil
-  (evil-make-overriding-map qingeditor-buffer-mode-map 'motion))
-
 (define-derived-mode qingeditor-buffer-mode fundamental-mode "qingeditor buffer"
   "开始欢迎页面的buffer mode定义。
 
@@ -246,12 +243,7 @@
   :abbrev-table nil
   (page-break-lines-mode)
   (setq buffer-read-only t
-        truncate-lines t)
-  ;; needed to make tab work correctly in terminal
-  (evil-define-key 'motion qingeditor-buffer-mode-map
-    (kbd "C-i") 'widget-forward)
-  ;; motion state since this is a special mode
-  (evil-set-initial-state 'qingeditor-buffer-mode 'motion))
+        truncate-lines t))
 
 (defun qingeditor/ui/editor/display-summary (start-time)
   "显示一个加载统计信息。"
