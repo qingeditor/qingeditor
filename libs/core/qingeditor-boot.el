@@ -50,8 +50,8 @@
                                 (qingeditor/ui/editor-theme/get-theme-pkg-by-name theme))
                               qingeditor/core/user-cfg/themes))
                    qingeditor/pkg/installer/protected-packages))
-    (setq qingeditor/ui/editor-theme/cur-theme-private default-theme)
-    (setq qingeditor/ui/editor-theme/cycle-themes-private
+    (setq-default qingeditor/ui/editor-theme/cur-theme-private default-theme)
+    (setq-default qingeditor/ui/editor-theme/cycle-themes-private
 	  (cdr qingeditor/core/user-cfg/themes)))
   ;; 设置字体
   (qingeditor/ui/editor/render-loading-text)

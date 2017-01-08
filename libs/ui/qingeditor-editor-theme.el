@@ -179,6 +179,7 @@
 
 (defun qingeditor/ui/editor-theme/run-post-theme-init (theme)
   "在主题加载之后我们通常是需要做一些处理的，我们可以将处理函数放在钩子函数里面。"
+  (interactive)
   (run-hooks 'qingeditor/gvars/post-theme-change-hook))
 
 (defun qingeditor/ui/editor-theme/get-theme-pkg-by-name (theme)
@@ -192,5 +193,13 @@
     (cdr (assq theme qingeditor/ui/editor-theme/theme-name-to-package-alist)))
    ;; 容错处理情况
    (t (intern (format "%S-theme" theme)))))
+
+(defadvice load-theme (after qingeditor/ui/editor-theme/load-theme-adv activate)
+  "执行一些主题加载后的处理。"
+  (let ((theme (ad-get-arg 0)))
+    ;; 没有这个保护，当设置一个自由变量的时候`Emacs 25'没每次启动都会抛出错误
+    (with-no-warnings
+      (setq qingeditor/ui/editor-theme/cur-theme-private theme))
+    (qingeditor/ui/editor-theme/run-post-theme-init theme)))
 
 (provide 'qingeditor-editor-theme)
