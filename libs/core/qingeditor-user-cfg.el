@@ -90,20 +90,12 @@
 (defvar qingeditor/core/user-cfg/colorize-cursor-according-to-state t
   "如果不为`nil' GUI Emacs将会对匹配的括号进行着色。")
 
-(defvar qingeditor/core/user-cfg/leader-key "SPC"
-  "`qingeditor'默认的`leader key'。")
 
 (defvar qingeditor/core/user-cfg/emacs-leader-key "M-m"
   "`qingeditor'的`emacs state'和`insert state'默认的`leader key'。")
 
-(defvar qingeditor/core/user-cfg/major-mode-leader-key ","
-  "`qingeditor'的`major leader key'是`<leader> m'快捷方式。设置成`nil'禁止这个行为。")
-
 (defvar qingeditor/core/user-cfg/major-mode-emacs-leader-key  "C-M-m"
   "`qingeditor''在`emacs state'和`insert state'的leader key。")
-
-(defvar qingeditor/core/user-cfg/ex-command-key ":"
-  "Vim Ex命令模式激活key。")
 
 (defvar qingeditor/core/user-cfg/emacs-command-key "SPC"
   "当按了`leader key'之后执行Emacs command (M-x)命令的`key'。")
@@ -120,19 +112,8 @@
 						:width normal
 						:powerline-scale 1.1))
   
-(defvar qingeditor/core/user-cfg/remap-Y-to-y$ nil
-  "当不为`nil'的时候，在Evil mode中将`Y'按键remapped为$y。")
 
-(defvar qingeditor/core/user-cfg/retain-visual-state-on-shift t
-  "如果不为`nil', shit mappings `<'和`>'按键将保持可视模式。")
-
-(defvar qingeditor/core/user-cfg/visual-line-move-text nil
-  "当不为`nil'在visual mode按键`J'和`K'将往上和往下移动行。")
-
-(defvar qingeditor/core/user-cfg/ex-substitute-global nil
-  "If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command。")
-
-(defvar qingeditor/core/user-cfg/folding-method 'evil
+(defvar qingeditor/core/user-cfg/folding-method 'origami
   "默认的代码折叠方法，可选的值有`evil'和`origami'。")
 
 (defvar qingeditor/core/user-cfg/default-layout-name

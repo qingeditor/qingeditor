@@ -45,44 +45,40 @@
     :documentation "在一个`buffer'里面显示可用的按键绑定。")
    (qingeditor/core/key-binder/set-leader-keys "hk" 'which-key-show-top-level)
 
-;;   ;; 更好的函数名的替换规则
-;;   (let ((new-description
-;;          ;; being higher in this list means the replacement is applied later
-;;          '(
-;;            ("qingeditor/core/\\(.+\\)" . "\\1")
-;;            ("qingeditor/core/toggle/toggle-\\(.+\\)" . "\\1")
-;;            ("select-window-\([0-9]\)" . "window \\1"))))
-;;     (dolist (nd new-description)
-;;       (push (cons (concat "\\`" (car nd) "\\'") (cdr nd))
-;;             which-key-description-replacement-alist)))
-;;   (dolist (leader-key `(,qingeditor/core/user-cfg/leader-key ,qingeditor/core/user-cfg/emacs-leader-key))
-;;     (which-key-add-key-based-replacements
-;;       (concat leader-key " m") "主模式命令"
-;;       (concat leader-key " " qingeditor/core/user-cfg/emacs-command-key) "M-x"))
+   ;; 更好的函数名的替换规则
+   (let ((new-description
+          ;; being higher in this list means the replacement is applied later
+          '(
+            ("qingeditor/core/\\(.+\\)" . "\\1")
+            ("qingeditor/core/toggle/toggle-\\(.+\\)" . "\\1")
+            ("select-window-\([0-9]\)" . "window \\1"))))
+     (dolist (nd new-description)
+       (push (cons (concat "\\`" (car nd) "\\'") (cdr nd))
+             which-key-description-replacement-alist)))
+  
+     (which-key-add-key-based-replacements
+      (concat qingeditor/core/user-cfg/emacs-leader-key " m") "主模式命令"
+      (concat qingeditor/core/user-cfg/emacs-leader-key " " qingeditor/core/user-cfg/emacs-command-key) "M-x")
 
-;;   (which-key-declare-prefixes
-;;     qingeditor/core/user-cfg/leader-key '("root" . "qingeditor根空间")
-;;     qingeditor/core/user-cfg/emacs-leader-key '("root" . "qingeditor根空间")
-;;     (concat qingeditor/core/user-cfg/leader-key " m")
-;;     '("major-mode-cmd" . "主模式命令")
-;;     (concat qingeditor/core/user-cfg/emacs-leader-key " m")
-;;     '("major-mode-cmd" . "主模式命令"))
+   (which-key-declare-prefixes
+     qingeditor/core/user-cfg/emacs-leader-key '("root" . "qingeditor根空间")
+     (concat qingeditor/core/user-cfg/emacs-leader-key " m")
+     '("major-mode-cmd" . "主模式命令"))
 
-;;   ;; 禁止`qingeditor'特殊按键，因为如果你不理解它，可能使你迷惑。
-;;   (pcase qingeditor/core/user-cfg/which-key-position
-;;     (`right (which-key-setup-side-window-right))
-;;     (`bottom (which-key-setup-side-window-bottom))
-;;     (`right-then-bottom (which-key-setup-side-window-right-bottom)))
+   ;; 禁止`qingeditor'特殊按键，因为如果你不理解它，可能使你迷惑。
+   (pcase qingeditor/core/user-cfg/which-key-position
+     (`right (which-key-setup-side-window-right))
+     (`bottom (which-key-setup-side-window-bottom))
+     (`right-then-bottom (which-key-setup-side-window-right-bottom)))
 
-;;   (setq which-key-special-keys nil
-;;         which-key-use-C-h-for-paging t
-;;         which-key-prevent-C-h-from-cycling t
-;;         which-key-echo-keystrokes 0.02
-;;         which-key-max-description-length 32
-;;         which-key-sort-order 'which-key-key-order-alpha
-;;         which-key-idle-delay qingeditor/core/user-cfg/which-key-delay
-;;         which-key-allow-evil-operators t)
+   (setq which-key-special-keys nil
+         which-key-use-C-h-for-paging t
+         which-key-prevent-C-h-from-cycling t
+         which-key-echo-keystrokes 0.02
+         which-key-max-description-length 32
+         which-key-sort-order 'which-key-key-order-alpha
+         which-key-idle-delay qingeditor/core/user-cfg/which-key-delay
+         which-key-allow-evil-operators t)
 
-;;   (which-key-mode)
-   ;;   (qingeditor/ui/editor-font/diminish which-key-mode " Ⓚ" " k")
-   )
+   (which-key-mode)
+   (qingeditor/ui/editor-font/diminish which-key-mode " Ⓚ" " k"))
