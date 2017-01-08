@@ -20,6 +20,7 @@
     (qingeditor/editor-bootstrap/state-color-face state)))
 
 (defun qingeditor/editor-bootstrap/set-state-faces ()
+  (message "xiuxiux")
   (cl-loop for (state color cursor) in qingeditor/editor-bootstrap/evil-cursors
            do
            (set-face-attribute (intern (format "qingeditor/editor-bootstrap/%s-face" state))

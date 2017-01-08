@@ -130,7 +130,7 @@
 (defface qingeditor/ui/org-kbd
   '((t (:background "LemonChiffon1" :foreground "black" :box
                     (:line-width 2 :color nil :style release-button))))
-  "在QingeditorEditor文档中显示key binding的face设置。"
+  "在Qingeditor文档中显示key binding的face设置。"
   :group 'org-faces)
 
 (defun qingeditor/ui/editor-theme/load-theme (theme)
@@ -163,7 +163,7 @@
     ('error
      (setq theme 'default)
            (display-warning
-            'qingeditoreditor
+            'qingeditor
             (format "加载主题包出错，系统将使用默认主题，错误信息：%s" err)
             :warning)))
   (mapc 'disable-theme custom-enabled-themes)
@@ -181,19 +181,13 @@
   "在主题加载之后我们通常是需要做一些处理的，我们可以将处理函数放在钩子函数里面。"
   (run-hooks 'qingeditor/gvars/post-theme-change-hook))
 
-(defun qingeditor/ui/run-post-theme-init (theme)
-  "在主题加载之后我们通常是需要做一些处理的，我们可以将处理函数放在钩子函数里面。
-暂时参数`theme'没有使用。"
-  (interactive)
-  (qingeditor-run-post-theme-init qingeditor/ui/editor-theme theme))
-
 (defun qingeditor/ui/editor-theme/get-theme-pkg-by-name (theme)
   "通过主题的名称获取这个主题的ELPA的软件包的名称。"
   (cond
    ;; 首先判断是否是内置的主题
    ((memq theme qingeditor/ui/editor-theme/emacs-build-in-themes)
     nil)
-   ;; 判断是否在我们的QingeditorEditor的主题列表里面
+   ;; 判断是否在我们的`qingeditor'的主题列表里面
    ((assq theme qingeditor/ui/editor-theme/theme-name-to-package-alist)
     (cdr (assq theme qingeditor/ui/editor-theme/theme-name-to-package-alist)))
    ;; 容错处理情况

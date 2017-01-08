@@ -15,6 +15,7 @@
 (require 'qingeditor-key-binder)
 (require 'qingeditor-transient-state)
 (require 'qingeditor-toggle)
+(require 'qingeditor-release-mgr)
 
 ;; 负责`qingeditor'用户界面绘制
 (require 'qingeditor-editor)
@@ -69,5 +70,38 @@
   (setq inhibit-startup-screen t)
   (qingeditor/ui/editor/register-window-setup-hooks)
   (qingeditor/ui/editor/draw)
-  )
+   (unless (display-graphic-p)
+    ;; 当时命令行启动，为了能正确的显示logo我们再次手动创建QwsEditor buffer
+    (qingeditor/ui/do-after-display-system-init
+     (kill-buffer (get-buffer qingeditor/ui/editor/buffer-name))
+     (qingeditor/ui/editor/draw)))
+  ;; 设置这个参数，为了在启动期间让`qingeditor'像命令行参数那样显示buffer
+  (setq initial-buffer-choice nil)
+  (unless (fboundp 'tool-bar-mode)
+    (qingeditor/core/io/message (concat "当前的环境不支持图形渲染，"
+					"你将不能开启Emacs的图形实例。")))
+  ;; 检查新版本符号
+  (if qingeditor/core/user-cfg/show-mode-line-unicode-symbols
+      (setq qingeditor/pkg/release-mgr/version-check-lighter "[⇪]")))
+
+(defun qingeditor/core/boot/setup-startup-hook ()
+  "这个函数处理一些layer配置层加载完成之后的一些设置。"
+  (add-hook
+   'emacs-startup-hook
+   (lambda ()
+     ;; 在这个地方设置`init-buffer-choice'便于emacs client显示`qingeditor'的欢迎界面
+     ;; 在这个步骤之前我们将`init-buffer-choice'设置为`nil'是为了正常去处理命令行参数
+     (setq initial-buffer-choice (lambda () (get-buffer qingeditor/ui/editor/buffer)))
+     ;; 调用配置脚本中定义的配置设置函数
+     (qingeditor/core/call-func qws/user-cfg-setup "正在调用配置文件用户自定义配置函数...")
+     (run-hooks 'qingeditor/gvars/post-user-cfg-hook)
+     (setq qingeditor/gvars/post-user-cfg-hook-run t)
+     (when (fboundp qingeditor/core/user-cfg/scratch-mode)
+       (with-current-buffer "*scratch*"
+         (funcall qingeditor/core/user-cfg/scratch-mode)))
+     (qingeditor/ui/editor/display-summary qingeditor/start-time)
+     (qingeditor/pkg/release-mgr/check-for-new-version
+      nil qingeditor/pkg/release-mgr/version-check-interval)
+     (setq qingeditor/core/runtime/initialized t))))
+
 (provide 'qingeditor-boot)

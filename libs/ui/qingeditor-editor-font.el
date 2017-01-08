@@ -28,7 +28,7 @@
           (push `(font . ,(frame-parameter nil 'font)) default-frame-alist)
           (setq-default powerline-scale scale)
           (setq-default powerline-height (qingeditor/ui/editor-font/compute-powerline-height))
-          ;; qingeditoreditor最终的容错字体
+          ;; qingeditor最终的容错字体
           (pcase system-type
             (`gnu/linux
              (setq fallback-font-name "NanumGothic")

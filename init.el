@@ -17,6 +17,10 @@
   (qingeditor/core/boot/init)
   (qingeditor/core/user-cfg/maybe-install-user-cfg-file)
   (qingeditor/layer/layer/sync)
+  ;(qingeditor/ui/editor/display-info-box)
+  (qingeditor/core/boot/setup-startup-hook)
+  (require 'server)
+  (unless (server-running-p) (server-start))
   )
 
 (custom-set-variables
