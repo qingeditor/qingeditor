@@ -4,7 +4,6 @@
     ace-window
     (archive-mode :location built-in)
     (bookmark :location built-in)
-    (centered-buffer-mode :location local)
     (conf-mode :location built-in)
     (dired :location built-in)
     (dired-x :location built-in)
@@ -14,8 +13,6 @@
     (exec-path-from-shell :step pre)
     help-fns+
     (hi-lock :location built-in)
-    (holy-mode :location local :step pre)
-    (hybrid-mode :location local :step pre)
     (image-mode :location built-in)
     (imenu :location built-in)
     (linum :location built-in)
@@ -95,8 +92,6 @@
 (defun qingeditor/editor-base/init-visual-line-mode ()
   (qingeditor/ui/editor-font/diminish visual-line-mode " Ⓛ" " L"))
 
-(defun qingeditor/editor-base/init-centered-buffer-mode ())
-
 (defun qingeditor/editor-base/init-ediff ()
   (use-package ediff
     :defer t
@@ -115,21 +110,35 @@
       ;; 完成比较之后恢复窗口布局
       (add-hook 'ediff-quit-hook #'winner-undo))))
 
-(defun qingeditor/editor-base/init-eldoc ())
-(defun qingeditor/editor-base/init-evil-escape ())
+(defun qingeditor/editor-base/init-eldoc ()
+  (use-package eldoc
+    :defer t
+    :config
+    (progn
+      ;; 执行`eval-expression'的时候打开`eldoc'模式
+      (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+      ;; 进入IELM的时候打开`eldoc'模式
+      (add-hook 'ielm-mode-hook #'eldoc-mode)
+      ;; 不在`mode-line'显示`eldoc'的指示字符
+      (qingeditor/ui/editor-font/hide-lighter eldoc-mode))))
 
-(defun qingeditor/editor-base/init-evil-evilified-state ()
-  ;; (use-package evil-evilified-state)
-  ;; (define-key evil-qingeditor-evilified-state-map
-  ;;   (kbd qingeditor/core/user-cfg/leader-key) qingeditor/core/key-binder/default-map)
-  )
+(defun qingeditor/editor-base/init-exec-path-from-shell ()
+  (use-package exec-path-from-shell
+    :init
+    (when (or (qingeditor/runtime/system-is-mac)
+	      (qingeditor/runtime/system-is-linux)
+	      (memq window-system '(x)))
+      (exec-path-from-shell-initialize))))
 
-(defun qingeditor/editor-base/init-evil-visualstar ())
-(defun qingeditor/editor-base/init-exec-path-from-shell ())
-(defun qingeditor/editor-base/init-help-fns+ ())
-(defun qingeditor/editor-base/init-hi-lock ())
-(defun qingeditor/editor-base/init-holy-mode ())
-(defun qingeditor/editor-base/init-hybrid-mode ())
+(defun qingeditor/editor-base/init-help-fns+ ()
+  (use-package help-fns+
+    :commands (describe-keymap)
+    :init (qingeditor/core/key-binder/set-leader-keys "hdK" 'describe-keymap)))
+
+(defun qingeditor/editor-base/init-hi-lock ()
+  (with-eval-after-load 'hi-lock
+    (qingeditor/ui/editor-font/hide-lighter hi-lock-mode)))
+
 (defun qingeditor/editor-base/init-image-mode ())
 (defun qingeditor/editor-base/init-imenu ())
 (defun qingeditor/editor-base/init-linum ())
