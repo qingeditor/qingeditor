@@ -160,8 +160,14 @@
 	      :after #'qingeditor/editor-base/linum-update-window-scale-fix))
 
 (defun qingeditor/editor-base/init-occur-mode ())
+
 (defun qingeditor/editor-base/init-package-menu ())
-(defun qingeditor/editor-base/init-page-break-lines ())
+
+(defun qingeditor/editor-base/init-page-break-lines ()
+  (require 'page-break-lines)
+  (global-page-break-lines-mode t)
+  (qingeditor/ui/editor-font/hide-lighter page-break-lines-mode))
+
 (defun qingeditor/editor-base/init-pcre2el ())
 (defun qingeditor/editor-base/init-process-menu ())
 (defun qingeditor/editor-base/init-projectile ())
