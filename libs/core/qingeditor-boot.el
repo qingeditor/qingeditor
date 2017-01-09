@@ -44,15 +44,15 @@
   (let ((default-theme (car qingeditor/core/user-cfg/themes)))
     (qingeditor/ui/editor-theme/load-theme default-theme)
     (setq qingeditor/pkg/installer/protected-packages
-                  (append
-                   (delq nil (mapcar
-                              (lambda (theme)
-                                (qingeditor/ui/editor-theme/get-theme-pkg-by-name theme))
-                              qingeditor/core/user-cfg/themes))
-                   qingeditor/pkg/installer/protected-packages))
+	  (append
+	   (delq nil (mapcar
+		      (lambda (theme)
+			(qingeditor/ui/editor-theme/get-theme-pkg-by-name theme))
+		      qingeditor/core/user-cfg/themes))
+	   qingeditor/pkg/installer/protected-packages))
     (setq-default qingeditor/ui/editor-theme/cur-theme-private default-theme)
     (setq-default qingeditor/ui/editor-theme/cycle-themes-private
-	  (cdr qingeditor/core/user-cfg/themes)))
+		  (cdr qingeditor/core/user-cfg/themes)))
   ;; 设置字体
   (qingeditor/ui/editor/render-loading-text)
   (qingeditor/ui/do-after-display-system-init
@@ -63,20 +63,21 @@
    (qingeditor/core/message "正在设置qingeditor字体...")
    (unless (qingeditor/ui/editor-font/set-default-font qingeditor/core/user-cfg/default-font)
      (qingeditor/core/io/warning "没有找到指定的字体(%s)！字体配置可能不正确。"
-                  (if (listp (car qingeditor/core/user-cfg/default-font))
-                      (mapconcat 'car qingeditor/core/user-cfg/default-font ", ")
-                    (car qingeditor/core/user-cfg/default-font)))))
+				 (if (listp (car qingeditor/core/user-cfg/default-font))
+				     (mapconcat 'car qingeditor/core/user-cfg/default-font ", ")
+				   (car qingeditor/core/user-cfg/default-font)))))
   ;; 开始初始化`qingeditor'
   (setq inhibit-startup-screen t)
   (qingeditor/ui/editor/register-window-setup-hooks)
   (qingeditor/ui/editor/draw)
-   (unless (display-graphic-p)
+  (unless (display-graphic-p)
     ;; 当时命令行启动，为了能正确的显示logo我们再次手动创建QwsEditor buffer
     (qingeditor/ui/do-after-display-system-init
      (kill-buffer (get-buffer qingeditor/ui/editor/buffer-name))
      (qingeditor/ui/editor/draw)))
   ;; 设置这个参数，为了在启动期间让`qingeditor'像命令行参数那样显示buffer
   (setq initial-buffer-choice nil)
+  (setq inhibit-startup-screen t)
   (unless (fboundp 'tool-bar-mode)
     (qingeditor/core/io/message (concat "当前的环境不支持图形渲染，"
 					"你将不能开启Emacs的图形实例。")))

@@ -139,9 +139,26 @@
   (with-eval-after-load 'hi-lock
     (qingeditor/ui/editor-font/hide-lighter hi-lock-mode)))
 
-(defun qingeditor/editor-base/init-image-mode ())
-(defun qingeditor/editor-base/init-imenu ())
-(defun qingeditor/editor-base/init-linum ())
+(defun qingeditor/editor-base/init-image-mode ()
+  (use-package image-mode
+    :defer t))
+
+(defun qingeditor/editor-base/init-imenu ()
+  (use-package imenu
+    :defer t
+    :init (qingeditor/core/key-binder/set-leader-keys "ji" 'imenu)))
+
+(defun qingeditor/editor-base/init-linum ()
+  (when qingeditor/core/user-cfg/line-numbers
+    (add-hook 'prog-mode-hook 'linum-mode)
+    (add-hook 'prog-mode-hook 'linum-mode))
+  (setq linum-format "%5d ")
+  (qingeditor/core/toggle/add-toggle line-numbers
+    :mode linum-mode
+    :documentation "显示行号。")
+  (advice-add #'linum-update-window
+	      :after #'qingeditor/editor-base/linum-update-window-scale-fix))
+
 (defun qingeditor/editor-base/init-occur-mode ())
 (defun qingeditor/editor-base/init-package-menu ())
 (defun qingeditor/editor-base/init-page-break-lines ())

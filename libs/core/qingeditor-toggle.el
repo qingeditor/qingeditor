@@ -8,16 +8,16 @@
   "增加一个叫做`name'的toggle。
 
 这个宏创建如下几个函数：
-- qingeditor/core/toggle/toggle-NAME 根据当前的状态打开或者关闭
-- qingeditor/core/toggle/toggle-NAME-on 当前状态时关闭的时候就打开
-- qingeditor/core/toggle/toggle-NAME-off 当前状态是打开就关闭当前状态
+- qingeditor/toggle-NAME 根据当前的状态打开或者关闭
+- qingeditor/toggle-NAME-on 当前状态时关闭的时候就打开
+- qingeditor/toggle-NAME-off 当前状态是打开就关闭当前状态
 
 提供的属性如下 PROPS:
 `:status EXPRESSION'
    指定一个表达式，通过求值获取当前的状态
 
 `:if EXPRESSION'
-   如果`EXPRESSION'求值得到`nil'的话，不在更新`toggle'的状态
+                                                               如果`EXPRESSION'求值得到`nil'的话，不在更新`toggle'的状态
 
 `:on BODY'
    当打开`toggle'的时候对`BODY'表达式求值

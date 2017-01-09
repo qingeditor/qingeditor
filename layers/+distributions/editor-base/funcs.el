@@ -782,4 +782,5 @@
         (message "没有找到单词。")))
     words))
 
-
+(defun qingeditor/editor-base/linum-update-window-scale-fix (win)
+  "")
