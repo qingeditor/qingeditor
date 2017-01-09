@@ -168,7 +168,9 @@
   (global-page-break-lines-mode t)
   (qingeditor/ui/editor-font/hide-lighter page-break-lines-mode))
 
-(defun qingeditor/editor-base/init-pcre2el ())
+(defun qingeditor/editor-base/init-pcre2el ()
+  )
+
 (defun qingeditor/editor-base/init-process-menu ())
 (defun qingeditor/editor-base/init-projectile ())
 (defun qingeditor/editor-base/init-recentf ())

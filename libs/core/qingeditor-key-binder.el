@@ -38,16 +38,13 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
   "定义一个前缀`prefix',`prefix'是描述一个按键序列的，`name'是一前缀命令的名字。如果
 `long-name'不为空那么他保存在`qingeditor/core/key-binder/prefix-titles'中。"
   (let* ((command name)
-         (full-prefix (concat qingeditor/core/user-cfg/leader-key " " prefix))
          (full-prefix-emacs (concat qingeditor/core/user-cfg/emacs-leader-key " " prefix))
-         (full-prefix-lst (listfy-key-sequence (kbd full-prefix)))
          (full-prefix-emacs-lst (listify-key-sequence (kbd full-prefix-emacs))))
     ;; 如果指定的前缀命令不存在就定义
     (unless long-name
       (setq long-name name))
     (which-key-declare-prefixes
-      full-prefix-emacs (cons name long-name)
-      full-prefix (cons name long-name))))
+      full-prefix-emacs (cons name long-name))))
 
 (defun qingeditor/core/key-binder/declare-prefix-for-mode (mode prefix name &optional long-name)
   "为指定的`mode'定义前缀命令，`prefix'用来描述这个前缀命令，`name'是一个符号名，用作前缀命令。"
