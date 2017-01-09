@@ -169,7 +169,28 @@
   (qingeditor/ui/editor-font/hide-lighter page-break-lines-mode))
 
 (defun qingeditor/editor-base/init-pcre2el ()
-  )
+  (use-package pcre2el
+    :defer t
+    :init
+    (progn
+      (qingeditor/core/key-binder/declare-prefix "xr" "regular expression")
+      (qingeditor/core/key-binder/declare-prefix "xre" "elisp")
+      (qingeditor/core/key-binder/declare-prefix "xrp" "pcre")
+      (qingeditor/core/key-binder/set-leader-keys
+	"xr/"  'rxt-explain
+	"xr'"  'rxt-convert-to-strings
+	"xrt"  'rxt-toggle-elisp-rx
+	"xrx"  'rxt-convert-to-rx
+	"xrc"  'rxt-convert-syntax
+	"xre/" 'rxt-explain-elisp
+	"xre'" 'rxt-elisp-to-strings
+	"xrep" 'rxt-elisp-to-pcre
+	"xret" 'rxt-toggle-elisp-rx
+	"xrex" 'rxt-elisp-to-rx
+	"xrp/" 'rxt-explain-pcre
+	"xrp'" 'rxt-pcre-to-strings
+	"xrpe" 'rxt-pcre-to-elisp
+	"xrpx" 'rxt-pcre-rx))))
 
 (defun qingeditor/editor-base/init-process-menu ())
 (defun qingeditor/editor-base/init-projectile ())
