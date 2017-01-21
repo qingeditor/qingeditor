@@ -65,6 +65,41 @@
        (should (eq (qingeditor/hash-table/get ht 'data) new-table))
        (should (equal (qingeditor/hash-table/get ht 'not-exist "haha") "haha"))))))
 
+(ert-deftest qingeditor/test/ds/hash-table-update-from-raw-hash-table-test ()
+  :tags '(qingeditor/ds/hash-table/update-from-raw-hash-table)
+  "测试从原生的`hash-table'批量导入数据。"
+  (qingeditor/test/ds/prepare-hash-table
+   (lambda ()
+     (let ((raw-table (make-hash-table)))
+       (qingeditor/hash-table/set ht 'org-data "org-data")
+       ;; 数据设置
+       (puthash 'name "softboy" raw-table)
+       (puthash 'age 12 raw-table)
+       (puthash 'data '(12 2 3) raw-table)
+       (qingeditor/hash-table/update-from-raw-hash-table ht raw-table)
+       ;; 判断结果
+       (should (equal (qingeditor/hash-table/count ht) 4))
+       (should (equal (qingeditor/hash-table/get ht 'name) "softboy"))
+       (should (equal (qingeditor/hash-table/get ht 'age) 12))
+       (should (equal (qingeditor/hash-table/get ht 'data) '(12 2 3)))
+       ;; 不能覆盖老数据
+       (should (equal (qingeditor/hash-table/get ht 'org-data) "org-data"))))))
+
+(ert-deftest qingeditor/test/ds/hash-table-update-from-hash-table-test ()
+  :tags '(qingeditor/ds/hash-table/update-from-hash-table)
+  "从其他`qingeditor/hash-table'对象批量设置。"
+  (qingeditor/test/ds/prepare-hash-table
+   (lambda ()
+     (let ((new-table (qingeditor/hash-table/init)))
+       (qingeditor/hash-table/set new-table 'name "softboy")
+       (qingeditor/hash-table/set new-table 'age 12)
+       (qingeditor/hash-table/set new-table 'data '(1 2 3 4))
+       ;; 导入数据
+       (qingeditor/hash-table/update-from-hash-table ht new-table)
+       (should (equal (qingeditor/hash-table/count ht) 3))
+       (should (equal (qingeditor/hash-table/get ht 'name) "softboy"))
+       (should (equal (qingeditor/hash-table/get ht 'age) 12))
+       (should (equal (qingeditor/hash-table/get ht 'data) '(1 2 3 4)))))))
 
 
 
