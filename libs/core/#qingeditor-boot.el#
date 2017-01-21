@@ -4,6 +4,7 @@
 (require 'page-break-lines)
 (require 'ht)
 (require 'eieio)
+
 (require 'qingeditor-user-cfg)
 (require 'qingeditor-macros)
 (require 'qingeditor-installer)
@@ -22,6 +23,12 @@
 
 (defun qingeditor/core/boot/init ()
   "`qingeditor'初始化入口函数。"
+  (setq ht (qingeditor/hash-table/init))
+  (setq rht (make-hash-table :test 'equal))
+  (puthash 'name "xiuxiu" rht)
+   (puthash 'age 112 rht)
+  (qingeditor/hash-table/update-from-raw-hash-table ht rht)
+  (prin1 ht)
   ;; (when qingeditor/debugp (qingeditor/debug/init))
   ;; 当advised函数被重新定义的时候`ad-handle-definition'不输出任何东西
   (setq ad-redefinition-action 'accept)
