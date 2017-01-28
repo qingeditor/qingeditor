@@ -30,6 +30,20 @@
   (qingeditor/hash-table
    :table (make-hash-table :test (or test 'equal))))
 
+(defmacro qingeditor/hash-table/make-table-from-paires (&rest pairs)
+  "通过制定一系列的`pair'来初始化一个`hash-table'对象
+
+\(fn (KEY-1 VALUE-1) (KEY-2 VALUE-2) (KEY-3 VALUE-3))"
+  (let* ((table-symbol (make-symbol "hash-tabel-temp"))
+	 (assignments
+	  (mapcar
+	   (lambda (pair)
+	     `(qingeditor/hash-table/set ,table-symbol ,@pair))
+	   pairs)))
+    `(let ((,table-symbol (qingeditor/hash-table/init)))
+       ,@assignments
+       ,table-symbol)))
+
 (defmethod qingeditor/hash-table/get ((this qingeditor/hash-table) key &optional default)
   "通过指定的`key'获取哈希表的项，如果没找到返回`default'参数指定的值。"
   (gethash key (oref this :table) default))
@@ -56,53 +70,143 @@
 	   from-table)
   nil)
 
-;; (defmethod qingeditor/hash-table/merge-from-hash-tables
-;;   ((this qingeditor/hash-table) &rest tables)
-;;   "合并其他`qingeditor/hash-table'的实例。"
-;;   (mapc (lambda (table)
-;; 	  (qingeditor/hash-table/update-from-raw-hash-table this (oref table :table))))
-;;   this)
+(defmethod qingeditor/hash-table/merge-from-hash-tables
+  ((this qingeditor/hash-table) &rest tables)
+  "合并其他`qingeditor/hash-table'的实例。"
+  (mapc (lambda (table)
+	  (qingeditor/hash-table/update-from-raw-hash-table this (oref table :table)))
+	tables)
+  this)
 
-;; (defmethod qingeditor/hash-table/merge-from-raw-hash-tables
-;;   ((this qingeditor/hash-table) &rest tables)
-;;    "合并参数指定的原生"
-;;   (mapc (lambda (table)
-;; 	  (qingeditor/hash-table/update-from-raw-hash-table this table)))
-;;   this)
+(defmethod qingeditor/hash-table/merge-from-raw-hash-tables
+  ((this qingeditor/hash-table) &rest tables)
+   "合并参数指定的原生"
+  (mapc (lambda (table)
+	  (qingeditor/hash-table/update-from-raw-hash-table this table))
+	tables)
+  this)
 
-;; (defmethod qingeditor/hash-table/remove ((this qingeditor/hash-table) key)
-;;   "删除哈希表中名称为`key'的项。"
-;;   (remhash key (oref this :table))
-;;   this)
+(defmethod qingeditor/hash-table/remove ((this qingeditor/hash-table) key)
+  "删除哈希表中名称为`key'的项。"
+  (remhash key (oref this :table))
+  this)
 
-;; (defmethod qingeditor/hash-table/clear ((this qingeditor/hash-table))
-;;   "清除哈希表数据。"
-;;   (clrhash (oref this :table)))
+(defmethod qingeditor/hash-table/clear ((this qingeditor/hash-table))
+  "清除哈希表数据。"
+  (clrhash (oref this :table)))
 
-;; (defmethod qingeditor/hash-table/map ((this qingeditor/hash-table) func)
-;;   "对哈希表的所有的项执行`func'函数，并且收集函数返回值，然后将结果列表返回。
-;; `func'传入`key'跟`value'的值。"
-;;   (let (results)
-;;     (maphash
-;;      (lambda (key value)
-;;        (push (funcall func key value) results))
-;;      (oref this :table))
-;;     results))
+(defmethod qingeditor/hash-table/map ((this qingeditor/hash-table) func)
+  "对哈希表的所有的项执行`func'函数，并且收集函数返回值，然后将结果列表返回。
+`func'传入`key'跟`value'的值。"
+  (let (results)
+    (maphash
+     (lambda (key value)
+       (push (funcall func key value) results))
+     (oref this :table))
+    results))
 
-;; (defmacro qingeditor/hash-table/eval-with-entry (table form)
-;;   "在键值对的环境下执行指定的`form'。"
-;;   `(qingeditor/hash-table/map ,table (lambda (key value) ,form)))
+(defmacro qingeditor/hash-table/iterate-items-with-result (table form)
+  "在键值对的环境下执行指定的`form'，并且收集`form'的返回值。"
+  `(qingeditor/hash-table/map ,table (lambda (key value) ,form)))
 
-;; (defmethod qingeditor/hash-table/keys ((this qingeditor/hash-table))
-;;   "获取当前`hash-table'的`keys'。"
-;;   (qingeditor/hash-table/eval-with-entry this key))
+(defmethod qingeditor/hash-table/keys ((this qingeditor/hash-table))
+  "获取当前`hash-table'的`keys'。"
+  (qingeditor/hash-table/iterate-items-with-result this key))
 
-;; (defmethod qingeditor/hash-table/values ((this qingeditor/hash-table))
-;;   "获取`hash-table'的`values'。"
-;;   (qingeditor/hash-table/eval-with-entry this value))
+(defmethod qingeditor/hash-table/values ((this qingeditor/hash-table))
+  "获取`hash-table'的`values'。"
+  (qingeditor/hash-table/iterate-items-with-result this value))
 
-;; (defmethod qingeditor/hash-table/items (table)
-;;   "返回`hash-table'的项的集合。"
-;;   (qingeditor/hash-table/eval-with-entry this (list key value) table))
+(defmethod qingeditor/hash-table/items ((this qingeditor/hash-table))
+  "返回`hash-table'的项的集合。"
+  (qingeditor/hash-table/iterate-items-with-result this (list key value)))
+
+(defmacro qingeditor/hash-table/iterate-items (table form)
+  "在键值对的环境下执行指定的`form'，不收集`form'的返回值。"
+  `(maphash (lambda (key value) ,form) (oref ,table :table)))
+
+(defmethod qingeditor/hash-table/find ((this qingeditor/hash-table) func)
+  "寻找回调函数`func'返回真值的元素。
+`func'传入参数`key'和`value'。"
+  (catch 'break
+    (maphash
+     (lambda (key value)
+       (when (funcall func key value)
+	 (throw 'break (list key value))))
+     (oref this :table))))
+
+(defmethod qingeditor/hash-table/empty ((this qingeditor/hash-table))
+  "判断当前的`hash-table'是否为空。"
+  (zerop (qingeditor/hash-table/count this)))
+
+(defmethod qingeditor/hash-table/set-from-alist ((this qingeditor/hash-table) alist)
+  "使用`alist'来设置当前`hash-table'的值。出现在`alist'后面的优先级高。"
+  (dolist (pair alist this)
+    (let ((key (car pair))
+	  (value (cdr pair)))
+      (qingeditor/hash-table/set this key value))))
+
+(defun qingeditor/hash-table/get-pair-list-from-plist (plist)
+  "通过一个`plist'获取`cons'集合。如果`plist'的元素不是偶数抛出`error'。"
+  (let ((results)
+	(sublist)
+	(len 0))
+    (while plist
+      (setq sublist (cons (car plist) sublist))
+      (setq plist (cdr plist))
+      (setq len (1+ len))
+      (when (= len 2)
+	(setq results (cons (nreverse sublist) results))
+	(setq sublist nil)
+	(setq len 0)))
+    (when sublist
+      (error "Expect an even number of elements"))
+    (nreverse results)))
+
+(defmethod qingeditor/hash-table/set-from-plist ((this qingeditor/hash-table) plist)
+  "使用`alist'来设置当前`hash-table'的值。出现在`alist'后面的优先级高。"
+  (dolist (pair (qingeditor/hash-table/get-pair-list-from-plist plist))
+    (let ((key (car pair))
+	  (value (cadr pair)))
+      (qingeditor/hash-table/set this key value))))
+
+(defmethod qingeditor/hash-table/to-plist ((this qingeditor/hash-table))
+  "将当前的`hash-table'转换成`plist'，注意这个方法跟`qingeditor/hash-table/set-from-plist'
+不是可逆的函数。一下操作不一定成功：
+\(let (data '(a b c d))
+    (qingeditor/hash-table/set-from-plist ht data)
+    (equalp data (qingeditor/hash-table/to-plist ht)))"
+  (apply 'append (qingeditor/hash-table/items this)))
+
+(defmethod qingeditor/hash-table/to-alist ((this qingeditor/hash-table))
+  "将当前的`hash-table'转换成`alist'，注意这个方法跟`qingeditor/hash-table/set-from-alist'
+不是可逆的函数。一下操作不一定成功：
+\(let (data '(a b c d))
+    (qingeditor/hash-table/set-from-alist ht data)
+    (equalp data (qingeditor/hash-table/to-alist ht)))"
+  (qingeditor/hash-table/iterate-items-with-result this (cons key value)))
+
+(defmethod qingeditor/hash-table/has-key ((this qingeditor/hash-table) key)
+  "判断当前的`hash-table'是否含有键为`key'的项，如果有返回`t'，否则返回`nil'"
+  (not (eq (gethash key (oref this :table) 'qingeditor/hash-table--not-found)
+	   'qingeditor/hash-table--not-found)))
+
+(defmethod qingeditor/hash-table/select ((this qingeditor/hash-table) func)
+  "返回一个新的`hash-table'，包含所有`func'返回真值的元素
+`func'传入参数`key'和`value'。"
+  (let ((result (qingeditor/hash-table/init)))
+    (maphash (lambda (key value)
+	       (when (funcall func key value)
+		 (qingeditor/hash-table/set result key value))) (oref this :table))
+    result))
+
+(defmethod qingeditor/hash-table/remove-item-by ((this qingeditor/hash-table) func)
+  "对`hash-table'中的元素调用函数`func'如果返回`t'就删除当前的元素。"
+  (let ((table (oref this :table)))
+    (maphash (lambda (key value)
+	       (when (funcall func key value)
+		 (remhash key table)))
+	     table)
+    this))
 
 (provide 'qingeditor-hash-table)
