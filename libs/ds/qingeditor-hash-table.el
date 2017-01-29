@@ -209,4 +209,10 @@
 	     table)
     this))
 
+(defmethod qingeditor/hash-table/clone ((this qingeditor/hash-table))
+  "克隆当前的`hash-table'对象。"
+  (let ((new-table (qingeditor/hash-table/init)))
+    (oset new-table :table (copy-hash-table (oref this :table)))
+    new-table))
+
 (provide 'qingeditor-hash-table)
