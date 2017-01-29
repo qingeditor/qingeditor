@@ -8,10 +8,9 @@
 ;; 
 ;; 封装一个事件对象
 
-(require 'qingeditor-eventmgr-event-interface)
 (require 'qingeditor-hash-table)
 
-(defclass qingeditor/eventmgr/event (qingeditor/eventmgr/event-interface)
+(defclass qingeditor/eventmgr/event ()
   ((name
     :initarg :name
     :initform nil
