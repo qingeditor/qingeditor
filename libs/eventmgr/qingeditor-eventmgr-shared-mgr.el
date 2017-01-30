@@ -101,4 +101,74 @@
       (when (qingeditor/hash-table/empty identifier-table)
 	(qingeditor/hash-table/remove (oref this :identifiers) identifier)))))
 
+(defmethod qingeditor/eventmgr/shared-mgr/get-listeners
+  ((this qingeditor/eventmgr/shared-mgr) identifiers event-name)
+  "获取指定的`identifiers'集合下的所有的回调函数。
+
+`identifiers'可以是单个字符串，也可以是一个字符串`list'
+`event-name'事件的名称。"
+  (when (or (not (stringp event-name))
+	    (string= "*" event-name)
+	    (eq (length event-name) 0))
+    (error "Event name passed to `%s' must be a non-empty, non-wildcard string"
+	   "qingeditor/eventmgr/shared-mgr/get-listeners"))
+  (when (and (not (stringp identifiers))
+	     (not (listp identifiers)))
+    (error "Identifier names passed to `%s' must be a string or list, but %s given."
+	   "qingeditor/eventmgr/shared-mgr/get-listeners" (type-of identifiers)))
+  (when (stringp identifiers)
+    (setq identifiers (make-list 1 identifiers)))
+  (let ((listeners (qingeditor/hash-table/init)) 
+	identifier-table
+	wildcard-identifier-table
+	event-table
+	wildcard-event-table)
+    (dolist (identifier identifiers)
+      (when (or (not (stringp identifier))
+		(eq (length identifier) 0))
+	(error "Identifier names passed to `%s' must be a string or list, but %s given."
+	       "qingeditor/eventmgr/shared-mgr/get-listeners" (type-of identifiers)))
+      ;; 不能是`*'
+      (when (string= "*" identifier)
+	(error "Identifier name can not be `*'"))
+      (if (qingeditor/hash-table/has-key (oref this :identifiers) identifier)
+	  (setq identifier-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
+	(setq identifier-table (qingeditor/hash-table/init)))
+      (if (qingeditor/hash-table/has-key identifier-table event-name)
+	  (setq event-table (qingeditor/hash-table/get identifier-table event-name))
+	(setq event-table (qingeditor/hash-table/init)))
+      (if (qingeditor/hash-table/has-key identifier-table "*")
+	  (setq wildcard-event-table (qingeditor/hash-table/get identifier-table "*"))
+	(setq wildcard-event-table (qingeditor/hash-table/init)))
+      (setq listeners
+	    (qingeditor/eventmgr/shared-mgr/merge this listeners event-table wildcard-event-table)))
+    ;; 复制`* identifier'的事件监听器对象
+    (when (qingeditor/hash-table/has-key (oref this :identifiers) "*")
+      (setq wildcard-identifier-table
+	    (qingeditor/hash-table/get (oref this :identifiers) "*"))
+      (if (qingeditor/hash-table/has-key wildcard-identifier-table event-name)
+	  (setq event-table (qingeditor/hash-table/get wildcard-identifier-table event-name))
+	(setq event-table (qingeditor/hash-table/init)))
+      (if (qingeditor/hash-table/has-key wildcard-identifier-table "*")
+	  (setq wildcard-event-table (qingeditor/hash-table/get wildcard-identifier-table "*"))
+	(setq wildcard-event-table (qingeditor/hash-table/init)))
+      (setq listeners (qingeditor/eventmgr/shared-mgr/merge
+		       this listeners event-table wildcard-event-table)))
+    listeners))
+
+(defmethod qingeditor/eventmgr/shared-mgr/merge ((this qingeditor/eventmgr/shared-mgr) &rest tables)
+  "递归合并指定的事件`hash-table'。"
+  (let ((target (qingeditor/hash-table/init)))
+    (dolist (table tables)
+      (qingeditor/hash-table/iterate-items
+       table
+       (progn
+	 (if (not (qingeditor/hash-table/has-key target key))
+	     (qingeditor/hash-table/set target key (copy-sequence value))
+	   (let ((source-listeners (copy-sequence value))
+		 (target-listeners (qingeditor/hash-table/get target key)))
+	     (setq target-listeners (append target-listeners source-listeners))
+	     (qingeditor/hash-table/set target key target-listeners))))))
+    target))
+
 (provide 'qingeditor-eventmgr-shared-mgr)

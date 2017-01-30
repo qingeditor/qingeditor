@@ -57,7 +57,6 @@
 (ert-deftest qingeditor/test/eventmgr/shared-mgr-detach-test ()
   :tags '(qingeditor/eventmgr/shared-mgr/detach)
   (qingeditor/test/eventmgr/prepare-shared-mgr
-   
    (lambda ()
      (let ((listener (lambda () (message "i am lambda")))
 	   (listener1 (lambda () (message "other func")))
@@ -115,3 +114,61 @@
        (should (eq (qingeditor/hash-table/has-key (oref mgr :identifiers) "identifier4") nil))
        (should (eq (qingeditor/hash-table/has-key (oref mgr :identifiers) "identifier5") t))
        (should (eq (qingeditor/hash-table/count (oref mgr :identifiers)) 3))))))
+
+(ert-deftest qingeditor/test/eventmgr/shared-mgr-get-listeners-test ()
+  :tags '(qingeditor/eventmgr/shared-mgr/get-listeners)
+  (qingeditor/test/eventmgr/prepare-shared-mgr
+    (lambda ()
+      (let ((listener (lambda () (message "i am lambda")))
+	    (listener1 (lambda () (message "other func")))
+	    identifier-table
+	    event-table
+	    listener-table
+	    listener-list)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event1" listener)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event1" listener1)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event1" listener 2)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event1" listener1 2)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier1" "event1" listener)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier1" "*" listener)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier1" "*" listener 2)
+	(should-error
+	 (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" nil)
+	 :type 'error)
+      	(should-error
+	 (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "*")
+	 :type 'error)
+	(should-error
+	 (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "")
+	 :type 'error)
+	(setq listener-table
+	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
+	(should (eq (qingeditor/hash-table/count listener-table) 2))
+	(should (eq (qingeditor/hash-table/has-key listener-table "1.0") t))
+	(should (eq (qingeditor/hash-table/has-key listener-table "2.0") t))
+	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(should (equalp listener-list (list listener1 listener)))
+	(setq listener-table
+	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
+	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(should (equalp listener-list (list listener1 listener)))
+	;; 测试 `* identifier' 
+	(qingeditor/eventmgr/shared-mgr/attach mgr "*" "event1" listener1 2)
+	(setq listener-table
+	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
+	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(should (equalp listener-list (list listener1 listener)))
+	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(should (equalp listener-list (list listener1 listener listener1)))
+	(should-error
+	 (qingeditor/eventmgr/shared-mgr/get-listeners mgr "*" "event1")
+	 :type 'error)
+	(setq listener-table
+	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier1" "event1"))
+	(should (eq (qingeditor/hash-table/count listener-table) 2))
+	(should (eq (qingeditor/hash-table/has-key listener-table "1.0") t))
+	(should (eq (qingeditor/hash-table/has-key listener-table "2.0") t))
+	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(should (equalp listener-list (list listener listener1)))
+	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(should (equalp listener-list (list listener listener)))))))
