@@ -9,6 +9,8 @@
 ;; 封装共享的事件管理器
 
 (require 'qingeditor-hash-table)
+;; for defun* return-from
+(require 'cl)
 
 (defclass qingeditor/eventmgr/shared-mgr ()
   ((identifiers
@@ -51,5 +53,52 @@
       (setq listener-list (qingeditor/hash-table/get event-table listener-index)))
     (push listener listener-list)
     (qingeditor/hash-table/set event-table listener-index listener-list)))
+
+(defmethod qingeditor/eventmgr/shared-mgr/detach
+  ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)
+  "删除指定的监听函数，这个监听函数可能绑定到了很多的事件上面。"
+  (catch 'qingeditor-eventmgr-shared-mgr-detach
+    (let (identifier-table
+	  event-table
+	  listener-list)
+      (when (or (not identifier)
+		(and (string= identifier "*") (not force)))
+	(qingeditor/hash-table/iterate-items
+	 (oref this :identifiers)
+	 (qingeditor/eventmgr/shared-mgr/detach this listener key event-name t))
+	(throw 'qingeditor-eventmgr-shared-mgr-detach t))
+      (when (or (not (stringp identifier))
+		(eq (length identifier) 0))
+	(error "Invalid identifier provided; must be a string, received `%s'" (type-of identifier)))
+      (when (not (qingeditor/hash-table/has-key (oref this :identifiers) identifier))
+	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
+      (setq identifier-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
+      (when (or (not event-name)
+		(and (string= event-name "*") (not force)))
+	(qingeditor/hash-table/iterate-items
+	 identifier-table
+	 (qingeditor/eventmgr/shared-mgr/detach this listener identifier key t))
+	(throw 'qingeditor-eventmgr-shared-mgr-detach t))
+      (when (or (not (stringp event-name))
+		(eq (length event-name) 0))
+	(error "Invalid event name provided; must be a string, received `%s'" (type-of event-name)))
+      (when (not (qingeditor/hash-table/has-key identifier-table event-name))
+	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
+      (setq event-table (qingeditor/hash-table/get identifier-table event-name))
+      (qingeditor/hash-table/iterate-items
+       event-table
+       (progn
+	 (setq listener-list value)
+	 (dolist (evaluated-listener listener-list)
+	   (when (eq evaluated-listener listener)
+	     ;; 找到了指定的监听对象，删除
+	     (setq listener-list (delete evaluated-listener listener-list))))
+	 (if (eq (length listener-list) 0)
+	     (qingeditor/hash-table/remove event-table key)
+	   (qingeditor/hash-table/set event-table key listener-list))))
+      (when (qingeditor/hash-table/empty event-table)
+	(qingeditor/hash-table/remove identifier-table event-name))
+      (when (qingeditor/hash-table/empty identifier-table)
+	(qingeditor/hash-table/remove (oref this :identifiers) identifier)))))
 
 (provide 'qingeditor-eventmgr-shared-mgr)
