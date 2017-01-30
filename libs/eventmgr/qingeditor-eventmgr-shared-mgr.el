@@ -156,7 +156,8 @@
 		       this listeners event-table wildcard-event-table)))
     listeners))
 
-(defmethod qingeditor/eventmgr/shared-mgr/merge ((this qingeditor/eventmgr/shared-mgr) &rest tables)
+(defmethod qingeditor/eventmgr/shared-mgr/merge
+  ((this qingeditor/eventmgr/shared-mgr) &rest tables)
   "递归合并指定的事件`hash-table'。"
   (let ((target (qingeditor/hash-table/init)))
     (dolist (table tables)
@@ -170,5 +171,23 @@
 	     (setq target-listeners (append target-listeners source-listeners))
 	     (qingeditor/hash-table/set target key target-listeners))))))
     target))
+
+(defmethod qingeditor/eventmgr/shared-mgr/clear-listeners
+  ((this qingeditor/eventmgr/shared-mgr) identifier &optional event-name)
+  "清除指定的`identifier'的监听对象，如果`event-name'不为`nil'则只清除`event-name'下的
+监听对象，否则清除`identifier'下所有的监听对象。"
+  (catch 'qingeditor-eventmgr-shared-mgr-clear-listeners
+    (let (identifier-table)
+      ;; 不管什么类型，测试失败就pass
+      (unless (qingeditor/hash-table/has-key (oref this :identifiers) identifier)
+	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners nil))
+      (when (null event-name)
+	(qingeditor/hash-table/remove (oref this :identifiers) identifier)
+	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners t))
+      (setq identifier-table
+	    (qingeditor/hash-table/get (oref this :identifiers) identifier))
+      (unless (qingeditor/hash-table/has-key identifier-table event-name)
+	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners nil))
+      (qingeditor/hash-table/remove identifier-table event-name))))
 
 (provide 'qingeditor-eventmgr-shared-mgr)

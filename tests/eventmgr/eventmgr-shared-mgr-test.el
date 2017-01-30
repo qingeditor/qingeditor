@@ -172,3 +172,29 @@
 	(should (equalp listener-list (list listener listener1)))
 	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
 	(should (equalp listener-list (list listener listener)))))))
+
+(ert-deftest qingeditor/test/eventmgr/shared-mgr-get-listeners-test ()
+  :tags '(qingeditor/eventmgr/shared-mgr/get-listeners)
+  (qingeditor/test/eventmgr/prepare-shared-mgr
+   (lambda ()
+     (let ((listener (lambda () (message "i am lambda")))
+	    (listener1 (lambda () (message "other func")))
+	    identifier-table
+	    event-table
+	    listener-table
+	    listener-list)
+       	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event1" listener)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier" "event2" listener1)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier1" "event1" listener 2)
+	(qingeditor/eventmgr/shared-mgr/attach mgr "identifier1" "event2" listener1 2)
+	(qingeditor/eventmgr/shared-mgr/clear-listeners mgr "identifier3")
+	(should (equal (qingeditor/hash-table/has-key (oref mgr :identifiers) "identifier") t))
+	(qingeditor/eventmgr/shared-mgr/clear-listeners mgr "identifier1" "event1")
+	(setq event-table
+	      (qingeditor/hash-table/get (oref mgr :identifiers) "identifier1"))
+	(should (equal (qingeditor/hash-table/has-key event-table "event2") t))
+	(should (equal (qingeditor/hash-table/has-key event-table "event1") nil))
+	(qingeditor/eventmgr/shared-mgr/clear-listeners mgr "identifier")
+	(should (equal (qingeditor/hash-table/has-key (oref mgr :identifiers) "identifier") nil))
+	(qingeditor/eventmgr/shared-mgr/clear-listeners mgr "identifier1")
+	(should (equal (qingeditor/hash-table/count (oref mgr :identifiers)) 0))))))
