@@ -58,8 +58,8 @@
   ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)
   "删除指定的监听函数，这个监听函数可能绑定到了很多的事件上面。"
   (catch 'qingeditor-eventmgr-shared-mgr-detach
-    (let (identifier-table
-	  event-table
+    (let (event-table
+	  listener-table
 	  listener-list)
       (when (or (not identifier)
 		(and (string= identifier "*") (not force)))
@@ -72,21 +72,21 @@
 	(error "Invalid identifier provided; must be a string, received `%s'" (type-of identifier)))
       (when (not (qingeditor/hash-table/has-key (oref this :identifiers) identifier))
 	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
-      (setq identifier-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
+      (setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
       (when (or (not event-name)
 		(and (string= event-name "*") (not force)))
 	(qingeditor/hash-table/iterate-items
-	 identifier-table
+	 event-table
 	 (qingeditor/eventmgr/shared-mgr/detach this listener identifier key t))
 	(throw 'qingeditor-eventmgr-shared-mgr-detach t))
       (when (or (not (stringp event-name))
 		(eq (length event-name) 0))
 	(error "Invalid event name provided; must be a string, received `%s'" (type-of event-name)))
-      (when (not (qingeditor/hash-table/has-key identifier-table event-name))
+      (when (not (qingeditor/hash-table/has-key event-table event-name))
 	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
-      (setq event-table (qingeditor/hash-table/get identifier-table event-name))
+      (setq listener-table (qingeditor/hash-table/get event-table event-name))
       (qingeditor/hash-table/iterate-items
-       event-table
+       listener-table
        (progn
 	 (setq listener-list value)
 	 (dolist (evaluated-listener listener-list)
@@ -94,11 +94,11 @@
 	     ;; 找到了指定的监听对象，删除
 	     (setq listener-list (delete evaluated-listener listener-list))))
 	 (if (eq (length listener-list) 0)
-	     (qingeditor/hash-table/remove event-table key)
-	   (qingeditor/hash-table/set event-table key listener-list))))
+	     (qingeditor/hash-table/remove listener-table key)
+	   (qingeditor/hash-table/set listener-table key listener-list))))
+      (when (qingeditor/hash-table/empty listener-table)
+	(qingeditor/hash-table/remove event-table event-name))
       (when (qingeditor/hash-table/empty event-table)
-	(qingeditor/hash-table/remove identifier-table event-name))
-      (when (qingeditor/hash-table/empty identifier-table)
 	(qingeditor/hash-table/remove (oref this :identifiers) identifier)))))
 
 (defmethod qingeditor/eventmgr/shared-mgr/get-listeners
@@ -118,11 +118,11 @@
 	   "qingeditor/eventmgr/shared-mgr/get-listeners" (type-of identifiers)))
   (when (stringp identifiers)
     (setq identifiers (make-list 1 identifiers)))
-  (let ((listeners (qingeditor/hash-table/init)) 
-	identifier-table
-	wildcard-identifier-table
-	event-table
-	wildcard-event-table)
+  (let (event-table
+	wildcard-event-table
+	listener-table
+	wildcard-listener-table
+	(merged-listener-table (qingeditor/hash-table/init)))
     (dolist (identifier identifiers)
       (when (or (not (stringp identifier))
 		(eq (length identifier) 0))
@@ -132,28 +132,29 @@
       (when (string= "*" identifier)
 	(error "Identifier name can not be `*'"))
       (if (qingeditor/hash-table/has-key (oref this :identifiers) identifier)
-	  (setq identifier-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
-	(setq identifier-table (qingeditor/hash-table/init)))
-      (if (qingeditor/hash-table/has-key identifier-table event-name)
-	  (setq event-table (qingeditor/hash-table/get identifier-table event-name))
+	  (setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
 	(setq event-table (qingeditor/hash-table/init)))
-      (if (qingeditor/hash-table/has-key identifier-table "*")
-	  (setq wildcard-event-table (qingeditor/hash-table/get identifier-table "*"))
-	(setq wildcard-event-table (qingeditor/hash-table/init)))
-      (setq listeners
-	    (qingeditor/eventmgr/shared-mgr/merge this listeners event-table wildcard-event-table)))
+      (if (qingeditor/hash-table/has-key event-table event-name)
+	  (setq listener-table (qingeditor/hash-table/get event-table event-name))
+	(setq listener-table (qingeditor/hash-table/init)))
+      (if (qingeditor/hash-table/has-key event-table "*")
+	  (setq wildcard-listener-table (qingeditor/hash-table/get event-table "*"))
+	(setq wildcard-listener-table (qingeditor/hash-table/init)))
+      (setq merged-listener-table
+	    (qingeditor/eventmgr/shared-mgr/merge
+	     this merged-listener-table listener-table wildcard-listener-table)))
     ;; 复制`* identifier'的事件监听器对象
     (when (qingeditor/hash-table/has-key (oref this :identifiers) "*")
-      (setq wildcard-identifier-table
+      (setq wildcard-event-table
 	    (qingeditor/hash-table/get (oref this :identifiers) "*"))
-      (if (qingeditor/hash-table/has-key wildcard-identifier-table event-name)
-	  (setq event-table (qingeditor/hash-table/get wildcard-identifier-table event-name))
-	(setq event-table (qingeditor/hash-table/init)))
-      (if (qingeditor/hash-table/has-key wildcard-identifier-table "*")
-	  (setq wildcard-event-table (qingeditor/hash-table/get wildcard-identifier-table "*"))
-	(setq wildcard-event-table (qingeditor/hash-table/init)))
-      (setq listeners (qingeditor/eventmgr/shared-mgr/merge
-		       this listeners event-table wildcard-event-table)))
+      (if (qingeditor/hash-table/has-key wildcard-event-table event-name)
+	  (setq listener-table (qingeditor/hash-table/get wildcard-event-table event-name))
+	(setq listener-table (qingeditor/hash-table/init)))
+      (if (qingeditor/hash-table/has-key wildcard-event-table "*")
+	  (setq wildcard-listener-table (qingeditor/hash-table/get wildcard-event-table "*"))
+	(setq wildcard-listener-table (qingeditor/hash-table/init)))
+      (setq merged-listener-table (qingeditor/eventmgr/shared-mgr/merge
+				   this merged-listener-table listener-table wildcard-listener-table)))
     listeners))
 
 (defmethod qingeditor/eventmgr/shared-mgr/merge
@@ -177,17 +178,17 @@
   "清除指定的`identifier'的监听对象，如果`event-name'不为`nil'则只清除`event-name'下的
 监听对象，否则清除`identifier'下所有的监听对象。"
   (catch 'qingeditor-eventmgr-shared-mgr-clear-listeners
-    (let (identifier-table)
+    (let (event-table)
       ;; 不管什么类型，测试失败就pass
       (unless (qingeditor/hash-table/has-key (oref this :identifiers) identifier)
 	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners nil))
       (when (null event-name)
 	(qingeditor/hash-table/remove (oref this :identifiers) identifier)
 	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners t))
-      (setq identifier-table
+      (setq event-table
 	    (qingeditor/hash-table/get (oref this :identifiers) identifier))
-      (unless (qingeditor/hash-table/has-key identifier-table event-name)
+      (unless (qingeditor/hash-table/has-key event-table event-name)
 	(throw 'qingeditor-eventmgr-shared-mgr-clear-listeners nil))
-      (qingeditor/hash-table/remove identifier-table event-name))))
+      (qingeditor/hash-table/remove event-table event-name))))
 
 (provide 'qingeditor-eventmgr-shared-mgr)
