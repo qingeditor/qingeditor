@@ -35,17 +35,17 @@
        (should (equalp (qingeditor/hash-table/count identifier-table) 1))
        (should (equalp (qingeditor/hash-table/has-key identifier-table "event") t))
        (setq event-table (qingeditor/hash-table/get identifier-table "event"))
-       (should (equalp (qingeditor/hash-table/has-key event-table "1.0") t))
-       (setq listener-list (qingeditor/hash-table/get event-table "1.0"))
+       (should (equalp (qingeditor/hash-table/has-key event-table 1) t))
+       (setq listener-list (qingeditor/hash-table/get event-table 1))
        (should (equalp (length listener-list) 1))
        (qingeditor/eventmgr/shared-mgr/attach
 	mgr "identifier" "event" (lambda () (message "some string")))
-       (setq listener-list (qingeditor/hash-table/get event-table "1.0"))
+       (setq listener-list (qingeditor/hash-table/get event-table 1))
        (should (equalp (length listener-list) 2))
        (qingeditor/eventmgr/shared-mgr/attach
 	mgr "identifier" "event" (lambda () (message "some string")) 2)
        (should (equalp (qingeditor/hash-table/count event-table) 2))
-       (setq listener-list (qingeditor/hash-table/get event-table "2.0"))
+       (setq listener-list (qingeditor/hash-table/get event-table 2))
        (qingeditor/eventmgr/shared-mgr/attach
 	mgr "identifier1" "event" (lambda () (message "some string")))
        (should (equalp (qingeditor/hash-table/count (oref mgr :identifiers)) 2))
@@ -99,7 +99,7 @@
        (should (eq (qingeditor/hash-table/empty (oref mgr :identifiers)) nil))
        (setq identifier-table (qingeditor/hash-table/get (oref mgr :identifiers) "identifier1"))
        (setq event-table (qingeditor/hash-table/get identifier-table "event1"))
-       (setq listener-list (qingeditor/hash-table/get event-table "1.0"))
+       (setq listener-list (qingeditor/hash-table/get event-table 1))
        (should (eq (length listener-list) 1))
        ;; 测试批量删除
        (qingeditor/eventmgr/shared-mgr/detach mgr listener "identifier1" "*")
@@ -144,21 +144,21 @@
 	(setq listener-table
 	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
 	(should (eq (qingeditor/hash-table/count listener-table) 2))
-	(should (eq (qingeditor/hash-table/has-key listener-table "1.0") t))
-	(should (eq (qingeditor/hash-table/has-key listener-table "2.0") t))
-	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(should (eq (qingeditor/hash-table/has-key listener-table 1) t))
+	(should (eq (qingeditor/hash-table/has-key listener-table 2) t))
+	(setq listener-list (qingeditor/hash-table/get listener-table 1))
 	(should (equalp listener-list (list listener1 listener)))
 	(setq listener-table
 	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
-	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(setq listener-list (qingeditor/hash-table/get listener-table 2))
 	(should (equalp listener-list (list listener1 listener)))
 	;; 测试 `* identifier' 
 	(qingeditor/eventmgr/shared-mgr/attach mgr "*" "event1" listener1 2)
 	(setq listener-table
 	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier" "event1"))
-	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(setq listener-list (qingeditor/hash-table/get listener-table 1))
 	(should (equalp listener-list (list listener1 listener)))
-	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(setq listener-list (qingeditor/hash-table/get listener-table 2))
 	(should (equalp listener-list (list listener1 listener listener1)))
 	(should-error
 	 (qingeditor/eventmgr/shared-mgr/get-listeners mgr "*" "event1")
@@ -166,11 +166,11 @@
 	(setq listener-table
 	      (qingeditor/eventmgr/shared-mgr/get-listeners mgr "identifier1" "event1"))
 	(should (eq (qingeditor/hash-table/count listener-table) 2))
-	(should (eq (qingeditor/hash-table/has-key listener-table "1.0") t))
-	(should (eq (qingeditor/hash-table/has-key listener-table "2.0") t))
-	(setq listener-list (qingeditor/hash-table/get listener-table "2.0"))
+	(should (eq (qingeditor/hash-table/has-key listener-table 1) t))
+	(should (eq (qingeditor/hash-table/has-key listener-table 2) t))
+	(setq listener-list (qingeditor/hash-table/get listener-table 2))
 	(should (equalp listener-list (list listener listener1)))
-	(setq listener-list (qingeditor/hash-table/get listener-table "1.0"))
+	(setq listener-list (qingeditor/hash-table/get listener-table 1))
 	(should (equalp listener-list (list listener listener)))))))
 
 (ert-deftest qingeditor/test/eventmgr/shared-mgr-get-listeners-test ()

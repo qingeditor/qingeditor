@@ -15,7 +15,7 @@
 (defclass qingeditor/eventmgr/shared-mgr ()
   ((identifiers
     :initarg :identifiers
-    :initform  (qingeditor/hash-table/init)
+    :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
     :documentation "事件数据存储的地方。")
    )
@@ -32,27 +32,27 @@
   (when (or (not (stringp event)) (eq (length event) 0))
     (error "Invalid event provided; must be a non-empty string; received `%s'"
 	   (type-of event)))
-  (let (identifier-table
+  (let ((listener-index priority)
 	event-table
-	(listener-index (format "%d.0" priority))
+	listener-table
 	listener-list)
     (when (not (qingeditor/hash-table/has-key (oref this :identifiers) identifier))
-      (setq identifier-table (qingeditor/hash-table/init))
-      (qingeditor/hash-table/set (oref this :identifiers) identifier identifier-table))
-    (unless identifier-table
-      (setq identifier-table (qingeditor/hash-table/get (oref this :identifiers) identifier)))
-    (when (not (qingeditor/hash-table/has-key identifier-table event))
       (setq event-table (qingeditor/hash-table/init))
-      (qingeditor/hash-table/set identifier-table event event-table))
+      (qingeditor/hash-table/set (oref this :identifiers) identifier event-table))
     (unless event-table
-      (setq event-table (qingeditor/hash-table/get identifier-table event)))
-    (when (not (qingeditor/hash-table/has-key event-table listener-index))
+      (setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier)))
+    (when (not (qingeditor/hash-table/has-key event-table event))
+      (setq listener-table (qingeditor/hash-table/init))
+      (qingeditor/hash-table/set event-table event listener-table))
+    (unless listener-table
+      (setq listener-table (qingeditor/hash-table/get event-table event)))
+    (when (not (qingeditor/hash-table/has-key listener-table listener-index))
       (setq listener-list nil)
-      (qingeditor/hash-table/set event-table listener-index listener-list))
+      (qingeditor/hash-table/set listener-table listener-index listener-list))
     (unless listener-list
-      (setq listener-list (qingeditor/hash-table/get event-table listener-index)))
+      (setq listener-list (qingeditor/hash-table/get listener-table listener-index)))
     (push listener listener-list)
-    (qingeditor/hash-table/set event-table listener-index listener-list)))
+    (qingeditor/hash-table/set listener-table listener-index listener-list)))
 
 (defmethod qingeditor/eventmgr/shared-mgr/detach
   ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)
@@ -126,7 +126,7 @@
     (dolist (identifier identifiers)
       (when (or (not (stringp identifier))
 		(eq (length identifier) 0))
-	(error "Identifier names passed to `%s' must be a string or list, but %s given."
+	(error "Identifier names passed to `%s' must be a string and can be empty, but %s given."
 	       "qingeditor/eventmgr/shared-mgr/get-listeners" (type-of identifiers)))
       ;; 不能是`*'
       (when (string= "*" identifier)

@@ -22,10 +22,11 @@
    (target
     :initarg :target
     :initform nil
-    :type (satisfies (lambda (x)
-		       (or (null x)
-			   (stringp x)
-			   (object-of-class-p x eieio-default-superclass))))
+    :type (satisfies
+	   (lambda (x)
+	     (or (null x)
+		 (stringp x)
+		 (object-of-class-p x eieio-default-superclass))))
     :reader qingeditor/eventmgr/event/get-target
     :writer qingeditor/eventmgr/event/set-target
     :documentaion "当前的事件目标对象。")
@@ -54,19 +55,24 @@
       (qingeditor/eventmgr/event/set-name event name))
     (when target
       (qingeditor/eventmgr/event/set-target event target))
+    (when params
+      (qingeditor/eventmgr/event/set-params-from-alist event params))
     event))
 
-(defmethod qingeditor/eventmgr/event/set-params-from-alist ((this qingeditor/eventmgr/event) alist)
+(defmethod qingeditor/eventmgr/event/set-params-from-alist
+  ((this qingeditor/eventmgr/event) alist)
   "给当前的事件设置参数。"
   (qingeditor/hash-table/set-from-alist (oref this :params) alist)
   this)
 
-(defmethod qingeditor/eventmgr/event/set-param ((this qingeditor/eventmgr/event) key value)
+(defmethod qingeditor/eventmgr/event/set-param
+  ((this qingeditor/eventmgr/event) key value)
   "给当前的事件对象设置参数。"
   (qingeditor/hash-table/set (oref this :params) key value)
   this)
 
-(defmethod qingeditor/eventmgr/event/get-params ((this qingeditor/eventmgr/event))
+(defmethod qingeditor/eventmgr/event/get-params
+  ((this qingeditor/eventmgr/event))
   "获取当前事件对象的参数。"
   (oref this :params))
 
@@ -75,7 +81,8 @@
   "获取指定的参数不存在的话返回默认值。"
   (qingeditor/hash-table/get (oref this :params) name default))
 
-(defmethod qingeditor/eventmgr/event/clear-params ((this qingeditor/eventmgr/event))
+(defmethod qingeditor/eventmgr/event/clear-params
+  ((this qingeditor/eventmgr/event))
   "删除事件对象的所有的参数。"
   (qingeditor/hash-table/clear (oref this :params)))
 
