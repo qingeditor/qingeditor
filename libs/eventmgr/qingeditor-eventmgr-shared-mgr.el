@@ -36,23 +36,18 @@
 	event-table
 	listener-table
 	listener-list)
-    (when (not (qingeditor/hash-table/has-key (oref this :identifiers) identifier))
+    (if (qingeditor/hash-table/has-key (oref this :identifiers) identifier)
+	(setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
       (setq event-table (qingeditor/hash-table/init))
       (qingeditor/hash-table/set (oref this :identifiers) identifier event-table))
-    (unless event-table
-      (setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier)))
-    (when (not (qingeditor/hash-table/has-key event-table event))
+    (if (qingeditor/hash-table/has-key event-table event)
+	(setq listener-table (qingeditor/hash-table/get event-table event))
       (setq listener-table (qingeditor/hash-table/init))
       (qingeditor/hash-table/set event-table event listener-table))
-    (unless listener-table
-      (setq listener-table (qingeditor/hash-table/get event-table event)))
-    (when (not (qingeditor/hash-table/has-key listener-table listener-index))
-      (setq listener-list nil)
-      (qingeditor/hash-table/set listener-table listener-index listener-list))
-    (unless listener-list
-      (setq listener-list (qingeditor/hash-table/get listener-table listener-index)))
+    (when (qingeditor/hash-table/has-key listener-table priority)
+      (setq listener-list (qingeditor/hash-table/get listener-table priority)))
     (push listener listener-list)
-    (qingeditor/hash-table/set listener-table listener-index listener-list)))
+    (qingeditor/hash-table/set listener-table priority listener-list)))
 
 (defmethod qingeditor/eventmgr/shared-mgr/detach
   ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)
@@ -74,7 +69,7 @@
 	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
       (setq event-table (qingeditor/hash-table/get (oref this :identifiers) identifier))
       (when (or (not event-name)
-		(and (string= event-name "*") (not force)))
+		(and (stringp event-name) (string= event-name "*") (not force)))
 	(qingeditor/hash-table/iterate-items
 	 event-table
 	 (qingeditor/eventmgr/shared-mgr/detach this listener identifier key t))
@@ -82,7 +77,7 @@
       (when (or (not (stringp event-name))
 		(eq (length event-name) 0))
 	(error "Invalid event name provided; must be a string, received `%s'" (type-of event-name)))
-      (when (not (qingeditor/hash-table/has-key event-table event-name))
+      (unless (qingeditor/hash-table/has-key event-table event-name)
 	(throw 'qingeditor-eventmgr-shared-mgr-detach nil))
       (setq listener-table (qingeditor/hash-table/get event-table event-name))
       (qingeditor/hash-table/iterate-items
@@ -155,7 +150,7 @@
 	(setq wildcard-listener-table (qingeditor/hash-table/init)))
       (setq merged-listener-table (qingeditor/eventmgr/shared-mgr/merge
 				   this merged-listener-table listener-table wildcard-listener-table)))
-    listeners))
+    merged-listener-table))
 
 (defmethod qingeditor/eventmgr/shared-mgr/merge
   ((this qingeditor/eventmgr/shared-mgr) &rest tables)

@@ -22,14 +22,16 @@
     :initarg :identifiers
     :initform nil
     :type list
-    :reader qingeditor/eventmgr/get-identifiers
+    :reader qingeditor/eventmgr/mgr/get-identifiers
     :documentation "用于从共享的事件对象管理器获取事件监听的`identifiers'名字集合。")
 
    (shared-mgr
     :initarg :shared-mgr
     :initform nil
-    :type (satisfies (lambda (mgr) (or (null mgr) (object-of-class-p mgr))))
-    :reader qingeditor/eventmgr/get-shared-mgr
+    :type (satisfies (lambda (mgr)
+		       (or (null mgr) (object-of-class-p mgr qingeditor/eventmgr/shared-mgr))))
+    :reader qingeditor/eventmgr/mgr/get-shared-mgr
+    :writer qingeditor/eventmgr/mgr/set-shared-mgr
     :documentation "共享事件管理器对象的引用。"))
   :documentation "事件管理器，为单个对象提供事件派发能力。")
 
@@ -53,7 +55,48 @@
   (when (or (not (stringp event-name))
 	    (eq (length event-name) 0))
     (error "event name passed to `%s' must be a string and can be empty, but %s given."
-	   "qingeditor/eventmgr/mgr/attach" (type-of event-name))))
+	   "qingeditor/eventmgr/mgr/attach" (type-of event-name)))
+  (let (listener-table
+	listener-list)
+    (if (qingeditor/hash-table/has-key (oref this :events) event-name)
+	(setq listener-table (qingeditor/hash-table/get (oref this :events) event-name))
+      (setq listener-table (qingeditor/hash-table/init))
+      (qingeditor/hash-table/set (oref this :events) event-name listener-table))
+    (when (qingeditor/hash-table/has-key listener-table priority)
+      (setq listener-list (qingeditor/hash-table/get listener-table priority)))
+    (push listener listener-list)
+    (qingeditor/hash-table/set listener-table priority listener-list)))
+
+(defmethod qingeditor/eventmgr/mgr/detach
+  ((this qingeditor/eventmgr/mgr) listener &optional event-name force)
+  "删除指定的事件监听函数。"
+  (catch 'qingeditor-eventmgr-mgr-detach
+    (let (listener-table)
+       (when (or (not event-name)
+		 (and (stringp event-name) (string= event-name "*") (not force)))
+	 (qingeditor/hash-table/iterate-items
+	  (oref this :events)
+	  (qingeditor/eventmgr/mgr/detach this listener key t))
+	 (throw 'qingeditor-eventmgr-shared-mgr-detach t))
+       (when (or (not (stringp event-name))
+		 (eq (length event-name) 0))
+	 (error "Invalid event name provided; must be a string, received `%s'" (type-of event-name)))
+       (unless (qingeditor/hash-table/has-key (oref this :events) event-name)
+	 (throw 'qingeditor-eventmgr-mgr-detach nil))
+       (setq listener-table (qingeditor/hash-table/get (oref this :events) event-name))
+       (qingeditor/hash-table/iterate-items
+	listener-table
+	(progn
+	  (setq listener-list value)
+	  (dolist (evaluated-listener listener-list)
+	    (when (eq evaluated-listener listener)
+	      ;; 找到了指定的监听对象，删除
+	      (setq listener-list (delete evaluated-listener listener-list))))
+	  (if (eq (length listener-list) 0)
+	      (qingeditor/hash-table/remove listener-table key)
+	    (qingeditor/hash-table/set listener-table key listener-list))))
+       (when (qingeditor/hash-table/empty listener-table)
+	 (qingeditor/hash-table/remove (oref this :events) event-name)))))
 
 (defmethod qingeditor/eventmgr/mgr/set-identifiers
   ((this qingeditor/eventmgr/mgr) identifiers)
@@ -79,11 +122,11 @@
   ((this qingeditor/eventmgr/mgr) event-name)
   "获取指定事件`event-name'的监听对象。"
   (let ((merged-listener-table (qingeditor/hash-table/init))
-	(listener-table
-	 wildcard-listener-table
-	 shared-listener-table
-	 listener-alist
-	 listeners))
+	listener-table
+	wildcard-listener-table
+	shared-listener-table
+	listener-alist
+	listeners)
     (if (qingeditor/hash-table/has-key (oref this :events) event-name)
 	(setq listener-table (qingeditor/hash-table/get (oref this :events) event-name))
       (setq listener-table (qingeditor/hash-table/init)))
@@ -99,8 +142,11 @@
 	  (qingeditor/eventmgr/mgr/merge
 	   this merged-listener-table listener-table wildcard-listener-table shared-listener-table))
     (setq listener-alist (qingeditor/hash-table/to-alist merged-listener-table))
-    
-    ))
+    (setq listener-alist
+	  (sort listener-alist (lambda (left right)
+				 (< (car left) (car right)))))
+    (dolist (cur-list listener-alist listeners)
+      (setq listeners (append (reverse (cdr cur-list)) listeners)))))
 
 (defmethod qingeditor/eventmgr/mgr/merge
   ((this qingeditor/eventmgr/mgr) &rest tables)
