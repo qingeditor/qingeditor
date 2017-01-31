@@ -118,6 +118,15 @@
   (let ((event (qingeditor/eventmgr/event/init (name target argv))))
     (qingeditor/eventmgr/mgr/trigger-listeners this event)))
 
+(defmethod qingeditor/eventmgr/mgr/trigger-listeners
+  ((this qingeditor/eventmgr/mgr) event &optional callback)
+  "触发监听对象。"
+  (let ((name (qingeditor/eventmgr/event/set-name event)))
+    (when (null name)
+      (error "Event is missing a name; cannot trigger!"))
+    (qingeditor/eventmgr/event/set-stop-propagation event nil)
+    ))
+
 (defmethod qingeditor/eventmgr/mgr/get-listeners-by-event-name
   ((this qingeditor/eventmgr/mgr) event-name)
   "获取指定事件`event-name'的监听对象。"
