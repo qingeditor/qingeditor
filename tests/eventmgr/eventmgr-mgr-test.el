@@ -30,7 +30,6 @@
       mgr '("identifier1" "identifier1" "identifier2"))
      (should (equalp (oref mgr :identifiers) '("identifier1" "identifier2"))))))
 
-
 (ert-deftest qingeditor/test/eventmgr/mgr-add-identifiers-test ()
   :tags '(qingeditor/test/eventmgr/mgr/prepare-mgr)
   (qingeditor/test/eventmgr/mgr/prepare-mgr

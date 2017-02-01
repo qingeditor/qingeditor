@@ -14,6 +14,7 @@
   ;; 将`qingeditor'核心库加入到`load-path'列表中
   (qingeditor/register-target-dir-to-load-path qingeditor/libs-dir)
   (require 'qingeditor-boot)
+  (require 'qingeditor-init-bootstrap)
   (qingeditor/core/boot/init)
   (qingeditor/core/user-cfg/maybe-install-user-cfg-file)
   (qingeditor/layer/layer/sync)
