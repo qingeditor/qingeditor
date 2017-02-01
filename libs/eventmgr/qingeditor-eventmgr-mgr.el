@@ -10,6 +10,7 @@
 
 (require 'qingeditor-eventmgr-shared-mgr)
 (require 'qingeditor-eventmgr-event)
+(require 'qingeditor-eventmgr-response-collection)
 
 (defclass qingeditor/eventmgr/mgr ()
   ((events
@@ -113,19 +114,55 @@
   this)
 
 (defmethod qingeditor/eventmgr/mgr/trigger
-  ((this qingeditor/eventmgr/mgr) event-name &optional target argv)
+  ((this qingeditor/eventmgr/mgr) event-name &optional target event-params)
   "触发一个事件`event-name'，调用所有相关的回调函数。"
-  (let ((event (qingeditor/eventmgr/event/init (name target argv))))
+  (let ((event (qingeditor/eventmgr/event/init event-name target event-params)))
     (qingeditor/eventmgr/mgr/trigger-listeners this event)))
+
+(defmethod qingeditor/eventmgr/mgr/trigger-until
+  ((this qingeditor/eventmgr/mgr) callback event-name &optional target event-params)
+  "执行事件的处理器，直到`callback'返回`t'值。"
+  (let ((event (qingeditor/eventmgr/event/init event-name target event-params)))
+    (qingeditor/eventmgr/mgr/trigger-listeners this event callback)))
+
+(defmethod qingeditor/eventmgr/mgr/trigger-event
+  ((this qingeditor/eventmgr/mgr) event)
+  "触发一个事件`event-name'，调用所有相关的回调函数。"
+  (qingeditor/eventmgr/mgr/trigger-listeners this event))
+
+(defmethod qingeditor/eventmgr/mgr/trigger-event-until
+  ((this qingeditor/eventmgr/mgr) callback event)
+  "执行事件的处理器，直到`callback'返回`t'值。"
+  (qingeditor/eventmgr/mgr/trigger-listeners this event callback))
 
 (defmethod qingeditor/eventmgr/mgr/trigger-listeners
   ((this qingeditor/eventmgr/mgr) event &optional callback)
   "触发监听对象。"
-  (let ((name (qingeditor/eventmgr/event/set-name event)))
+  (let ((name (qingeditor/eventmgr/event/get-name event))
+	(responses (qingeditor/eventmgr/response-collection))
+	listener-handlers
+	response)
     (when (null name)
       (error "Event is missing a name; cannot trigger!"))
     (qingeditor/eventmgr/event/set-stop-propagation event nil)
-    ))
+    (setq listener-handlers
+	  (qingeditor/eventmgr/mgr/get-listeners-by-event-name this name))
+    (catch 'qingeditor-eventmgr-mgr-trigger-listeners-stopped
+      (dolist (handler listener-handlers)
+	(when (object-of-class-p handler qingeditor/eventmgr/event-handler)
+	  (setq response (qingeditor/eventmgr/event-handler/call handler event))
+	  (qingeditor/stack/push responses response)
+	  ;; If the event was asked to stop propagating, do so
+	  (when (qingeditor/eventmgr/event/get-stop-propagation event)
+	    (qingeditor/eventmgr/response-collection/set-stopped responses t)
+	    (throw 'qingeditor-eventmgr-mgr-trigger-listeners-stopped t))
+	  ;; If the result causes our validation callback to return true,
+	  ;; stop propagation
+	  (when (and callback
+		     (funcall callback response))
+	    (qingeditor/eventmgr/response-collection/set-stopped responses t)
+	    (throw 'qingeditor-eventmgr-mgr-trigger-listeners-stopped t)))))
+    responses))
 
 (defmethod qingeditor/eventmgr/mgr/get-listeners-by-event-name
   ((this qingeditor/eventmgr/mgr) event-name)
@@ -172,5 +209,11 @@
 	     (setq target-listeners (append target-listeners source-listeners))
 	     (qingeditor/hash-table/set target key target-listeners))))))
     target))
+
+(defmethod qingeditor/eventmgr/mgr/clear-listeners
+  ((this qingeditor/eventmgr/mgr) event-name)
+  "清空事件监听函数。"
+  (when (qingeditor/hash-table/has-key (oref this :events) event-name)
+    (qingeditor/hash-table/remove (oref this :events) event-name)))
 
 (provide 'qingeditor-eventmgr-mgr)

@@ -14,6 +14,8 @@
 
 (require 'qingeditor-eventmgr-mgr)
 (require 'qingeditor-eventmgr-shared-mgr)
+(require 'qingeditor-eventmgr-event-handler)
+(require 'eieio)
 
 (defun qingeditor/test/eventmgr/mgr/prepare-mgr (test-func)
   "为测试准备一个`qingeditor/eventmgr`对象'。'"
@@ -152,3 +154,43 @@
 	(should (equal listener-list
 		       (list shared-listener wildcard-listener
 			     listener2 listener3 shared-listener)))))))
+
+(ert-deftest qingeditor/test/eventmgr/mgr-trigger-test ()
+  :tags '(qingeditor/eventmgr/mgr/trigger)
+  (qingeditor/test/eventmgr/mgr/prepare-mgr
+   (lambda ()
+     (let ((listener-handler1
+	    (qingeditor/eventmgr/event-handler/init
+	     (lambda (event)
+	       `(,(qingeditor/eventmgr/event/get-name event)
+		 ,(qingeditor/eventmgr/event/get-target event)))))
+	   (listener-handler2
+	    (qingeditor/eventmgr/event-handler/init
+	     (lambda (event)
+	       (qingeditor/eventmgr/event/set-stop-propagation event t)
+	       `(,(qingeditor/eventmgr/event/get-target event)))))
+	    (listener-handler3
+	     (qingeditor/eventmgr/event-handler/init
+	      (lambda (event)
+		`(,(qingeditor/eventmgr/event/get-name event)))))
+	    responses
+	    (invoke-count 0))
+       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler1)
+       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler2)
+       ;; 简单的trigger
+       (setq responses (qingeditor/eventmgr/mgr/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
+       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler3)
+       (should (= (qingeditor/stack/count responses) 2))
+       (should (equalp (oref responses :data) '(("target1") ("event1" "target1"))))
+       ;; 测试stopped
+       (setq responses (qingeditor/eventmgr/mgr/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
+       (should (equalp (oref responses :data) '(("target1") ("event1" "target1"))))
+       (should (eq (qingeditor/eventmgr/response-collection/stopped responses) t))
+       (setq responses (qingeditor/eventmgr/mgr/trigger-until mgr
+							      (lambda (event)
+								(setq invoke-count (1+ invoke-count))
+								(when (= 1 invoke-count)
+								  t))
+							      "event1" "target1" '((name . "xiuxiu"))))
+       (should (= (qingeditor/stack/count responses) 1))
+       (should (equalp (oref responses :data) '(("event1" "target1"))))))))

@@ -14,7 +14,8 @@
   ((name
     :initarg :name
     :initform nil
-    :type (satisfies (lambda (x) (or (null x) (stringp x))))
+    :type (satisfies (lambda (x)
+		       (or (null x) (stringp x))))
     :reader qingeditor/eventmgr/event/get-name
     :writer qingeditor/eventmgr/event/set-name
     :documentaion "事件的名称。")
@@ -50,11 +51,7 @@
 
 (defun qingeditor/eventmgr/event/init (&optional name target params)
   "初始化事件对象。"
-  (let ((event (qingeditor/eventmgr/event)))
-    (when name
-      (qingeditor/eventmgr/event/set-name event name))
-    (when target
-      (qingeditor/eventmgr/event/set-target event target))
+  (let ((event (qingeditor/eventmgr/event :name name :target target)))
     (when params
       (qingeditor/eventmgr/event/set-params-from-alist event params))
     event))

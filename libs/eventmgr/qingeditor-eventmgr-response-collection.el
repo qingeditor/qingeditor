@@ -34,5 +34,3 @@
   (if (member value (oref this :data)) t nil))
 
 (provide 'qingeditor-eventmgr-response-collection)
-
-

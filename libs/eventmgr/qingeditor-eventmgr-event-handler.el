@@ -47,7 +47,6 @@
       (setq type qingeditor/eventmgr/method-callable)))
   (qingeditor/eventmgr/event-handler :type type :callable-data callable))
 
-
 (defmethod qingeditor/eventmgr/event-handler/call
   ((this qingeditor/eventmgr/event-handler) &rest args)
   "调用处理器。"
