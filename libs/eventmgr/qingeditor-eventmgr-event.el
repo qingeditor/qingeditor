@@ -1,11 +1,11 @@
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
-;; 
+;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
-;; 
+;;
 ;; 封装一个事件对象
 
 (require 'qingeditor-hash-table)
@@ -19,7 +19,7 @@
     :reader qingeditor/eventmgr/event/get-name
     :writer qingeditor/eventmgr/event/set-name
     :documentaion "事件的名称。")
-   
+
    (target
     :initarg :target
     :initform nil
@@ -31,7 +31,7 @@
     :reader qingeditor/eventmgr/event/get-target
     :writer qingeditor/eventmgr/event/set-target
     :documentaion "当前的事件目标对象。")
-   
+
    (params
     :initarg :params
     :initform (qingeditor/hash-table/init)
