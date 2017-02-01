@@ -1,3 +1,4 @@
+
 ;; `qingeditor'配置相关的函数定义
 (require 'qingeditor-std-dir)
 

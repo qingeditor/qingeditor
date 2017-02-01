@@ -12,18 +12,27 @@
 
 (defconst qingeditor/init/event/cfg-ready-event 1
   "when `qingeditor' load configuration file, dispatch this event.")
+
 (defconst qingeditor/init/event/bootstrap-event 2
   "after load configuration, dispatch bootstrap event.")
+
 (defconst qingeditor/init/event/before-load-modules-event 3
   "before `qingeditor' load modules, dispatch the event.")
+
 (defconst qingeditor/init/event/adter-load-modules-event 4
   "when all configured modules loaded, dispatch this event.")
+
 (defconst qingeditor/init/event/render-event-event 5
   "after loaded target modules, `qingeditor' render starup screen. but
 if you invoke `qingeditor' from terminal with a file path, this event will not
 been dispatched.")
+
 (defconst qingeditor/init/event/ready-event 5
   "after all step of process, `qingeditor' is ready for used, dispatch this event.")
+
+(defconst qingeditor/init/event/error-event 6
+  "when `qingeditor' catch some error, will dispatch this event. The error event listener
+handler will process the error information.")
 
 (defclass qingeditor/init/event (qingeditor/eventmgr/event)
   ((initializer
