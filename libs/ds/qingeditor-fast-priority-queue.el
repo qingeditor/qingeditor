@@ -70,33 +70,33 @@
     :protection protected
     :documentation "迭代周期中的元素的索引值。")))
 
-(defmethod qingeditor/fast-priority-queue/insert
+(defmethod qingeditor/cls/insert
   ((this qingeditor/fast-priority-queue) value priority)
   "插入一个元素到队列里面,并指定优先级。"
-  (when (not (qingeditor/hash-table/has-key (oref this :values) priority))
-    (qingeditor/hash-table/set (oref this :values) priority nil))
-  (let ((cur-value-list (qingeditor/hash-table/get (oref this :values) priority)))
+  (when (not (qingeditor/cls/has-key (oref this :values) priority))
+    (qingeditor/cls/set (oref this :values) priority nil))
+  (let ((cur-value-list (qingeditor/cls/get (oref this :values) priority)))
     (push value cur-value-list)
-    (qingeditor/hash-table/set (oref this :values) priority cur-value-list))
-  (when (not (qingeditor/hash-table/has-key (oref this :priorities) priority))
-    (qingeditor/hash-table/set (oref this :priorities) priority priority)
+    (qingeditor/cls/set (oref this :values) priority cur-value-list))
+  (when (not (qingeditor/cls/has-key (oref this :priorities) priority))
+    (qingeditor/cls/set (oref this :priorities) priority priority)
     (oset this :max-priority (max priority (oref this :max-priority))))
   (oset this :count (1+ (oref this :count))))
 
-(defmethod qingeditor/fast-priority-queue/count ((this qingeditor/fast-priority-queue))
+(defmethod qingeditor/cls/count ((this qingeditor/fast-priority-queue))
   "获取队列的元素。"
   (oref this :count))
 
-(defmethod qingeditor/fast-priority-queue/to-list ((this qingeditor/fast-priority-queue) &optional func)
+(defmethod qingeditor/cls/to-list ((this qingeditor/fast-priority-queue) &optional func)
   "将优先级队列转换成`list', 如果指定了`func'参数
 则会传入当前的数据和优先级进行调用 \(fucn data index sub-index)。"
-  (qingeditor/fast-priority-queue/prepare-iterate this)
+  (qingeditor/cls/prepare-iterate this)
   (let ((ret-list))
-    (while (qingeditor/hash-table/has-key
+    (while (qingeditor/cls/has-key
 	    (oref this :values) (oref this :max-priority))
       (let ((cur-priority-values
 	     (reverse
-	      (qingeditor/hash-table/get (oref this :values) (oref this :max-priority)))))
+	      (qingeditor/cls/get (oref this :values) (oref this :max-priority)))))
 	(dolist (cur-value cur-priority-values)
 	  (let ((flag (oref this :extract-flag))
 		data)
@@ -113,11 +113,11 @@
 	    (oset this :index (1+ (oref this :index)))
 	    (oset this :sub-index (1+ (oref this :sub-index)))))
 	;; 本轮完成，设置相关标记变量
-	(qingeditor/hash-table/remove (oref this :sub-priorities) (oref this :max-priority))
-	(if (qingeditor/hash-table/empty (oref this :sub-priorities))
+	(qingeditor/cls/remove (oref this :sub-priorities) (oref this :max-priority))
+	(if (qingeditor/cls/empty (oref this :sub-priorities))
 	    (oset this :max-priority 0)
 	  (let ((max-priority))
-	    (qingeditor/hash-table/iterate-items
+	    (qingeditor/cls/iterate-items
 	     (oref this :sub-priorities)
 	     (progn
 	       (when (eq max-priority nil)
@@ -128,7 +128,7 @@
 	(oset this :sub-index -1)))
     (nreverse ret-list)))
 
-(defmethod qingeditor/fast-priority-queue/set-extract-flags
+(defmethod qingeditor/cls/set-extract-flags
   ((this qingeditor/fast-priority-queue) flag)
   "设置数据获取的方式。"
   (when (or (eq qingeditor/fast-priority-queue/extra-data flag)
@@ -137,29 +137,29 @@
     (oset this extra-flag flag))
   this)
 
-(defmethod qingeditor/fast-priority-queue/remove ((this qingeditor/fast-priority-queue) datum)
+(defmethod qingeditor/cls/remove ((this qingeditor/fast-priority-queue) datum)
   "删除指定的`datum'数据。"
-  (qingeditor/fast-priority-queue/prepare-iterate this)
+  (qingeditor/cls/prepare-iterate this)
   (catch 'remove-success
-    (while (qingeditor/hash-table/has-key
+    (while (qingeditor/cls/has-key
 	    (oref this :values) (oref this :max-priority))
       (let ((cur-priority-values
-	     (qingeditor/hash-table/get (oref this :values) (oref this :max-priority))))
+	     (qingeditor/cls/get (oref this :values) (oref this :max-priority))))
 	(dolist (cur-value cur-priority-values)
 	  (when (equalp cur-value datum)
 	    (setq cur-priority-values (delete cur-value cur-priority-values))
-	    (qingeditor/hash-table/set
+	    (qingeditor/cls/set
 	     (oref this :values) (oref this :max-priority) cur-priority-values)
 	    (oset this :count (1- (oref this :count)))
 	    (throw 'remove-success t))
 	  (oset this :index (1+ (oref this :index)))
 	  (oset this :sub-index (1+ (oref this :sub-index))))
 	;; 本轮完成，设置相关标记变量
-	(qingeditor/hash-table/remove (oref this :sub-priorities) (oref this :max-priority))
-	(if (qingeditor/hash-table/empty (oref this :sub-priorities))
+	(qingeditor/cls/remove (oref this :sub-priorities) (oref this :max-priority))
+	(if (qingeditor/cls/empty (oref this :sub-priorities))
 	    (oset this :max-priority 0)
 	  (let ((max-priority))
-	    (qingeditor/hash-table/iterate-items
+	    (qingeditor/cls/iterate-items
 	     (oref this :sub-priorities)
 	     (progn
 	       (when (eq max-priority nil)
@@ -169,37 +169,37 @@
 	    (oset this :max-priority max-priority)))
 	(oset this :sub-index 0)))))
 
-(defmethod qingeditor/fast-priority-queue/empty ((this qingeditor/fast-priority-queue))
+(defmethod qingeditor/cls/empty ((this qingeditor/fast-priority-queue))
   "判断当前的队列是否为空。"
-  (qingeditor/hash-table/empty (oref this :values)))
+  (qingeditor/cls/empty (oref this :values)))
 
-(defmethod qingeditor/fast-priority-queue/contains ((this qingeditor/fast-priority-queue) datum)
+(defmethod qingeditor/cls/contains ((this qingeditor/fast-priority-queue) datum)
   "当前队列是否含有`datum'。"
   (catch 'datum-find
-    (qingeditor/hash-table/iterate-items
+    (qingeditor/cls/iterate-items
      (oref this :values)
      (progn
        (when (equalp datum value)
 	 (throw 'datum-find t))))))
 
-(defmethod qingeditor/fast-priority-queue/has-priority
+(defmethod qingeditor/cls/has-priority
   ((this qingeditor/fast-priority-queue) priority)
   "队列是否存在指定的`priority'。"
-  (qingeditor/hash-table/has-key (oref this :values) priority))
+  (qingeditor/cls/has-key (oref this :values) priority))
 
-(defmethod qingeditor/fast-priority-queue/get-priority-list
+(defmethod qingeditor/cls/get-priority-list
   ((this qingeditor/fast-priority-queue) priority)
   "获取指定优先级的数据列表，返回当前的优先级数据的克隆。"
-  (when (qingeditor/hash-table/has-key (oref this :values) priority)
-    (copy-sequence (qingeditor/hash-table/get (oref this :values) priority))))
+  (when (qingeditor/cls/has-key (oref this :values) priority)
+    (copy-sequence (qingeditor/cls/get (oref this :values) priority))))
 
-(defmethod qingeditor/fast-priority-queue/prepare-iterate ((this qingeditor/fast-priority-queue))
+(defmethod qingeditor/cls/prepare-iterate ((this qingeditor/fast-priority-queue))
   "准备迭代，设置相关变量。"
-  (oset this :sub-priorities (qingeditor/hash-table/clone (oref this :priorities)))
-  (if (qingeditor/hash-table/empty (oref this :priorities))
+  (oset this :sub-priorities (qingeditor/cls/clone (oref this :priorities)))
+  (if (qingeditor/cls/empty (oref this :priorities))
       (oset this :max-priority 0)
     (let ((max-priority))
-      (qingeditor/hash-table/iterate-items
+      (qingeditor/cls/iterate-items
        (oref this :priorities)
        (progn
 	 (when (eq max-priority nil)
