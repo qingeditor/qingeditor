@@ -46,4 +46,4 @@
 (unless (file-exists-p qingeditor/cache-dir)
   (make-directory qingeditor/cache-dir))
 
-(provide 'qingeditor-std-dir)
+(provide 'qingeditor-stddir)

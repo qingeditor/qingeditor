@@ -1,12 +1,12 @@
 
 ;; `qingeditor'配置相关的函数定义
-(require 'qingeditor-std-dir)
+(require 'qingeditor-stddir)
 
 (let* ((env (getenv "QINGEDITORDIR"))
        (env-dir (when env (expand-file-name (concat env "/"))))
        (env-init (and env-dir (expand-file-name "init.el" env-dir)))
        (no-env-dir-default (expand-file-name
-			    (concat qingeditor/user-home-dir ".qingeditor.d/")))
+                            (concat qingeditor/user-home-dir ".qingeditor.d/")))
        (default-init (expand-file-name ".qingeditor" qingeditor/user-home-dir)))
   (defconst qingeditor/core/user-cfg/target-cfg-dir
     (cond

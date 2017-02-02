@@ -10,27 +10,27 @@
 
 (require 'qingeditor-eventmgr-event)
 
-(defconst qingeditor/init/event/cfg-ready-event 1
+(defconst qingeditor/init/event/editor-cfg-ready-event "editor-cfg-ready-event"
   "when `qingeditor' load configuration file, dispatch this event.")
 
-(defconst qingeditor/init/event/bootstrap-event 2
+(defconst qingeditor/init/event/bootstrap-event "bootstrap-event"
   "after load configuration, dispatch bootstrap event.")
 
-(defconst qingeditor/init/event/before-load-modules-event 3
+(defconst qingeditor/init/event/before-load-modules-event "before-load-modules-event"
   "before `qingeditor' load modules, dispatch the event.")
 
-(defconst qingeditor/init/event/adter-load-modules-event 4
+(defconst qingeditor/init/event/adter-load-modules-event "adter-load-modules-event"
   "when all configured modules loaded, dispatch this event.")
 
-(defconst qingeditor/init/event/render-event-event 5
+(defconst qingeditor/init/event/render-event-event "render-event-event"
   "after loaded target modules, `qingeditor' render starup screen. but
 if you invoke `qingeditor' from terminal with a file path, this event will not
 been dispatched.")
 
-(defconst qingeditor/init/event/ready-event 5
+(defconst qingeditor/init/event/ready-event "ready-event"
   "after all step of process, `qingeditor' is ready for used, dispatch this event.")
 
-(defconst qingeditor/init/event/error-event 6
+(defconst qingeditor/init/event/error-event "error-event"
   "when `qingeditor' catch some error, will dispatch this event. The error event listener
 handler will process the error information.")
 
@@ -38,7 +38,6 @@ handler will process the error information.")
   ((initializer
     :initarg :initializer
     :initform nil
-    :type qingeditor/initializer
     :reader qingeditor/init/event/get-initializer
     :documentation "global initializer object reference.")
 
@@ -48,6 +47,13 @@ handler will process the error information.")
     :reader qingeditor/init/event/get-result
     :documentation "The result of previous event handler."))
   :documentation "The event class for initialization stage")
+
+(defun qingeditor/init/event/init (&optional name target params)
+  "初始化事件对象。"
+  (let ((event (qingeditor/init/event :name name :target target)))
+    (when params
+      (qingeditor/eventmgr/event/set-params-from-alist event params))
+    event))
 
 (defmethod qingeditor/init/event/set-initializer ((this qingeditor/init/event) initializer)
   "Set initializer for event object."

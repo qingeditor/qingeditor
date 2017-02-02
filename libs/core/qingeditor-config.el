@@ -8,6 +8,13 @@
 ;;
 ;; define `qingedtior' global configuration variables
 
+(defvar qingeditor/config/target-cfg-dir nil
+  "The target runtime environment dir, which the actually configuration
+file to be saved.")
+
+(defvar qingeditor/config/target-cfg-filename nil
+  "The actually configuration to be load.")
+
 (defvar qingeditor/config/distribution 'editor-standard
   "最基本的layer层，当前包含两个组件 `editor-base' 或者 `editor-standard'。")
 
@@ -39,11 +46,6 @@
   "额外的不包含在任何配置层里面的`package'包，如果您需要配置这些`package'您可以考虑新建一个`layer'
 当然您可以在`qingeditor/user-cfg'函数中进行相关的配置。")
 
-(defvar qingeditor/config/editing-style 'emacs
-  "`qingeditor'编辑风格，目前支持三个选项`emacs', `vim'和`hybrid'。
-`hybrid'跟`vim'很相似，除了将`insert state'换成`hybrid state'并且使用`emacs'按键绑定。这个值也可以指定为一个list，像配置层那样
-使用`:variables'关键字。详情请看文档中关于编辑风格相关的章节。")
-
 (defvar qingeditor/config/startup-banner 'official
   "指定`qingeditor'启动的时候的banner图片，有三个选项：`official', `random'和自定义的字符串。
 `offical'显示官方默认的banner图片，`random'随机从内置的banner图片 库选择一张。自定义字符串必须指定一张png格式的图片路径。如果这个
@@ -65,14 +67,13 @@
 (defvar qingeditor/config/colorize-cursor-according-to-state t
   "如果不为`nil' GUI Emacs将会对匹配的括号进行着色。")
 
+;; `qingeditor'默认的`leader key'。
+(setq-default qingeditor/config/leader-key "SPC")
 
-(defvar qingeditor/config/emacs-leader-key "M-m"
-  "`qingeditor'的`emacs state'和`insert state'默认的`leader key'。")
+;; `qingeditor'的`major leader key'是`<leader> m'快捷方式。设置成`nil'禁止这个行为。
+(setq-default qingeditor/config/major-mode-leader-key ",")
 
-(defvar qingeditor/config/major-mode-emacs-leader-key  "C-M-m"
-  "`qingeditor''在`emacs state'和`insert state'的leader key。")
-
-(defvar qingeditor/config/emacs-command-key "SPC"
+(defvar qingeditor/config/command-key "SPC"
   "当按了`leader key'之后执行Emacs command (M-x)命令的`key'。")
 
 (defvar qingeditor/config/distinguish-gui-tab nil
@@ -82,11 +83,10 @@
   "在GUI模式下是否区分`c-m'个`return'。")
 
 (defvar qingeditor/core/config/default-font '("Source Code Pro"
-						:size 14
+						:size 15
 						:weight normal
 						:width normal
 						:powerline-scale 1.1))
-  
 
 (defvar qingeditor/config/folding-method 'origami
   "默认的代码折叠方法，可选的值有`evil'和`origami'。")
@@ -211,4 +211,4 @@
 (defvar qingeditor/config/verbose-loading nil
   "当这个配置值不为`nil'的时候，系统将在`*Message*' buffer里面显示加载进度。默认为`nil'。")
 
-(provide 'qingeditor-user-cfg)
+(provide 'qingeditor-config)

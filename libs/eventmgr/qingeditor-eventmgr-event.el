@@ -23,11 +23,6 @@
    (target
     :initarg :target
     :initform nil
-    :type (satisfies
-	   (lambda (x)
-	     (or (null x)
-		 (stringp x)
-		 (object-of-class-p x eieio-default-superclass))))
     :reader qingeditor/eventmgr/event/get-target
     :writer qingeditor/eventmgr/event/set-target
     :documentaion "当前的事件目标对象。")
@@ -49,12 +44,6 @@
   :documentation "封装一个目标的上下文和事件参数传递的类，这个类会定义一些与
 事件管理器交互的方法。")
 
-(defun qingeditor/eventmgr/event/init (&optional name target params)
-  "初始化事件对象。"
-  (let ((event (qingeditor/eventmgr/event :name name :target target)))
-    (when params
-      (qingeditor/eventmgr/event/set-params-from-alist event params))
-    event))
 
 (defmethod qingeditor/eventmgr/event/set-params-from-alist
   ((this qingeditor/eventmgr/event) alist)

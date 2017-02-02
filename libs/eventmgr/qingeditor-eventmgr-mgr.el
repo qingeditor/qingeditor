@@ -44,8 +44,8 @@
       (error "Identifier names passed to `%s' must be a string or list, but %s given."
 	     "qingeditor/eventmgr/init" (type-of identifiers)))
     (when shared-mgr
-      (oset this :shared-mgr shared-mgr)
-      (qingeditor/eventmgr/set-identifiers this identifiers))
+      (oset mgr :shared-mgr shared-mgr)
+      (qingeditor/eventmgr/mgr/set-identifiers mgr identifiers))
     mgr))
 
 (defmethod qingeditor/eventmgr/mgr/attach

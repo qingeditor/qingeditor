@@ -1,4 +1,12 @@
-;; 定义一些常见函数
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: MIT
+;;
+;; define some untils functions
 
 (defun qingeditor/core/message (msg &rest args)
   "将`msg'添加到`*Messages*'buffer里面。"
@@ -63,5 +71,42 @@
 (defun qingeditor/core/run-text-mode-hooks ()
   "运行`text-mode-hook'。这个函数对那些不是从`text-mode'继承而来的`mode'非常有用。"
   (run-hooks 'text-mode-hook))
+
+(defvar qingeditor/core/private-vars/warnings nil "记录启动过程中出现的`warning'信息。")
+
+(defun qingeditor/core/message (msg &rest args)
+  "在`*Message*' buffer里面显示一条以(QingEditor)开头的信息。只有当`init-file-debug'不为`nil'的时候
+才显示相应的信息。"
+  (when init-file-debug
+    (qingeditor/core/message "(QingEditor) %s" (apply 'format msg args))))
+
+(defun qingeditor/core/warning (msg &rest args)
+  "在`*Message*' buffer中显示一条告警信息 `MSG'，传入的`MSG'会无条件显示。"
+  (let ((msg (apply 'format msg args)))
+    (qingeditor/core/message "(QingEditor) Warning: %s" msg)
+    (add-to-list 'qingeditor/core/private-vars/warnings msg 'append)))
+
+(defun qingeditor/core/system-is-mac ()
+  (eq system-type 'darwin))
+
+(defun qingeditor/core/system-is-linux ()
+  (eq system-type 'gnu/linux))
+
+(defun qingeditor/core/system-is-mswindows ()
+  (eq system-type 'windows-nt))
+
+(defun qingeditor/core/window-system-is-mac ()
+  ;; 在Emacs 25+的mac `(window-system)'返回 ns
+  (memq (window-system) '(mac ns)))
+
+(defvar qingeditor/core/private-vars/error-count nil
+  "系统启动过程中出现的错误次数。")
+
+(defun qingeditor/core/increment-error-count ()
+  "增加全局错误计数器。"
+  (if qingeditor/core/private-vars/error-count
+      (setq qingeditor/core/private-vars/error-count
+            (1+ qingeditor/core/private-vars/error-count))
+    (setq qingeditor/core/private-vars/error-count 1)))
 
 (provide 'qingeditor-funcs)
