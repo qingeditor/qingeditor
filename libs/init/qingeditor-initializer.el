@@ -27,35 +27,35 @@
      :documentation "the event manager of `qingeditor/initializer' object"))
   :documentation "global initializer class")
 
-(defmethod qingeditor/initializer/init ((this qingeditor/initializer))
+(defmethod qingeditor/cls/init ((this qingeditor/initializer))
   "init `qingeditor' in this method, we first find the configuration
 file in load-path, if the configuration not exist, `qingeditor' will
 first generate it, then load it normally. after load the configuration file,
 we finally process `qingeditor' modules."
-  (qingeditor/initializer/load-editor-cfg-file this))
+  (qingeditor/cls/load-editor-cfg-file this))
 
-(defmethod qingeditor/initializer/bootstrap ((this qingeditor/initializer))
+(defmethod qingeditor/cls/bootstrap ((this qingeditor/initializer))
   "bootstrap `qingeditor', dispatch event."
   )
 
-(defmethod qingeditor/initializer/run ((this qingeditor/initializer))
+(defmethod qingeditor/cls/run ((this qingeditor/initializer))
   "In this method, we will finished all settup procedure and run `qingeditor'.")
 
-(defmethod qingeditor/initializer/load-editor-cfg-file
+(defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))
   "load `qingeditor' configuration file."
-  (qingeditor/initializer/detect-init-filename this)
+  (qingeditor/cls/detect-init-filename this)
   (unless (file-exists-p qingeditor/config/target-cfg-filename)
-    (qingeditor/initializer/generate-new-cfg-filename-from-tpl
+    (qingeditor/cls/generate-new-cfg-filename-from-tpl
      this 'with-wizard))
   (when (load-file qingeditor/config/target-cfg-filename)
     (let ((event (qingeditor/init/event/init
                   qingeditor/init/event/editor-cfg-ready-event
                   this)))
-      (qingeditor/init/event/set-initializer event this)
-      (qingeditor/eventmgr/mgr/trigger-event (oref this :eventmgr) event))))
+      (qingeditor/cls/set-initializer event this)
+      (qingeditor/cls/trigger-event (oref this :eventmgr) event))))
 
-(defmethod qingeditor/initializer/generate-new-cfg-filename-from-tpl
+(defmethod qingeditor/cls/generate-new-cfg-filename-from-tpl
   ((this qingeditor/initializer) &optional arg)
   "Generate a new configuration file for `qingeditor'."
   ;; preferences is alist where the key is the text to replace
@@ -65,7 +65,7 @@ we finally process `qingeditor' modules."
            `(("distribution 'editor-standard"
               ,(format
                 "distribution '%S"
-                (qingeditor/initializer/ido-completing-read
+                (qingeditor/cls/ido-completing-read
                  this
                  "What distribution of qingeditor would you like to start with?"
                  `(("The standard distribution, recommended (editor-standard)"
@@ -74,7 +74,7 @@ we finally process `qingeditor' modules."
                              " (editor-base)")
                     editor-base)))))
              ("helm"
-              ,(qingeditor/initializer/ido-completing-read
+              ,(qingeditor/cls/ido-completing-read
                 this
                 "What type of completion framework di you want? "
                 '(("A heavy one but full featured (helm)"
@@ -102,14 +102,14 @@ we finally process `qingeditor' modules."
                    qingeditor/config/target-cfg-filename)
           t)))))
 
-(defmethod qingeditor/initializer/ido-completing-read
+(defmethod qingeditor/cls/ido-completing-read
   ((this qingeditor/initializer) prompt candidates)
   "Call `ido-completing-read' with a CANDIDATES alist where the key is
 a display string and the value is the actual to return."
   (let ((ido-max-window-height (1+ (length candidates))))
     (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates)) candidates))))
 
-(defmethod qingeditor/initializer/detect-init-filename
+(defmethod qingeditor/cls/detect-init-filename
   ((this qingeditor/initializer))
   "figure out the target configuration full filename."
   (let* ((env (getenv "QINGEDITOR_DIR"))
@@ -140,9 +140,9 @@ a display string and the value is the actual to return."
     (setq-default qingeditor/config/target-cfg-filename target-cfg-filename)
     (list target-cfg-dir target-cfg-filename)))
 
-(defmethod qingeditor/initializer/set-eventmgr
+(defmethod qingeditor/cls/set-eventmgr
   ((this qingeditor/initializer) eventmgr)
-  (qingeditor/eventmgr/mgr/set-identifiers eventmgr '("qingeditor/initializer"))
+  (qingeditor/cls/set-identifiers eventmgr '("qingeditor/initializer"))
   (oset this :eventmgr eventmgr)
   this)
 

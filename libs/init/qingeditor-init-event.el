@@ -38,13 +38,13 @@ handler will process the error information.")
   ((initializer
     :initarg :initializer
     :initform nil
-    :reader qingeditor/init/event/get-initializer
+    :reader qingeditor/cls/get-initializer
     :documentation "global initializer object reference.")
 
    (result
     :initarg :result
     :initform nil
-    :reader qingeditor/init/event/get-result
+    :reader qingeditor/cls/get-result
     :documentation "The result of previous event handler."))
   :documentation "The event class for initialization stage")
 
@@ -52,31 +52,31 @@ handler will process the error information.")
   "初始化事件对象。"
   (let ((event (qingeditor/init/event :name name :target target)))
     (when params
-      (qingeditor/eventmgr/event/set-params-from-alist event params))
+      (qingeditor/cls/set-params-from-alist event params))
     event))
 
-(defmethod qingeditor/init/event/set-initializer ((this qingeditor/init/event) initializer)
+(defmethod qingeditor/cls/set-initializer ((this qingeditor/init/event) initializer)
   "Set initializer for event object."
-  (qingeditor/eventmgr/event/set-param this "initializer" initializer)
+  (qingeditor/cls/set-param this "initializer" initializer)
   (oset this :initializer initializer)
   this)
 
-(defmethod qingeditor/init/event/set-result ((this qingeditor/init/event) result)
+(defmethod qingeditor/cls/set-result ((this qingeditor/init/event) result)
   "Set the result of current handler."
-  (qingeditor/eventmgr/event/set-param this "__RESULT__" result)
+  (qingeditor/cls/set-param this "__RESULT__" result)
   (oset this :result result))
 
-(defmethod qingeditor/init/event/is-error ((this qingeditor/init/event))
+(defmethod qingeditor/cls/is-error ((this qingeditor/init/event))
   "Get the error state of event object."
-  (not (eq (qingeditor/eventmgr/event/get-param this "error" nil) nil)))
+  (not (eq (qingeditor/cls/get-param this "error" nil) nil)))
 
-(defmethod qingeditor/init/event/set-error ((this qingeditor/init/event) message)
+(defmethod qingeditor/cls/set-error ((this qingeditor/init/event) message)
   "Set error message of event object."
-  (qingeditor/eventmgr/event/set-param this "error" message)
+  (qingeditor/cls/set-param this "error" message)
   this)
 
-(defmethod qingeditor/init/event/get-error ((this qingeditor/init/event))
+(defmethod qingeditor/cls/get-error ((this qingeditor/init/event))
   "Get error message."
-  (qingeditor/eventmgr/event/get-param this "error" ""))
+  (qingeditor/cls/get-param this "error" ""))
 
 (provide 'qingeditor-init-event)

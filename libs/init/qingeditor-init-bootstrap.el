@@ -18,9 +18,8 @@
 
 (let ((eventmgr (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr))
       (initializer qingeditor/initializer-ref))
-  (qingeditor/initializer/set-eventmgr initializer eventmgr)
-  (qingeditor/initializer/init initializer))
+  (qingeditor/cls/set-eventmgr initializer eventmgr)
+  (qingeditor/cls/init initializer))
 
-(defmethod qingeditor/cls/attach)
 
 (provide 'qingeditor-init-bootstrap)
