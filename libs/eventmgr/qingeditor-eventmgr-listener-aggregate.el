@@ -9,7 +9,7 @@
 ;;
 ;; 抽象的`listener'类
 
-(defmethod qingeditor/eventmgr/listener-aggregate ()
+(defclass qingeditor/eventmgr/listener-aggregate ()
   ((listeners
     :initarg :listeners
     :initform nil
@@ -18,7 +18,7 @@
   :abstract t
   :documentation "事件监听类。")
 
-(defmethod qingeditor/cls/listener-aggregate/detach
+(defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/listener-aggregate) (eventmgr qingeditor/eventmgr/mgr))
   "移除事件监听处理器。"
   (dolist (handler (oref this :listeners))

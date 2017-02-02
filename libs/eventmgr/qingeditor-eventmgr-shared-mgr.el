@@ -47,7 +47,8 @@
     (when (qingeditor/cls/has-key listener-table priority)
       (setq listener-list (qingeditor/cls/get listener-table priority)))
     (push listener listener-list)
-    (qingeditor/cls/set listener-table priority listener-list)))
+    (qingeditor/cls/set listener-table priority listener-list)
+    listener))
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)

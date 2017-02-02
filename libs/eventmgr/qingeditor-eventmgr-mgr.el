@@ -66,7 +66,8 @@
     (when (qingeditor/cls/has-key listener-table priority)
       (setq listener-list (qingeditor/cls/get listener-table priority)))
     (push listener listener-list)
-    (qingeditor/cls/set listener-table priority listener-list)))
+    (qingeditor/cls/set listener-table priority listener-list)
+    listener))
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/mgr) listener &optional event-name force)
@@ -144,7 +145,6 @@
         response)
     (when (null name)
       (error "Event is missing a name; cannot trigger!"))
-    (qingeditor/cls/set-stop-propagation event nil)
     (setq listener-handlers
           (qingeditor/cls/get-listeners-by-event-name this name))
     (catch 'qingeditor-eventmgr-mgr-trigger-listeners-stopped

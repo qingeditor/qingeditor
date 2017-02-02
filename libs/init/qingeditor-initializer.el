@@ -32,6 +32,10 @@
 file in load-path, if the configuration not exist, `qingeditor' will
 first generate it, then load it normally. after load the configuration file,
 we finally process `qingeditor' modules."
+  (qingeditor/cls/iterate-items
+   (oref this :default-listeners)
+   (progn
+     (qingeditor/cls/attach value (oref this :eventmgr))))
   (qingeditor/cls/load-editor-cfg-file this))
 
 (defmethod qingeditor/cls/bootstrap ((this qingeditor/initializer))
@@ -145,5 +149,10 @@ a display string and the value is the actual to return."
   (qingeditor/cls/set-identifiers eventmgr '("qingeditor/initializer"))
   (oset this :eventmgr eventmgr)
   this)
+
+(defmethod qingeditor/cls/add-default-listener ((this qingeditor/initializer) key listener)
+  (when (qingeditor/cls/has-key (oref this :default-listeners) key)
+    (error "default listener `%s' is already exists." key))
+  (qingeditor/cls/set (oref this :default-listeners) key listener))
 
 (provide 'qingeditor-initializer)
