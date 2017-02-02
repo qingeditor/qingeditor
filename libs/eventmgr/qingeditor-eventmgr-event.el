@@ -44,6 +44,11 @@
   :documentation "封装一个目标的上下文和事件参数传递的类，这个类会定义一些与
 事件管理器交互的方法。")
 
+(defun qingeditor/eventmgr/event/init (name target params)
+  (let ((event (qingeditor/eventmgr/event :name name :target target)))
+    (when params
+      (qingeditor/cls/set-params-from-alist event params))))
+
 
 (defmethod qingeditor/cls/set-params-from-alist
   ((this qingeditor/eventmgr/event) alist)

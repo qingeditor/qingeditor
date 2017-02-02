@@ -26,7 +26,7 @@
   :tags '(qingeditor/test/eventmgr/mgr/prepare-mgr)
   (qingeditor/test/eventmgr/mgr/prepare-mgr
    (lambda ()
-     (qingeditor/eventmgr/mgr/set-identifiers
+     (qingeditor/cls/set-identifiers
       mgr '("identifier1" "identifier1" "identifier2"))
      (should (equalp (oref mgr :identifiers) '("identifier1" "identifier2"))))))
 
@@ -34,12 +34,12 @@
   :tags '(qingeditor/test/eventmgr/mgr/prepare-mgr)
   (qingeditor/test/eventmgr/mgr/prepare-mgr
    (lambda ()
-     (qingeditor/eventmgr/mgr/set-identifiers
+     (qingeditor/cls/set-identifiers
       mgr '("identifier1"))
-     (qingeditor/eventmgr/mgr/add-identifiers
+     (qingeditor/cls/add-identifiers
       mgr '("identifier1" "identifier2" "identifier3"))
      (should (equalp (oref mgr :identifiers) '("identifier1" "identifier2" "identifier3")))
-     (qingeditor/eventmgr/mgr/add-identifiers
+     (qingeditor/cls/add-identifiers
       mgr '("identifier1" "identifier2" "identifier3"))
      (should (equalp (oref mgr :identifiers) '("identifier1" "identifier2" "identifier3"))))))
 
@@ -53,21 +53,21 @@
 			(message "listener2")))
 	   listener-table
 	   listener-list)
-       (should (eq (qingeditor/hash-table/empty (oref mgr :events)) t))
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener1)
-       (should (eq (qingeditor/hash-table/count (oref mgr :events)) 1))
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener2)
-       (should (eq (qingeditor/hash-table/count (oref mgr :events)) 1))
-       (setq listener-table (qingeditor/hash-table/get (oref mgr :events) "event1"))
-       (should (eq (qingeditor/hash-table/count listener-table) 1))
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener1 2)
-       (should (eq (qingeditor/hash-table/count listener-table) 2))
-       (setq listener-list (qingeditor/hash-table/get listener-table 1))
+       (should (eq (qingeditor/cls/empty (oref mgr :events)) t))
+       (qingeditor/cls/attach mgr "event1" listener1)
+       (should (eq (qingeditor/cls/count (oref mgr :events)) 1))
+       (qingeditor/cls/attach mgr "event1" listener2)
+       (should (eq (qingeditor/cls/count (oref mgr :events)) 1))
+       (setq listener-table (qingeditor/cls/get (oref mgr :events) "event1"))
+       (should (eq (qingeditor/cls/count listener-table) 1))
+       (qingeditor/cls/attach mgr "event1" listener1 2)
+       (should (eq (qingeditor/cls/count listener-table) 2))
+       (setq listener-list (qingeditor/cls/get listener-table 1))
        (should (equalp listener-list (list listener2 listener1)))
-       (setq listener-list (qingeditor/hash-table/get listener-table 2))
-       (setq listener-list (qingeditor/hash-table/get listener-table 1))
-       (should-error (qingeditor/eventmgr/mgr/attach mgr "" listener2))
-       (should-error (qingeditor/eventmgr/mgr/attach mgr 1 listener2))))))
+       (setq listener-list (qingeditor/cls/get listener-table 2))
+       (setq listener-list (qingeditor/cls/get listener-table 1))
+       (should-error (qingeditor/cls/attach mgr "" listener2))
+       (should-error (qingeditor/cls/attach mgr 1 listener2))))))
 
 (ert-deftest qingeditor/test/eventmgr/mgr-detach-test ()
   :tags '(qingeditor/eventmgr/mgr/detach)
@@ -79,24 +79,24 @@
 			(message "listener2")))
 	   listener-table
 	   listener-list)
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener1)
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener1 2)
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener2 2)
-       (qingeditor/eventmgr/mgr/attach mgr "event2" listener2)
-       (qingeditor/eventmgr/mgr/attach mgr "event2" listener2 2)
-       (should-error (qingeditor/eventmgr/mgr/detach mgr listener1 ""))
-       (should-error (qingeditor/eventmgr/mgr/detach mgr listener1 12))
-       (should-error (qingeditor/eventmgr/mgr/detach mgr listener1 t))
-       (setq listener-table (qingeditor/hash-table/get (oref mgr :events) "event1"))
-       (should (equal (qingeditor/hash-table/count listener-table) 2))
-       (should (equal (qingeditor/hash-table/has-key listener-table 2) t))
-       (should (equal (qingeditor/hash-table/has-key listener-table 1) t))
-       (qingeditor/eventmgr/mgr/detach mgr listener1 "event1")
-       (should (equal (qingeditor/hash-table/count listener-table) 1))
-       (should (equal (qingeditor/hash-table/has-key listener-table 2) t))
-       (should (equal (qingeditor/hash-table/has-key listener-table 1) nil))
-       (qingeditor/eventmgr/mgr/detach mgr listener2 "event2")
-       (should (equal (qingeditor/hash-table/has-key (oref mgr :events) "event2") nil))))))
+       (qingeditor/cls/attach mgr "event1" listener1)
+       (qingeditor/cls/attach mgr "event1" listener1 2)
+       (qingeditor/cls/attach mgr "event1" listener2 2)
+       (qingeditor/cls/attach mgr "event2" listener2)
+       (qingeditor/cls/attach mgr "event2" listener2 2)
+       (should-error (qingeditor/cls/detach mgr listener1 ""))
+       (should-error (qingeditor/cls/detach mgr listener1 12))
+       (should-error (qingeditor/cls/detach mgr listener1 t))
+       (setq listener-table (qingeditor/cls/get (oref mgr :events) "event1"))
+       (should (equal (qingeditor/cls/count listener-table) 2))
+       (should (equal (qingeditor/cls/has-key listener-table 2) t))
+       (should (equal (qingeditor/cls/has-key listener-table 1) t))
+       (qingeditor/cls/detach mgr listener1 "event1")
+       (should (equal (qingeditor/cls/count listener-table) 1))
+       (should (equal (qingeditor/cls/has-key listener-table 2) t))
+       (should (equal (qingeditor/cls/has-key listener-table 1) nil))
+       (qingeditor/cls/detach mgr listener2 "event2")
+       (should (equal (qingeditor/cls/has-key (oref mgr :events) "event2") nil))))))
 
 (ert-deftest qingeditor/test/eventmgr/mgr-get-listeners-by-event-name-test ()
   :tags '(qingeditor/eventmgr/mgr/get-listeners-by-event-name)
@@ -115,81 +115,83 @@
 	   listener-table
 	   listener-list
 	   (shared-mgr (qingeditor/eventmgr/shared-mgr)))
-        (qingeditor/eventmgr/mgr/attach mgr "event1" listener1)
-	(qingeditor/eventmgr/mgr/attach mgr "event1" listener1 2)
-	(qingeditor/eventmgr/mgr/attach mgr "event1" listener2 2)
-	(qingeditor/eventmgr/mgr/attach mgr "event2" listener2 4)
-	(qingeditor/eventmgr/mgr/attach mgr "event2" listener3 2)
+        (qingeditor/cls/attach mgr "event1" listener1)
+	(qingeditor/cls/attach mgr "event1" listener1 2)
+	(qingeditor/cls/attach mgr "event1" listener2 2)
+	(qingeditor/cls/attach mgr "event2" listener2 4)
+	(qingeditor/cls/attach mgr "event2" listener3 2)
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event1"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event1"))
 	(should (equalp listener-list (list listener1 listener2 listener1)))
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event1"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event1"))
 	(should (equalp listener-list (list listener1 listener2 listener1)))
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event222"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event222"))
 	(should (equal listener-list nil))
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event2"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event2"))
 	(should (equal listener-list (list listener2 listener3)))
-	(qingeditor/eventmgr/mgr/attach mgr "*" wildcard-listener 10)
+	(qingeditor/cls/attach mgr "*" wildcard-listener 10)
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event2"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event2"))
 	(should (equal listener-list (list wildcard-listener listener2 listener3)))
-	(qingeditor/eventmgr/mgr/set-shared-mgr mgr shared-mgr)
-	(qingeditor/eventmgr/shared-mgr/attach
+	(qingeditor/cls/set-shared-mgr mgr shared-mgr)
+	(qingeditor/cls/attach
 	 shared-mgr "identifier" "event2" shared-listener)
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event2"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event2"))
 	(should (equal listener-list (list wildcard-listener listener2 listener3)))
-	(qingeditor/eventmgr/mgr/set-identifiers mgr '("identifier"))
+	(qingeditor/cls/set-identifiers mgr '("identifier"))
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event2"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event2"))
 	(should (equal listener-list (list wildcard-listener listener2 listener3 shared-listener)))
-	(qingeditor/eventmgr/shared-mgr/attach
+	(qingeditor/cls/attach
 	 shared-mgr "identifier" "event2" shared-listener 100)
 	(setq listener-list
-	      (qingeditor/eventmgr/mgr/get-listeners-by-event-name mgr "event2"))
+	      (qingeditor/cls/get-listeners-by-event-name mgr "event2"))
 	(should (equal listener-list
 		       (list shared-listener wildcard-listener
 			     listener2 listener3 shared-listener)))))))
 
 (ert-deftest qingeditor/test/eventmgr/mgr-trigger-test ()
-  :tags '(qingeditor/eventmgr/mgr/trigger)
+  :tags '(qingeditor/cls/trigger)
   (qingeditor/test/eventmgr/mgr/prepare-mgr
    (lambda ()
      (let ((listener-handler1
 	    (qingeditor/eventmgr/event-handler/init
 	     (lambda (event)
-	       `(,(qingeditor/eventmgr/event/get-name event)
-		 ,(qingeditor/eventmgr/event/get-target event)))))
+	       `(,(qingeditor/cls/get-name event)
+		 ,(qingeditor/cls/get-target event)))))
 	   (listener-handler2
 	    (qingeditor/eventmgr/event-handler/init
 	     (lambda (event)
-	       (qingeditor/eventmgr/event/set-stop-propagation event t)
-	       `(,(qingeditor/eventmgr/event/get-target event)))))
+	       (qingeditor/cls/set-stop-propagation event t)
+	       `(,(qingeditor/cls/get-target event)))))
 	    (listener-handler3
 	     (qingeditor/eventmgr/event-handler/init
 	      (lambda (event)
-		`(,(qingeditor/eventmgr/event/get-name event)))))
+		`(,(qingeditor/cls/get-name event)))))
 	    responses
 	    (invoke-count 0))
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler1)
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler2)
+       (qingeditor/cls/attach mgr "event1" listener-handler1)
+       (qingeditor/cls/attach mgr "event1" listener-handler2)
        ;; 简单的trigger
-       (setq responses (qingeditor/eventmgr/mgr/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
-       (qingeditor/eventmgr/mgr/attach mgr "event1" listener-handler3)
-       (should (= (qingeditor/stack/count responses) 2))
+       (setq responses (qingeditor/cls/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
+       (qingeditor/cls/attach mgr "event1" listener-handler3)
+       (should (= (qingeditor/cls/count responses) 2))
        (should (equalp (oref responses :data) '(("target1") ("event1" "target1"))))
        ;; 测试stopped
-       (setq responses (qingeditor/eventmgr/mgr/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
+       (setq responses (qingeditor/cls/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
        (should (equalp (oref responses :data) '(("target1") ("event1" "target1"))))
-       (should (eq (qingeditor/eventmgr/response-collection/stopped responses) t))
-       (setq responses (qingeditor/eventmgr/mgr/trigger-until mgr
+       (should (eq(qingeditor/cls/stopped responses) t))
+       (setq responses (qingeditor/cls/trigger-until mgr
 							      (lambda (event)
 								(setq invoke-count (1+ invoke-count))
 								(when (= 1 invoke-count)
 								  t))
 							      "event1" "target1" '((name . "xiuxiu"))))
-       (should (= (qingeditor/stack/count responses) 1))
-       (should (equalp (oref responses :data) '(("event1" "target1"))))))))
+       (should (= (qingeditor/cls/count responses) 1))
+       (should (equalp (oref responses :data) '(("event1" "target1"))))
+
+       ))))

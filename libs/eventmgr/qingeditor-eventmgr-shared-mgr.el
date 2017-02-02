@@ -96,7 +96,7 @@
       (when (qingeditor/cls/empty event-table)
         (qingeditor/cls/remove (oref this :identifiers) identifier)))))
 
-(defmethod qingeditor/eventmgr/shared-mgr/get-listeners
+(defmethod qingeditor/cls/get-listeners
   ((this qingeditor/eventmgr/shared-mgr) identifiers event-name)
   "获取指定的`identifiers'集合下的所有的回调函数。
 
@@ -130,7 +130,7 @@
           (setq event-table (qingeditor/cls/get (oref this :identifiers) identifier))
         (setq event-table (qingeditor/hash-table/init)))
       (if (qingeditor/cls/has-key event-table event-name)
-          (setq listener-table (qingeditor/hash-table/get event-table event-name))
+          (setq listener-table (qingeditor/cls/get event-table event-name))
         (setq listener-table (qingeditor/hash-table/init)))
       (if (qingeditor/cls/has-key event-table "*")
           (setq wildcard-listener-table (qingeditor/cls/get event-table "*"))
