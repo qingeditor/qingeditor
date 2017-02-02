@@ -16,15 +16,15 @@
     :initform nil
     :type (satisfies (lambda (x)
 		       (or (null x) (stringp x))))
-    :reader qingeditor/eventmgr/event/get-name
-    :writer qingeditor/eventmgr/event/set-name
+    :reader qingeditor/cls/get-name
+    :writer qingeditor/cls/set-name
     :documentaion "事件的名称。")
 
    (target
     :initarg :target
     :initform nil
-    :reader qingeditor/eventmgr/event/get-target
-    :writer qingeditor/eventmgr/event/set-target
+    :reader qingeditor/cls/get-target
+    :writer qingeditor/cls/set-target
     :documentaion "当前的事件目标对象。")
 
    (params
@@ -37,39 +37,39 @@
     :initarg :stop-propagation
     :initform nil
     :type boolean
-    :reader qingeditor/eventmgr/event/get-stop-propagation
-    :writer qingeditor/eventmgr/event/set-stop-propagation
+    :reader qingeditor/cls/get-stop-propagation
+    :writer qingeditor/cls/set-stop-propagation
     :documentation "是否停止事件传播。")
    )
   :documentation "封装一个目标的上下文和事件参数传递的类，这个类会定义一些与
 事件管理器交互的方法。")
 
 
-(defmethod qingeditor/eventmgr/event/set-params-from-alist
+(defmethod qingeditor/cls/set-params-from-alist
   ((this qingeditor/eventmgr/event) alist)
   "给当前的事件设置参数。"
-  (qingeditor/hash-table/set-from-alist (oref this :params) alist)
+  (qingeditor/cls/set-from-alist (oref this :params) alist)
   this)
 
-(defmethod qingeditor/eventmgr/event/set-param
+(defmethod qingeditor/cls/set-param
   ((this qingeditor/eventmgr/event) key value)
   "给当前的事件对象设置参数。"
-  (qingeditor/hash-table/set (oref this :params) key value)
+  (qingeditor/cls/set (oref this :params) key value)
   this)
 
-(defmethod qingeditor/eventmgr/event/get-params
+(defmethod qingeditor/cls/get-params
   ((this qingeditor/eventmgr/event))
   "获取当前事件对象的参数。"
   (oref this :params))
 
-(defmethod qingeditor/eventmgr/event/get-param
+(defmethod qingeditor/cls/get-param
   ((this qingeditor/eventmgr/event) name &optional default)
   "获取指定的参数不存在的话返回默认值。"
-  (qingeditor/hash-table/get (oref this :params) name default))
+  (qingeditor/cls/get (oref this :params) name default))
 
-(defmethod qingeditor/eventmgr/event/clear-params
+(defmethod qingeditor/cls/clear-params
   ((this qingeditor/eventmgr/event))
   "删除事件对象的所有的参数。"
-  (qingeditor/hash-table/clear (oref this :params)))
+  (qingeditor/cls/clear (oref this :params)))
 
 (provide 'qingeditor-eventmgr-event)

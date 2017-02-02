@@ -19,14 +19,14 @@
     :initarg :type
     :initform (eval qingeditor/eventmgr/normal-callable)
     :type number
-    :reader qingeditor/eventmgr/event-handler/get-type
+    :reader qingeditor/cls/get-type
     :documentation "处理器的类型")
 
    (callable-data
     :initarg :callable-data
     :initform nil
     :type list
-    :reader qingeditor/eventmgr/event-handler/get-callable
+    :reader qingeditor/cls/get-callable
     :documentaion "底层处理器引用，第一个元素是调用对象，如果是`qingeditor/eventmgr/method-callable'
 则第二个元素是对象的引用。"))
   :documentaion "事件处理器类，事件处理器在事件监听器里面进行注册
@@ -47,7 +47,7 @@
       (setq type qingeditor/eventmgr/method-callable)))
   (qingeditor/eventmgr/event-handler :type type :callable-data callable))
 
-(defmethod qingeditor/eventmgr/event-handler/call
+(defmethod qingeditor/cls/call
   ((this qingeditor/eventmgr/event-handler) &rest args)
   "调用处理器。"
   (cond

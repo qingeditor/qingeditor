@@ -18,11 +18,11 @@
   :abstract t
   :documentation "事件监听类。")
 
-(defmethod qingeditor/eventmgr/listener-aggregate/detach
+(defmethod qingeditor/cls/listener-aggregate/detach
   ((this qingeditor/eventmgr/listener-aggregate) (eventmgr qingeditor/eventmgr/mgr))
   "移除事件监听处理器。"
   (dolist (handler (oref this :listeners))
-    (qingeditor/eventmgr/mgr/detach eventmgr handler))
+    (qingeditor/cls/detach eventmgr handler))
   (oset this :listeners nil))
 
 (provide 'qingeditor-eventmgr-listener-aggregate)

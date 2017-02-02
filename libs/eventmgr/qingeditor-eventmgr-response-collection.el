@@ -15,21 +15,21 @@
     :initarg :stopped
     :initform nil
     :type boolean
-    :reader qingeditor/eventmgr/response-collection/stopped
-    :writer qingeditor/eventmgr/response-collection/set-stopped
+    :reader qingeditor/cls/stopped
+    :writer qingeditor/cls/set-stopped
     :documentation "事件派发是否被停止。"))
   :documentation "事件派发结果栈。")
 
-(defmethod qingeditor/eventmgr/response-collection/first
+(defmethod qingeditor/cls/first
   ((this qingeditor/eventmgr/response-collection))
-  (qingeditor/stack/bottom this))
+  (qingeditor/cls/bottom this))
 
-(defmethod qingeditor/eventmgr/response-collection/last
+(defmethod qingeditor/cls/last
   ((this qingeditor/eventmgr/response-collection))
-  (when (not (qingeditor/stack/empty this))
-    (qingeditor/stack/top this)))
+  (when (not (qingeditor/cls/empty this))
+    (qingeditor/cls/top this)))
 
-(defmethod qingeditor/eventmgr/response-collection/contains
+(defmethod qingeditor/cls/contains
   ((this qingeditor/eventmgr/response-collection) value)
   (if (member value (oref this :data)) t nil))
 
