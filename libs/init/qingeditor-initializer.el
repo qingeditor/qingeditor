@@ -11,9 +11,16 @@
 (require 'qingeditor-stddir)
 (require 'qingeditor-init-event)
 (require 'qingeditor-eventmgr-mgr)
+(require 'qingeditor-hash-table)
 
 (defclass qingeditor/initializer ()
-  ((eventmgr
+  ((default-listeners
+     :initarg :default-listeners
+     :initform (qingeditor/hash-table/init)
+     :type qingeditor/hash-table
+     :documentation "default event listeners")
+
+   (eventmgr
      :initarg :eventmgr
      :initform nil
      :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/eventmgr/mgr))))
@@ -27,6 +34,13 @@ first generate it, then load it normally. after load the configuration file,
 we finally process `qingeditor' modules."
   (qingeditor/initializer/load-editor-cfg-file this))
 
+(defmethod qingeditor/initializer/bootstrap ((this qingeditor/initializer))
+  "bootstrap `qingeditor', dispatch event."
+  )
+
+(defmethod qingeditor/initializer/run ((this qingeditor/initializer))
+  "In this method, we will finished all settup procedure and run `qingeditor'.")
+
 (defmethod qingeditor/initializer/load-editor-cfg-file
   ((this qingeditor/initializer))
   "load `qingeditor' configuration file."
@@ -39,8 +53,7 @@ we finally process `qingeditor' modules."
                   qingeditor/init/event/editor-cfg-ready-event
                   this)))
       (qingeditor/init/event/set-initializer event this)
-      (qingeditor/eventmgr/mgr/trigger-event (oref this :eventmgr) event)
-      )))
+      (qingeditor/eventmgr/mgr/trigger-event (oref this :eventmgr) event))))
 
 (defmethod qingeditor/initializer/generate-new-cfg-filename-from-tpl
   ((this qingeditor/initializer) &optional arg)
