@@ -185,13 +185,13 @@
        (setq responses (qingeditor/cls/trigger mgr "event1" "target1" '((name . "xiuxiu"))))
        (should (equalp (oref responses :data) '(("target1") ("event1" "target1"))))
        (should (eq(qingeditor/cls/stopped responses) t))
-       (setq responses (qingeditor/cls/trigger-until mgr
-							      (lambda (event)
-								(setq invoke-count (1+ invoke-count))
-								(when (= 1 invoke-count)
-								  t))
-							      "event1" "target1" '((name . "xiuxiu"))))
+       (setq responses
+             (qingeditor/cls/trigger-until
+              mgr
+              (lambda (event)
+                (setq invoke-count (1+ invoke-count))
+                (when (= 1 invoke-count)
+                  t))
+              "event1" "target1" '((name . "xiuxiu"))))
        (should (= (qingeditor/cls/count responses) 1))
-       (should (equalp (oref responses :data) '(("event1" "target1"))))
-
-       ))))
+       (should (equalp (oref responses :data) '(("event1" "target1"))))))))
