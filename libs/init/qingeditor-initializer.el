@@ -24,7 +24,14 @@
      :initarg :eventmgr
      :initform nil
      :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/eventmgr/mgr))))
-     :documentation "the event manager of `qingeditor/initializer' object"))
+     :documentation "the event manager of `qingeditor/initializer' object")
+
+   (error-count
+    :initarg :error-count
+    :initform 0
+    :type number
+    :documentation "The number of error during the `qingeditor' startup.")
+   )
   :documentation "global initializer class")
 
 (defmethod qingeditor/cls/init ((this qingeditor/initializer))
@@ -154,5 +161,9 @@ a display string and the value is the actual to return."
   (when (qingeditor/cls/has-key (oref this :default-listeners) key)
     (error "default listener `%s' is already exists." key))
   (qingeditor/cls/set (oref this :default-listeners) key listener))
+
+(defmethod qingeditor/cls/increase-error-count ((this qingeditor/initializer))
+  "Increase start up error count."
+  (oset this :error-count (1+ (oref this :error-count))))
 
 (provide 'qingeditor-initializer)

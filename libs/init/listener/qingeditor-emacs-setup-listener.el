@@ -27,6 +27,11 @@
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/setup-emacs-ui this)))
   ;; load theme handler
+  (qingeditor/cls/attach
+   eventmgr
+   qingeditor/init/event/editor-cfg-ready-event
+   (qingeditor/eventmgr/event-handler/init
+    (list #'qingeditor/cls/call-cfg-ready-callback this)))
   )
 
 (defmethod qingeditor/cls/setup-emacs-ui
@@ -34,7 +39,7 @@
   ;; silence ad-handle-definition about advised functions getting redefined
   (setq ad-redefinition-action 'accept)
   ;; this is for a smoother UX at startup (i.e. less graphical glitches)
-  (hidden-mode-line-mode)
+  (qingeditor/hidden-mode-line-mode)
   (qingeditor/cls/removes-gui-elements this)
   ;; explicitly set the prefered coding systems to avoid annoying prompt
   ;; from emacs (especially on Microsoft Windows)
@@ -51,5 +56,12 @@
   (when (and (fboundp 'scroll-bar-mode)
              (not (eq scroll-bar-mode -1)))
     (scroll-bar-mode -1)))
+
+(defmethod qingeditor/cls/call-cfg-ready-callback
+  ((this qingeditor/init/emacs-setup-listener) event)
+  (qingeditor/call-func qingeditor/config/init
+                        "Call user configuration init...")
+  (qingeditor/call-func qingeditor/config/user-init
+                        "Call user configuration custom init..."))
 
 (provide 'qingeditor-emacs-setup-listener)

@@ -59,10 +59,12 @@
   ;; `all'安装所有的`packages'，从不卸载`packages'
   (setq-default qingeditor/config/install-packages 'used-only))
 
-(defun qingeditor/user-cfg-init ()
-  "默认的初始化函数
-这个函数在初始化`qingeditor'之前进行调用，这个函数里面只能进行对象常量的修改或者全局变量的设置
-不要放任何其他用途的代码在里面。"
+(defun qingeditor/config/init ()
+  "Initialization function.
+This function is called at the very startup of `qingeditor' initialization
+before modules configuration.
+You should not put any user code in there besides modifying the variable
+values."
   ;; 是否通过`https'连接`GNU'的`ELPA'软件仓库, 如果您的环境不支持https请设置成`nil',强烈建议您将此参数设置成`t'。
   ;; (default t)
   (setq-default qingeditor/config/elpa-https t)
@@ -277,12 +279,15 @@
   ;; (default nil)
   (setq-default qingeditor/config/whitespace-cleanup nil))
 
-(defun qingeditor/user-cfg-custom-init ()
-  "默认的用户包的初始化函数，这个函数在`qingeditor/core/user-cfg-init'函数之后调用，在`qingeditor'初始化之前调用
-您一般可以在这跟函数中设置一些必须在第三方package加载之前设置的变量等等。如果您不确定，您可以把设置代码放在
-函数`qingeditor/user-config-setup'中，这个函数在所有的`layer'加载完成后进行调用。")
+(defun qingeditor/config/user-init ()
+  "Initialization function for user code.
+It is called immediately after `qingeditor/user-config-init', before layer configuration
+executes.
+ This function is mostly useful for variables that need to be set
+before packages are loaded. If you are unsure, you should try in setting them in
+`dotspacemacs/user-config' first.")
 
-(defun qingeditor/user-config-setup ()
+(defun qingeditor/config/user-config-setup ()
   "配置用户自定义的package函数
 这个函数在`qingeditor'初始化完成之后进行调用，次数`qingeditor'所有的层已经完成加载，您应该把大部分的自定义的初始化代码
 都放在这个函数里面，出示您非常确定相关的设置必须在`package'加载之前进行设置。")

@@ -1,21 +1,30 @@
-;; 定义一个`qingeditor'常用的宏
-
-(require 'qingeditor-editor)
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: MIT
+;;
+;; define some untils macros
 
 (defmacro qingeditor/call-func (func &optional msg)
-  "如果`func'绑定了函数，那么在配置脚本中调用该的函数。"
+  "Call the function from the configuration only if it is bound.
+If `msg' is not nil tehn display a message in `*Message'. Errors
+are caught and signalled to user in `qingeditor' buffer."
   `(progn
-     (when ,msg (qingeditor/core/message ,msg))
+     (when ,msg (qingeditor/startup-buffer/message ,msg))
      (when (fboundp ',func)
        (condition-case-unless-debug err
            (,func)
          (error
-          (qingeditor/increment-error-count)
-          (qingeditor/ui/editor/buffer-append
-                      (format "调用函数: %s出现错误，错误信息: %s\n"
-                              ',(symbol-name func)
-                              (error-message-string err))
-                      t))))))
+          (qingeditor/cls/increase-error-count
+           qingeditor/initializer-ref)
+          (qingeditor/startup-buffer/append
+           (format "Error in %s: %s\n"
+                   ',(symbol-name func)
+                   (error-message-string err))
+           t))))))
 
 (defmacro qingeditor/do-after-display-system-ready (&rest body)
   "If the display system is initialized, run `BODY', otherwise
