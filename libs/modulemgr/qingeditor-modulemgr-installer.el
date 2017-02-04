@@ -46,6 +46,33 @@
     (setq package-enable-at-startup nil)
     (package-initialize 'noactivate)))
 
+(defun qingeditor/modulemgr/installer/load-or-install-package (pkg-name &optional log file-to-load)
+  "Load `pkg' package. `pkg' will be installed if it is not already installed.
+Whenever the initial require fails the absolute path to the package
+directory is returned.
+if `log' is non-nil a message is displayed in `qinegditor-buffer-mode' buffer.
+`file-to-load' is an explicit file to load after the installation."
+  (let ((warning-minimum-level :error))
+    (unless (require pkg-name nil 'noerror)
+      ;; not installed, we try to initialize package.el only if required to
+      ;; previous seconds during boot time.
+      (require 'cl)
+      (let ((pkg-elpa-dir (qingeditor/modulemgr/installer/get-package-installed-directory pkg-name)))
+        (if pkg-elpa-dir
+            (add-to-list 'load-path pkg-elpa-dir)
+          ;; install the package
+          (when log
+            (qingeditor/startup-buffer/append
+             (format "(bootstrap) installing %s...\n" pkg-name))
+            (qingeditor/redisplay))
+          (qingeditor/modulemgr/installer/refresh-package-archives 'quiet)
+          (package-install pkg-name)
+          (setq pkg-elpa-dir (qingeditor/modulemgr/installer/get-package-installed-directory pkg)))
+        (require pkg-name bil 'noerror)
+        (when file-to-load
+          (load-file (concat pkg-elpa-dir file-to-load)))
+        pkg-elpa-dir))))
+
 (defun qingeditor/modulemgr/installer/refresh-package-archives (&optional quiet force)
   "Refresh all archivees declared in current `package-archives'.
 

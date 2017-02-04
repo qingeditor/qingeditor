@@ -26,7 +26,7 @@
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/setup-emacs-ui this)))
-  ;; load theme handler
+  
   (qingeditor/cls/attach
    eventmgr
    qingeditor/init/event/editor-cfg-ready-event
@@ -38,6 +38,12 @@
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/invoke-global-intialize-funcs this)))
+  ;; load theme handler
+  (qingeditor/cls/attach
+   eventmgr
+   qingeditor/init/event/editor-cfg-ready-event
+   (qingeditor/eventmgr/event-handler/init
+    (list #'qingeditor/cls/load-default-theme this)))
   )
 
 (defmethod qingeditor/cls/setup-emacs-ui
@@ -73,5 +79,9 @@
 (defmethod qingeditor/cls/invoke-global-intialize-funcs
   ((this qingeditor/init/emacs-setup-listener) event)
   (qingeditor/modulemgr/installer/initialize))
+
+(defmethod qingeditor/cls/load-default-theme
+  ((this qingeditor/init/emacs-setup-listener) event)
+  )
 
 (provide 'qingeditor-emacs-setup-listener)

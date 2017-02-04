@@ -15,6 +15,9 @@
 (require 'qingeditor-hidden-mode-line)
 (require 'qingeditor-modulemgr-installer)
 
+(defvar qingeditor/geventmgr (qingeditor/eventmgr/mgr/init)
+  "`qingeditor' global event mgr, some global event trigger by this manager.")
+
 (defvar qingeditor/shared-eventmgr (qingeditor/eventmgr/shared-mgr)
   "The global shared event manager object.")
 
@@ -28,7 +31,7 @@ to this event if you want to do some that needs to have the display system
 initialized."
   (progn
     (qingeditor/cls/trigger
-     qingeditor/shared-eventmgr qingeditor/display-system-ready-event)
+     qingeditor/geventmgr qingeditor/display-system-ready-event)
     (ad-disable-advice 'server-create-window-system-frame
                        'after
                        'qingeditor/advice/init-display)

@@ -85,4 +85,12 @@
   ;; 在Emacs 25+的mac `(window-system)'返回 ns
   (memq (window-system) '(mac ns)))
 
+(defvar qingeditor/init-redisplay-count-private 0
+  "The number of calls to `redisplay'.")
+
+(defun qingeditor/redisplay ()
+  "`redisplay' wrapper."
+  (setq qingeditor/init-redisplay-count-private
+        (1+ qingeditor/init-redisplay-count-private)))
+
 (provide 'qingeditor-funcs)

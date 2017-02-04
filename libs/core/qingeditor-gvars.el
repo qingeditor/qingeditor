@@ -14,7 +14,7 @@
 
 (defvar qingeditor/post-user-cfg-hook nil  "当用户配置函数调用之后执行的钩子函数。")
 (defvar qingeditor/post-user-cfg-hook-run nil
-  "标志变量，判断`qingeditor/gvars/post-user-config-hook'是否已经运行。")
+  "标志变量，判断`qingeditor/post-user-config-hook'是否已经运行。")
 
 (defvar qingeditor/insecure nil
   "If non-nil force `qingeditor' to operate without secured protocols.")
@@ -31,5 +31,8 @@ list to prevent listener handler memory leak.")
 
 (defconst qingeditor/display-system-ready-event "display-system-ready-event"
   "When display system initialized, dispatch this event.")
+
+(defconst qinegditor/theme-changed-event "theme-changed-event"
+  "After a new theme loaded, dispatch this event.")
 
 (provide 'qingeditor-gvars)
