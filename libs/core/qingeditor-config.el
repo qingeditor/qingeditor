@@ -16,199 +16,266 @@ file to be saved.")
   "The actually configuration to be load.")
 
 (defvar qingeditor/config/distribution 'editor-standard
-  "最基本的layer层，当前包含两个组件 `editor-base' 或者 `editor-standard'。")
+  "Base distribution to use. This is a module contained in the directory
+`+distributions'. For now available distributions are `editor-base' or `editor-standard'.")
 
 (defvar qingeditor/config/elpa-https t
-  "是否通过https连接GNU的ELPA软件仓库, 如果您的环境不支持https请设置成`nil',强烈建议您将此参数设置成`t'。")
+  "If non `nil' `ELPA' repositories are contacted via HTTPS whenever it's
+possible. Set it to `nil' if you have no way to use HTTPS in your
+environment, otherwise it is strongly recommended to let it set to it.")
 
-(defvar qingeditor/config/elpa-timeout 5  "ELPA软件仓库的连接超时时间。")
+(defvar qingeditor/config/elpa-timeout 5
+  "Maximum allowed time in seconds to contact an ELPA repository.")
 
-(defvar qingeditor/config/elpa-subdirectory nil "是否按照Emacs的版本号建立各自的ELAP库的文件夹。")
+(defvar qingeditor/config/elpa-subdirectory nil
+  "If non-nil, a form that evaluates to a package directory. For example,
+to use different package directories for different Emacs
+versions, set this to `emacs-version'.")
 
-(defvar qingeditor/config/cfg-layer-dir '() "`qingeditor'的layer层存放的文件夹，必须以`/'结尾。")
+(defvar qingeditor/config/cfg-module-dir '()
+  "List of additonal paths where to look for configuration modules.
+Paths must have a trailing slash (ie. `~/somedir/')")
 
 (defvar qingeditor/config/install-packages 'used-only
-  "`qingeditor'安装`packages'选项，有如下值`used-only', `used-but-keep-unused'和`all'.
- `used=only'只安装需要的`packages'，卸载不需要的`packages'和这些`packages'
-依赖的`packages'。`used-but-keep-unused'安装需要的`packages'，但是不卸载不需要的`packages'，
-`all'安装所有的`packages'，从不卸载`packages'。")
+  "Defines the behavior of `qingeditor' when installing packages.
+Possible values are `used-only', `used-but-keep-unused' and `all'. `used-only'
+installs only explicitly used packages and uninstall any unused packages as well
+as their unused dependencies.`used-but-keep-unused' install only the used packages
+but won't uninstall theme if they become unused. `all' installs *all*
+packages supported by`qingeditor' and never uninstall them.")
 
 (defvar qingeditor/config/lazy-installation-type 'unused
-  "迟延安装`qingeditor'的配置层选项，有如下几种选项`all', `unused'和`nil'.`unused'选项只迟延
-安装不在`qingeditor/core/user-cfg/install-packages/cfg-layers'里面的层。`all'迟延安装所有的配置层哪怕配置层在
-`qingeditor/config/install-packages/cfg-layers'里面。`nil'不迟延安装所有的配置层，如果您需要安装某个配置层您需要将其
-添加到`qingeditor/config/install-packages/cfg-layers'配置项里面。")
+  "Lazy installation of modules (i.e. modules are installed only when a file
+with a supported type is opened.) Possible values are `all', `unused' and `nil'.
+`unused' will lazy install only unused modules (i.e. modules not listed in
+variable `qingeditor/config/configuration-modules'), `all' will lazy install any
+module that support lazy installation even the modules listed in
+`qingeditor/config/configuration-modules'. `nil' disabled the lazy installation feature
+and you have explicitly list a module in the variable `qingeditor/config/configuration-modules'
+to install it.")
 
 (defvar qingeditor/config/ask-for-lazy-installation t
-  "当指定为`t'时候，迟延安装某个配置层时候`qingeditor'会去询问用户是否要进行安装。")
+  "If non-nil then `qingeditor' will ask for confirmation before installing
+a module lazily.")
 
 (defvar qingeditor/config/additional-packages '()
-  "额外的不包含在任何配置层里面的`package'包，如果您需要配置这些`package'您可以考虑新建一个`layer'
-当然您可以在`qingeditor/user-cfg'函数中进行相关的配置。")
+  "List of additional packages that will be installed without being
+wrapped in a module. if you need some configuration for these
+packages then consider to create a layer, you can also put
+the configuration in `qingeditor/config/user-config-setup'")
 
 (defvar qingeditor/config/startup-banner 'official
-  "指定`qingeditor'启动的时候的banner图片，有三个选项：`official', `random'和自定义的字符串。
-`offical'显示官方默认的banner图片，`random'随机从内置的banner图片 库选择一张。自定义字符串必须指定一张png格式的图片路径。如果这个
-选项为`nil'的话不显示banner。")
+  "Specify the startup banner. Default value is `offical', it displays
+the offical `qingeditor' logo. An integer value is the index of text
+banner, `random' chooses a random text banner in `assets/banners'
+directory. A string value must be a path to a .PNG file.
+If the value is nil then no banner is displayed.")
 
 (defvar qingeditor/config/scratch-mode 'text-mode
-  "默认的`scratch buffer'默认的`major mode'。默认`text-mode'")
+  "Default major mode of the scratch buffer.")
 
 (defvar qingeditor/config/check-for-update nil
-  "如果不为`nil' qingeditor的分支如果不是`devel'的话将在启动的时候去检测新版本。注意，我们
-这里是通过访问`github'相关服务进行版本检测的。")
+  "If non `nil' then `qingeditor' will check for updates at startup
+when the current branch is not `develop'. Note that checking for
+new versions works via git commands, thus it calls Github services
+whenever you start Emacs.")
 
-(defvar qingeditor/config/cfg-layers '(emacs-lisp)
-  "`qingeditor'启动默认加载的配置层列表。")
+(defvar qingeditor/config/configuration-modules '(emacs-lisp)
+  "List of configuration modules to load.")
+
+(defvar qingeditor/config/configuration-modules-saved nil
+  "Saved value of `qingeditor/config/configuration-modules' after sync.")
 
 (defvar qingeditor/config/themes '(spacemacs-dark spacemacs-light)
-  "`qingeditor'的主题列表，第一个在启动时候默认选择，再运行时您可以通过`SPC T n'进行循环切换。")
+  "List of themes, the first of the list is loaded when `qingeditor' starts.
+Press `SPC T n' to cycle to the next theme in the list (works great
+with 2 theme variables, one dark and one light.)")
 
 (defvar qingeditor/config/colorize-cursor-according-to-state t
-  "如果不为`nil' GUI Emacs将会对匹配的括号进行着色。")
+  "If non nil the cursor color matches the state color in GUI Emacs.")
 
-;; `qingeditor'默认的`leader key'。
-(setq-default qingeditor/config/leader-key "SPC")
+(defvar qingeditor/config/leader-key "M-m"
+  "The leader key.")
 
-;; `qingeditor'的`major leader key'是`<leader> m'快捷方式。设置成`nil'禁止这个行为。
-(setq-default qingeditor/config/major-mode-leader-key ",")
+(defvar qingeditor/config/major-mode-leader-key "C-M-m"
+  "Major mode leader key is a shortcut key which is the equivalent of
+pressing `<leader> m'. Set it to `nil' to disable it.")
 
 (defvar qingeditor/config/command-key "SPC"
-  "当按了`leader key'之后执行Emacs command (M-x)命令的`key'。")
+  "The key used for Emacs commands (M-x) (after pressing on the leader key).")
 
 (defvar qingeditor/config/distinguish-gui-tab nil
-  "在GUI模式下是否区分`TAB'和`c-i'。")
+  "These variables control whether separate commands are bound in the GUI to
+the key pairs C-i, TAB and C-m, RET.
+Setting it to a non-nil value, allows for separate commands under <C-i>
+and TAB or <C-m> and RET.
+In the terminal, these pairs are generally indistinguishable, so this only
+works in the GUI. (default nil)")
 
 (defvar qingeditor/config/distinguish-gui-ret nil
-  "在GUI模式下是否区分`c-m'个`return'。")
+  "If non `nil', distinguish `C-i' and tab in the GUI version of emacs.")
 
-(defvar qingeditor/core/config/default-font '("Source Code Pro"
-						:size 15
-						:weight normal
-						:width normal
-						:powerline-scale 1.1))
+(defvar qingeditor/core/config/default-font
+  '("Source Code Pro"
+    :size 15
+    :weight normal
+    :width normal
+    :powerline-scale 1.1)
+  "Default font, or prioritized list of fonts. `powerline-scale'
+allows to quickly tweak the mode-line size to make separators
+look not too crappy.")
 
 (defvar qingeditor/config/folding-method 'origami
-  "默认的代码折叠方法，可选的值有`evil'和`origami'。")
+  "Code folding method. Possible values is `origami'.")
 
-(defvar qingeditor/config/default-layout-name
-  "Default" "默认的布局名称。")
+(defvar qingeditor/config/default-layout-name "Default"
+  "Name of the default layout.")
 
 (defvar qingeditor/config/display-default-layout nil
-  "是否在mode-line显示默认布局的名称。")
+  "If non nil the default layout name is displayed in the mode-line.")
 
 (defvar qingeditor/config/auto-resume-layouts nil
-  "是否自动恢复上一次保存的布局。")
+  "If non nil then the last auto saved layouts are resume automatically upon
+start.")
 
 (defvar qingeditor/config/max-rollback-slots 5
-  "在缓存中保存rollback slots最大的数量。")
+  "Maximum number of rollback slots to keep in the cache.")
 
 (defvar qingeditor/config/helm-resize nil
-  "如果不为`nil'那么helm模式将最小化使用占用空间。")
+  "If non nil, `helm' will try to minimize the space it uses.")
 
 (defvar qingeditor/config/helm-no-header nil
-  "如果不为`nil'，当结果就一个结果时候不显示helm header。")
+  "If non nil, the helm header is hidden when there is only one source.")
 
 (defvar qingeditor/config/helm-position 'bottom
-  "指定helm在minibuffer的那个位置进行显示。")
+  "Position in which to show the `helm' mini-buffer.")
 
 (defvar qingeditor/config/helm-use-fuzzy 'always
-  "模糊匹配选项，如果设置成`always'那个强制模糊匹配所有非异步的来源。如果
-设置成`source'保留各自来源的模糊匹配的设置。`nil'禁止所有的数据来源的模糊匹配。")
+  "Controls fuzzy matching in helm. If set to `always', force fuzzy matching
+  in all non-asynchronous sources. If set to `source', preserve individual
+  source settings. Else, disable fuzzy matching in all sources.")
 
 (defvar qingeditor/config/large-file-size 2
-  "超过这个阈值，`qingeditor'会提示用户进行选择是否打开大文件。打开大文件将使用literal模式。")
+  "Size (in MB) above which spacemacs will prompt to open the large file
+literally to avoid performance issues. Opening a file literally means that
+no major mode or minor modes are active.")
 
 (defvar qingeditor/config/auto-save-file-location 'cache
-  "auto-save保存文件的目标文件夹地址，可能的选项有`original'就在文件的当前文件夹进行保存。
-`cache'在cache目录中进行保存，设置成`nil'就禁止auto-save功能。")
+  "Location where to auto-save files. Possible values are `original' to
+auto-save the file in-place, `cache' to auto-save the file to another
+file stored in the cache directory and `nil' to disable auto-saving.
+Default value is `cache'.")
 
 (defvar qingeditor/config/enable-paste-transient-state t
-  "是否开启transient-mode，当开启时按`p'循环粘贴kill ring里面的内容。")
+  "If non nil the paste transient-state is enabled. While enabled pressing `p'
+several times cycle between the kill ring content.")
 
 (defvar qingeditor/config/which-key-delay 0.4
-  "按键只能提示的延迟时间，一般是最后一个按键完成开始算起。设置这个选项等价于
-设置`which-key-idle-delay'。")
+  "Delay in seconds starting from the last keystroke after which
+the which-key buffer will be shown if you have not completed a
+key sequence. Setting this variable is equivalent to setting
+`which-key-idle-delay'.")
 
 (defvar qingeditor/config/which-key-position 'bottom
-  "which key弹出框的位置，可能的值有`bottom'和`right-then-bottom',当设置为
-`right-then-bottom'先是尝试在右边进行显示，显示不了就在下面显示。")
+  "Location of the which-key popup buffer. Possible choices are bottom,
+right, and right-then-bottom. The last one will display on the
+right if possible and fallback to bottom if not.")
 
 (defvar qingeditor/config/loading-progress-bar t
-  "设置为`t'将在`qingeditor'启动的时候显示一个进度条，这个选项开启可能会影响启动速度。")
+  "If non nil a progress bar is displayed when `qingeditor' is loading. This
+may increase the boot time on some systems and emacs builds, set it to nil
+to boost the loading time.")
 
-(defvar qingeditor/config/fullscreen-at-startup nil "是否在初始化的时候全屏显示`qingeditor' frame，这个特性要求(Emacs 24.4+)。")
+(defvar qingeditor/config/fullscreen-at-startup nil
+  "If non nil the frame is fullscreen when Emacs starts up (Emacs 24.4+ only).")
 
 (defvar qingeditor/config/fullssreen-use-non-native nil
-  "不使用原生的全屏接口，用于取消Mac OSX的全屏动画。")
+  "If non nil `qingeditor/toggle-fullscreen' will not use native fullscreen. Use
+to disable fullscreen animations in OSX.")
 
 (defvar qingeditor/config/maximized-at-startup nil
-  "在`qingeditor'启动的时候最大化`qingeditor' frame，这个选项只在
-`qingeditor/core/user-cfg/fullscreen-at-startup'为`nil'的时候起作用。")
+  "If non nil the frame is maximized when Emacs starts up (Emacs 24.4+ only).
+Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.")
 
 (defvar qingeditor/config/active-transparency 90
-  "设置当前frame的激活的或者选中的时候的透明度，取值范围为(0...100)。")
+  "A value from the range (0..100), in increasing opacity, which describes the
+transparency level of a frame when it's active or selected. Transparency
+can be toggled through `toggle-transparency'.")
 
 (defvar qingeditor/config/inactive-transparency 90
-  "设置当前的frame没激活或者没有被选中的透明度，取值的范围为(0...100)。")
+  "A value from the range (0..100), in increasing opacity, which describes the
+transparency level of a frame when it's inactive or deselected. Transparency
+can be toggled through `toggle-transparency'.")
 
 (defvar qingeditor/config/show-transient-state-title t
-  "如果不为`nil'在transient states显示当前的frame的标题。")
+  "If non nil show the titles of transient states.")
 
 (defvar qingeditor/config/show-transient-state-color-guide t
-  "如果不为`nil',那么在transient keys显示彩色的提示信息。")
+  "If non nil show the color guide hint for transient state keys.")
 
 (defvar qingeditor/config/show-mode-line-unicode-symbols t
-  "是否在mode-line显示unicode字符。")
+  "If non nil unicode symbols are displayed in the mode-line (eg. for lighters)")
 
 (defvar qingeditor/config/smooth-scrolling t
-  "是否开启平滑滚动，如果为`t'则使用原生接口平滑滚动代替Emacs的跳跃滚动方式。")
+  "If non nil smooth scrolling (native-scrolling) is enabled.
+Smooth scrolling overrides the default behavior of Emacs which
+recenters point when it reaches the top or bottom of the
+screen.")
 
 (defvar qingeditor/config/line-numbers nil
-  "设置为`t'为`prog-mode'和`text-mode'开启行号，如果设置为`relative'则显示相对的行号。")
+  "If non nil line numbers are turned on in all `prog-mode' and `text-mode'
+derivatives. If set to `relative', also turns on relative line numbers.")
 
 (defvar qingeditor/config/persistent-server nil
-  "设置为`t'当用户退出的时候`qingeditor'会提示用户在退出编辑器的时候是否让Emacs服务器继续运行。")
+  "If non nil advises quit functions to keep server open when quitting.")
 
 (defvar qingeditor/config/smart-closing-parenthesis nil
-  "当为`t'的时候会在insert mode自动插入相应的反向括号，当开启这个想选个的时候可以在`)'之前
-按`c-q'暂时来禁止这个行为。(默认为`nil')。")
+  "If non-nil pressing the closing parenthesis `)' key in insert mode passes
+  over any automatically added closing parenthesis, bracket, quote, etc…
+  This can be temporary disabled by pressing `C-q' before `)'. (default nil)")
 
 (defvar qingeditor/config/smartparens-strict-mode nil
-  "如果这个选项不为`nil'的话`smartparens-strict-mode'将在编程模型。")
+  "If non-nil smartparens-strict-mode will be enabled in programming modes.")
 
 (defvar qingeditor/config/highlight-delimiters 'all
-  "设置高亮显示分割符的范围，可能的作用域选项有`any', `current', `all' 或者 `nil'. 默认是`all'
-  高亮显示所有的作用域，特别突出当前的作用域。")
+  "Select a scope to highlight delimiters. Possible values are `any',
+`current', `all' or `nil'. Default is `all' (highlight any scope and
+ emphasis the current one.")
 
 (defvar qingeditor/config/whitespace-cleanup nil
-  "是否在保存buffer的时候删除相关的空白符.可能的取值有`all', `trailing', `changed'或者`nil'。
-`all'侵入式删除的空格，删除所有的空行和内部的连续的空格。`trailing'删除行尾部的空格。`changed'只删除有改动的行的空白。
-`nil'关闭删除空格的功能。")
+  "delete whitespace while saving buffer. possible values are `all'
+to aggressively delete empty lines and long sequences of whitespace, `trailing'
+to delete only the whitespace at end of lines, `changed' to delete only
+whitespace for changed lines or `nil' to disable cleanup.")
 
 (defvar qingeditor/config/search-tools '("ag" "pt" "ack" "grep")
-  "`qingeditor'支持的搜索工具的名称列表，系统将使用出现在列表第一个的工具。默认支持：
-`ag', `pt', `ack'和`grep'。")
+  "List of search tool executable names. `qingeditor' uses the first installed
+tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.")
 
 (defvar qingeditor/config/default-package-repository 'melpa-stable
-  "`qingeditor'默认使用的包仓库的源，这个参数暂时还没有启用。")
+  "The default package repository used if no explicit repository has been
+specified with an installed package.
+NOT USED FOR NOW :-)")
 
 (defvar qingeditor/config/startup-lists '((recents . 5)
                                           (projects . 7))
-  "`qingeditor'欢迎页面的两个列表的显示调试
-格式为 `(list-type . list-size)',如果为`nil'就不显示任何的列表，list-type支持的选项有：
-`recents', `bookmarks', `projects', `agenda'和 `todos'。")
+  "Association list of items to show in the startup buffer of the form
+`(list-type . list-size)`. If nil it is disabled.
+Possible values for list-type are:
+`recents' `bookmarks' `projects' `agenda' `todos'.
+List sizes may be nil, in which case
+`qingeditor/startup-buffer/startup-lists-length' takes effect.")
 
 (defvar qingeditor/config/startup-buffer-responsive t
-  "`qingeditor'的欢迎页是否响应系统的resize事件。")
+  "True if the home buffer should respond to resize events.")
 
 (defvar qingeditor/config/excluded-packages '()
-  "默认不被安装和加载的包的列表。")
+  "A list of packages that will not be install and loaded.")
 
 (defvar qingeditor/config/frozen-packages '()
-  "默认系统不会去升级的包列表，将如果升级可能会影响兼容性的时候可以将包名称加入到这个列表。")
+  "A list of packages that cannot be updated.")
 
 (defvar qingeditor/config/verbose-loading nil
-  "当这个配置值不为`nil'的时候，系统将在`*Message*' buffer里面显示加载进度。默认为`nil'。")
+  "If non nil output loading progress in `*Messages*' buffer. (default nil)")
 
 (provide 'qingeditor-config)
