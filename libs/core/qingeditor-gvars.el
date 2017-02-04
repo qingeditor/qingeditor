@@ -17,7 +17,7 @@
   "标志变量，判断`qingeditor/gvars/post-user-config-hook'是否已经运行。")
 
 (defvar qingeditor/insecure nil
-  "当`qingeditor'访问网络的时候，是否使用不安全的连接。")
+  "If non-nil force `qingeditor' to operate without secured protocols.")
 
 (defvar qingeditor/post-theme-change-hook nil
   "当风格变化的时候执行的钩子函数。")

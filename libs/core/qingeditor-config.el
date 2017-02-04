@@ -23,7 +23,7 @@ file to be saved.")
 
 (defvar qingeditor/config/elpa-timeout 5  "ELPA软件仓库的连接超时时间。")
 
-(defvar qingeditor/config/elpa-subdir nil "是否按照Emacs的版本号建立各自的ELAP库的文件夹。")
+(defvar qingeditor/config/elpa-subdirectory nil "是否按照Emacs的版本号建立各自的ELAP库的文件夹。")
 
 (defvar qingeditor/config/cfg-layer-dir '() "`qingeditor'的layer层存放的文件夹，必须以`/'结尾。")
 

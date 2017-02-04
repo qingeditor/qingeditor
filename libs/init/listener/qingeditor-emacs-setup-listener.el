@@ -32,6 +32,12 @@
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/call-cfg-ready-callback this)))
+  ;; some global initialize
+  (qingeditor/cls/attach
+   eventmgr
+   qingeditor/init/event/editor-cfg-ready-event
+   (qingeditor/eventmgr/event-handler/init
+    (list #'qingeditor/cls/invoke-global-intialize-funcs this)))
   )
 
 (defmethod qingeditor/cls/setup-emacs-ui
@@ -63,5 +69,9 @@
                         "Call user configuration init...")
   (qingeditor/call-func qingeditor/config/user-init
                         "Call user configuration custom init..."))
+
+(defmethod qingeditor/cls/invoke-global-intialize-funcs
+  ((this qingeditor/init/emacs-setup-listener) event)
+  (qingeditor/modulemgr/installer/initialize))
 
 (provide 'qingeditor-emacs-setup-listener)
