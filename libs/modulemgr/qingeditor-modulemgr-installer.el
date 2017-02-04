@@ -13,7 +13,7 @@
 (defvar qingeditor/modulemgr/installer/package-archives-refreshed nil
   "Non nil if package archives have already been refreshed.")
 
-(defvar qingeditor/modulemgr/installer/refresh-package-timeout qingeditor/config/elpa-timeout
+(defvar qingeditor/modulemgr/installer/refresh-package-timeout 0
   "Timeout in seconds to reach a package archive page.")
 
 (defvar qingeditor/modulemgr/installer/protected-packages nil
@@ -40,13 +40,65 @@
   (unless package--initialized
     (setq qingeditor/modulemgr/installer/rollback-directory
           (qingeditor/modulemgr/installer/get-elpa-directory qingeditor/modulemgr/installer/rollback-directory))
-    (setq package-archives (qingeditor/modulemgr/installer/resolve-package-archives
+    (setq package-archives (qingeditor/modulemgr/installer/resolve-package-archive-addresses
                             qingeditor/modulemgr/installer/elpa-archives))
     ;; optimization, no need to archive all the packages so early.
     (setq package-enable-at-startup nil)
     (package-initialize 'noactivate)))
 
-(defun qingeditor/modulemgr/installer/resolve-package-archives
+(defun qingeditor/modulemgr/installer/refresh-package-archives (&optional quiet force)
+  "Refresh all archivees declared in current `package-archives'.
+
+This function first performs a simple GET request with a timeout in order to
+fix very long refresg time when an archive is not reachable.
+
+Note that this simple GEt is a huristic to determine the availability
+likelihood of an archive, so it can give false positive if the archive
+page is served but the archive is not.
+
+if `quiet' is non `nil' then the function does not print message in the `qingeditor'
+startup buffer.
+
+If `force' is non `nil' then refresh the archives event if they have been already
+refreshed during the current session."
+  (unless (and (qingeditor/modulemgr/installer/package-archives-refreshed)
+               (not force))
+    (setq qingeditor/modulemgr/installer/package-archives-refreshed t)
+    (let ((count (length package-archives))
+          (i 1))
+      (dolist (archive package-archives)
+        (unless quiet
+          (qingeditor/startup-buffer/replace-last-line
+           (format "--> refreshing package archive: %s... [%s/%s]"
+                   (car archive) i count)))
+        (qingeditor/redisplay)
+        (setq i (1+ i))
+        (unless
+            (eq 'error
+                ;; why not use `qingeditor/modulemgr/installer/refresh-package-timeout'
+                (with-timeout (qingeditor/config/elpa-timeout
+                               (progn
+                                 (display-warning
+                                  'qingeditor
+                                  (format
+                                   "\nError connection time out for %s repository!"
+                                   (car archive))
+                                  :warning)
+                                 'error))
+                  (condition-case err
+                      (url-retrieve-synchronously (cdr archive))
+                    ('error
+                     (display-warning
+                      'qingeditor
+                      (format "\nError while concating %s repository!"
+                                           (car archive)) :warning)
+                     'error))))
+          (let ((package-archives (list archive)))
+            (package-refresh-contents))))
+      (package-read-all-archive-contents)
+      (unless quiet (qingeditor/startup-buffer/append "\n")))))
+
+(defun qingeditor/modulemgr/installer/resolve-package-archive-addresses
     (archives)
   "Resolve HTTP handlers for each archive in `archives' and return a list
 of all reachable ones.

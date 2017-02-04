@@ -15,13 +15,14 @@
   "This variable is to record the warnings of `qingeditor' startup.")
 
 (defun qingeditor/startup-buffer/message (msg &rest args)
-  "在`*Message*' buffer里面显示一条以(qingeditor)开头的信息。只有当`init-file-debug'不为`nil'的时候
-才显示相应的信息。"
+  "Display `msg' in message prepend with `(qingeditor)'
+The message is displayed only if `init-file-debug' is non `nil'."
   (when init-file-debug
     (qingeditor/message "(qingeditor) %s" (apply 'format msg args))))
 
 (defun qingeditor/startup-buffer/warning (msg &rest args)
-  "在`*Message*' buffer中显示一条告警信息 `MSG'，传入的`MSG'会无条件显示。"
+  "Display `msg' as a warning message but in buffer `*Message*'.
+The message is aways displayed."
   (let ((msg (apply 'format msg args)))
     (qingeditor/message "(qingeditor) Warning: %s" msg)
     (add-to-list 'qingeditor/startup-buffer/warnings msg 'append)))
@@ -41,5 +42,16 @@
   "Set mode-line format for `qingeditor' buffer."
   (with-current-buffer (get-buffer-create qingeditor/startup-buffer/name)
     (setq mode-line-format format)))
+
+(defun qingeditor/startup-buffer/replace-last-line (msg &optional messagebuf)
+  "Replace the last line of the `qingeditor' buffer with `msg'.
+If `messagebuf' is not `nil' then `msg' is also written in message buffer."
+  (with-current-buffer (get-buffer-create qingeditor/startup-buffer/name)
+    (goto-char (point-max))
+    (let ((buffer-read-only nil))
+      (delete-region (line-beginning-position) (point-max))
+      (insert msg)
+      (if messagebuf (message "(qingeditor) %s" msg)))
+    (qingeditor/startup-buffer/set-mode-line "")))
 
 (provide 'qingeditor-startup-buffer)
