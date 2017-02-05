@@ -115,7 +115,7 @@ works in the GUI. (default nil)")
 (defvar qingeditor/config/distinguish-gui-ret nil
   "If non `nil', distinguish `C-i' and tab in the GUI version of emacs.")
 
-(defvar qingeditor/core/config/default-font
+(defvar qingeditor/config/default-font
   '("Source Code Pro"
     :size 15
     :weight normal

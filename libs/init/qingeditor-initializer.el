@@ -46,8 +46,7 @@ we finally process `qingeditor' modules."
   (qingeditor/cls/load-editor-cfg-file this))
 
 (defmethod qingeditor/cls/bootstrap ((this qingeditor/initializer))
-  "bootstrap `qingeditor', dispatch event."
-  )
+  "bootstrap `qingeditor', dispatch event.")
 
 (defmethod qingeditor/cls/run ((this qingeditor/initializer))
   "In this method, we will finished all settup procedure and run `qingeditor'.")

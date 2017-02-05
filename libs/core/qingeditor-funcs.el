@@ -8,29 +8,31 @@
 ;;
 ;; define some untils functions
 
-(defun qingeditor/message (msg &rest args)
-  "将`msg'添加到`*Messages*'buffer里面。"
-  (with-current-buffer "*Messages*"
-    (goto-char (point-max))
-    (let ((buffer-read-only nil))
-      (insert (apply 'format (concat msg "\n") args)))))
-
 (defun qingeditor/mplist-get (plist prop)
-  "获取多值`mplist'指定属性的值，多值plist是一个关键字后面跟多个值。
-当前的函数如果`circle list'那个会造成无限循环。如果相同的关键字间隔出现
-我们只返回与第一个关键字关联的数据。"
+  "Get the values associated to `prop' in `plist', a modified plist.
+
+A modified plist is none where keys are keywords and values are
+all non-keywords elements that follow it.
+
+If there are multiple properties with the same keyword, only the first property
+and its values returned.
+
+Currently this function infloops when the list is circular."
   (let ((tail plist)
         result)
     (while (and (consp tail) (not (eq prop (car tail))))
       (pop tail))
-    ;; 弹出关键字
+    ;; pop the found keyword
     (pop tail)
     (while (and (consp tail) (not (keywordp (car tail))))
       (push (pop tail) result))
     (nreverse result)))
 
 (defun qingeditor/mplist-remove (plist prop)
-  "返回一个删除了指定关键字的关联数据。如果相同的关键字间隔出现，我们只删除第一个出现的关键字数据。"
+  "Return a copy of a modified `plist' without `prop' and its values.
+
+If there are multiple properties with the same keyword, only the first property
+and its values are removed."
   (let ((tail plist)
         result)
     (while (and (consp tail) (not (eq prop (car tail))))
@@ -43,23 +45,23 @@
       (push (pop tail) result))
     (nreverse result)))
 
-;; 灵感来源 http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
+;; Originally base on http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
 (defun qingeditor/dump-vars-to-file (varlist filename)
-  "将变量列表`varlist'导出到文件`filename'。"
+  "simplistic dumping of variables in `varlist' to a file `filename'."
   (with-temp-file filename
     (qingeditor/core/dump varlist (current-buffer))
     (make-directory (file-name-directory filename) t)))
 
-;; 灵感来源 http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
+;; Originally base on http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
 (defun qingeditor/dump (varlist buffer)
-  "在传入的`buffer'里面根据`varlist'传入的列表，生成设置语句，用于重新创建信息。"
+  "insert into buffer the setq statement to recreate the variables in `varlist'."
   (cl-loop for var in varlist do
            (print (list 'setq var (list 'quote (symbol-value var)))
                   buffer)))
 
 ;; from https://gist.github.com/3402786
 (defun qingeditor/toggle-maximize-buffer ()
-  "最大化`buffer'。"
+  "toggle maximized buffer state"
   (interactive)
   (if (and (= 1 (length (window-list)))
            (assoc ?_ register-alist))
@@ -69,7 +71,8 @@
       (delete-other-windows))))
 
 (defun qingeditor/run-text-mode-hooks ()
-  "运行`text-mode-hook'。这个函数对那些不是从`text-mode'继承而来的`mode'非常有用。"
+  "Runs `text-mode-hook'. useful for modes that don't derive from
+`progn-mode' but should."
   (run-hooks 'text-mode-hook))
 
 (defun qingeditor/system-is-mac ()
@@ -82,7 +85,7 @@
   (eq system-type 'windows-nt))
 
 (defun qingeditor/window-system-is-mac ()
-  ;; 在Emacs 25+的mac `(window-system)'返回 ns
+  ;; in Emacs 25+的mac `(window-system)' return `ns'
   (memq (window-system) '(mac ns)))
 
 (defvar qingeditor/init-redisplay-count-private 0

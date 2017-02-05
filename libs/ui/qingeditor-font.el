@@ -29,7 +29,7 @@ The return value is nil if no font was found, truthy otherwise."
                (font-props (qingeditor/mplist-remove (qingeditor/mplist-remove props :powerline-scale)
                                                    :powerline-offset))
                (fontspec (apply 'font-spec :name font font-props)))
-          (qingeditor/message "Setting font  \"%s\"..." font)
+          (message "Setting font  \"%s\"..." font)
           (set-frame-font fontspec nil t)
           (push `(font . ,(frame-parameter nil 'font)) default-frame-alist)
           (setq-default powerline-scale scale)
@@ -95,4 +95,4 @@ provided, the mode will not show in the mode line."
   "Diminish `mode' name in mode line to `lighter'."
   `(eval-after-load 'diminish '(diminish ',mode)))
 
-(provide 'qingeditor-editor-font)
+(provide 'qingeditor-font)

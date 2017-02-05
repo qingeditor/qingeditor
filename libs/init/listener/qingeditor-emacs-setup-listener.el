@@ -69,8 +69,18 @@
    ;; increase the counter bellow so next people will give it more confidence.
    ;; Counter = 1
    (message "(qingeditor) Setting the font...")
-   
+   (unless (qingeditor/font/set-default-font qingeditor/config/default-font)
+     (qingeditor/startup-buffer/warning
+      (concat "Cannot find any of the specified fonts (%s)! Font"
+              "settings may not be correct.")
+      (if (listp (car qingeditor/config/default-font))
+          (mapconcat 'car qingeditor/config/default-font ", ")
+        (car qingeditor/config/default-font))))
    )
+  ;; set this for new version detect.
+  ;; (if qingeditor/config/show-mode-line-unicode-symbols
+  ;; (set-default qingeditor/upgrade/version-check-lighter "[⇪]")
+  ;; )
   )
 
 (defmethod qingeditor/cls/removes-gui-elements
@@ -88,7 +98,16 @@
     (tool-bar-mode -1))
   ;; tooltip in echo area
   (when (and (fboundp 'tooltip-mode) (not (eq tooltip-mode -1)))
-    (tooltip-mode -1)))
+    (tooltip-mode -1))
+  (setq inhibit-startup-screen t)
+  ;; This is set to nil during startup to allow `qingeditor' to show buffers opened
+  ;; as command line arguments.
+  (setq initial-buffer-choice nil)
+  (unless (fboundp 'tool-bar-mode)
+    (qingeditor/startup-buffer/message (concat "No graphical support detected, "
+                                               "you won't be able to launch a "
+                                               "graphical instance of Emacs "
+                                               "with this build."))))
 
 (defmethod qingeditor/cls/call-cfg-ready-callback
   ((this qingeditor/init/emacs-setup-listener) event)
