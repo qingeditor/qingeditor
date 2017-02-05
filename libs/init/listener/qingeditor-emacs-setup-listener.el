@@ -26,7 +26,7 @@
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/setup-emacs-ui this)))
-  
+
   (qingeditor/cls/attach
    eventmgr
    qingeditor/init/event/editor-cfg-ready-event
@@ -38,12 +38,6 @@
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/invoke-global-intialize-funcs this)))
-  ;; load theme handler
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/init/event/editor-cfg-ready-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/load-default-theme this)))
   )
 
 (defmethod qingeditor/cls/setup-emacs-ui
@@ -55,6 +49,28 @@
   (qingeditor/cls/removes-gui-elements this)
   ;; explicitly set the prefered coding systems to avoid annoying prompt
   ;; from emacs (especially on Microsoft Windows)
+  (let ((default-theme (car qingeditor/config/themes)))
+    (qingeditor/theme/load-theme default-theme)
+    ;; protect used themes from delection as orphans
+    (setq qingeditor/modulemgr/installer/protected-packages
+          (append
+           (delq nil (mapcar 'qingeditor/theme/get-theme-package
+                             qingeditor/config/themes))
+           qingeditor/modulemgr/installer/protected-packages))
+    (setq-default qingeditor/theme/cur-theme default-theme)
+    (setq-default qingeditor/theme/cycle-themes (cdr qingeditor/config/themes)))
+  ;; setting fonts
+  (qingeditor/do-after-display-system-ready
+   ;; If you are thinking to remove this call to `message', think twice. You'll
+   ;; break the life of several Spacemacser using Emacs in daemon mode. Without
+   ;; this, their chosen font will not be set on the *first* instance of
+   ;; emacsclient, at least if different than their system font. You don't
+   ;; believe me? Go ahead, try it. After you'll have notice that this was true,
+   ;; increase the counter bellow so next people will give it more confidence.
+   ;; Counter = 1
+   (message "(qingeditor) Setting the font...")
+   
+   )
   )
 
 (defmethod qingeditor/cls/removes-gui-elements
@@ -67,7 +83,12 @@
       (menu-bar-mode -1)))
   (when (and (fboundp 'scroll-bar-mode)
              (not (eq scroll-bar-mode -1)))
-    (scroll-bar-mode -1)))
+    (scroll-bar-mode -1))
+  (when (and (fboundp 'tool-bar-mode) (not (eq tool-bar-mode -1)))
+    (tool-bar-mode -1))
+  ;; tooltip in echo area
+  (when (and (fboundp 'tooltip-mode) (not (eq tooltip-mode -1)))
+    (tooltip-mode -1)))
 
 (defmethod qingeditor/cls/call-cfg-ready-callback
   ((this qingeditor/init/emacs-setup-listener) event)
@@ -78,10 +99,7 @@
 
 (defmethod qingeditor/cls/invoke-global-intialize-funcs
   ((this qingeditor/init/emacs-setup-listener) event)
-  (qingeditor/modulemgr/installer/initialize))
-
-(defmethod qingeditor/cls/load-default-theme
-  ((this qingeditor/init/emacs-setup-listener) event)
-  )
+  (qingeditor/modulemgr/installer/initialize)
+  (prefer-coding-system 'utf-8))
 
 (provide 'qingeditor-emacs-setup-listener)

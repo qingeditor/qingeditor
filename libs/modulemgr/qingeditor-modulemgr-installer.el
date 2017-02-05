@@ -68,7 +68,7 @@ if `log' is non-nil a message is displayed in `qinegditor-buffer-mode' buffer.
           (qingeditor/modulemgr/installer/refresh-package-archives 'quiet)
           (package-install pkg-name)
           (setq pkg-elpa-dir (qingeditor/modulemgr/installer/get-package-installed-directory pkg)))
-        (require pkg-name bil 'noerror)
+        (require pkg-name nil 'noerror)
         (when file-to-load
           (load-file (concat pkg-elpa-dir file-to-load)))
         pkg-elpa-dir))))

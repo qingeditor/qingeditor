@@ -177,7 +177,7 @@ package name does not match name plus `-theme' suffix.")
             ;; if not we will handle the special themes as we get issues
             ;; in the tracker.
             (let ((pkg (qingeditor/theme/get-theme-package theme)))
-              (qingeditor/theme/load-or-install-package pkg))))))
+              (qingeditor/modulemgr/installer/load-or-install-package pkg))))))
     ('error
      (setq theme 'default)
      (display-warning
@@ -224,4 +224,4 @@ has been changed to `theme'."
    ;; fallback to <name>-theme
    (t (intern (format "%S-theme" theme)))))
 
-(provide 'qingeditor-editor-theme)
+(provide 'qingeditor-theme)

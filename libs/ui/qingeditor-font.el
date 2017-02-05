@@ -1,17 +1,23 @@
-;; 这个类只要负责`qingeditor'的字体设置
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: MIT
+;;
+;; Define some functions for font handle.
 
-(require 'qingeditor-io)
+(defvar qingeditor/font/diminished-minor-modes nil
+  "。List of diminished moodes to unicode or ascii values.")
 
-(defvar qingeditor/ui/editor-font/diminished-minor-modes nil
-  "显示在`mode-line'上面的mode的代表字符。")
+(defun qingeditor/font/set-default-font (plists)
+  "Set the font given the passed `plist'.
 
-(defun qingeditor/ui/editor-font/set-default-font (plists)
-  "设置plist里面的字体。
+`plist' has either the form (\"fontname\" :prop1 val1 :prop2 val2 ...)
+or is a list of such. The first font that can be found will be used.
 
-`PLIST'格式要是`(\"fontname\" :prop1 val1 :prop2 val2 ...)'，要么是这种格式的
-列表，系统将这个列表中的第一个存在的字体设置城编辑器的字体。
-
-如果列表里面的字体都不存在返回`nil'，否则返回t。"
+The return value is nil if no font was found, truthy otherwise."
   (unless (listp (car plists))
     (setq plists (list plists)))
   (catch 'break
@@ -20,15 +26,15 @@
         (let* ((font (car plist))
                (props (cdr plist))
                (scale (plist-get props :powerline-scale))
-               (font-props (qingeditor/core/mplist-remove (qingeditor/core/mplist-remove props :powerline-scale)
+               (font-props (qingeditor/mplist-remove (qingeditor/mplist-remove props :powerline-scale)
                                                    :powerline-offset))
                (fontspec (apply 'font-spec :name font font-props)))
-          (qingeditor/core/io/message "正在设置字体 \"%s\"..." font)
+          (qingeditor/message "Setting font  \"%s\"..." font)
           (set-frame-font fontspec nil t)
           (push `(font . ,(frame-parameter nil 'font)) default-frame-alist)
           (setq-default powerline-scale scale)
-          (setq-default powerline-height (qingeditor/ui/editor-font/compute-powerline-height))
-          ;; qingeditor最终的容错字体
+          (setq-default powerline-height (qingeditor/font/compute-powerline-height))
+          ;; fallback font for unicode characters used in `qingeditor'
           (pcase system-type
             (`gnu/linux
              (setq fallback-font-name "NanumGothic")
@@ -46,7 +52,9 @@
              (setq fallback-font-name nil)
              (setq fallback-font-name2 nil)))
           (when (and fallback-font-name fallback-font-name2)
-            ;; 移除字体的高度属性，然后使用默认的大小(主要是用于缩放)
+            ;; remove any size or height properties in order to be able to
+            ;; scale the fallback fonts with the default one (for zoom-/out
+            ;; for instance)
             (let* ((fallback-props (qingeditor/core/mplist-remove
                                     (qingeditor/core/mplist-remove font-props :size)
                                     :height))

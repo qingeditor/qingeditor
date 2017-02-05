@@ -14,6 +14,7 @@
 (require 'qingeditor-emacs-setup-listener)
 (require 'qingeditor-hidden-mode-line)
 (require 'qingeditor-modulemgr-installer)
+(require 'qingeditor-theme)
 
 (defvar qingeditor/geventmgr (qingeditor/eventmgr/mgr/init)
   "`qingeditor' global event mgr, some global event trigger by this manager.")
