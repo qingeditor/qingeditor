@@ -9,7 +9,8 @@
 (load-file (expand-file-name (concat user-emacs-directory "init-autoload.el")))
 
 (if (not (version<= qingeditor/emacs-min-version emacs-version))
-    (message "您的Emacs版本过低, 请升级Emacs编辑器. 当前版本号:(%s), qws editor要求版本号大于等于: (%s)"
+    (message (concat "Your version of Emacs (%s) is to old. "
+                     "qingeditor requires Emacs version %s or above.")
 	     emacs-version qingeditor/emacs-min-version)
   ;; 将`qingeditor'核心库加入到`load-path'列表中
   (qingeditor/register-target-dir-to-load-path qingeditor/libs-dir)

@@ -20,8 +20,10 @@
 (defvar qingeditor/geventmgr (qingeditor/eventmgr/mgr/init)
   "`qingeditor' global event mgr, some global event trigger by this manager.")
 
-(defvar qingeditor/shared-eventmgr (qingeditor/eventmgr/shared-mgr)
+(defvar qingeditor/shared-eventmgr (make-instance 'qingeditor/eventmgr/shared-mgr)
   "The global shared event manager object.")
+
+(defvar qingeditor/modulemgr (make-instance 'qingeditor/modulemgr/mgr))
 
 ;; setup shared eventmgr
 ;; we attach some important global event listeners
@@ -49,6 +51,7 @@ initialized."
 (let ((eventmgr (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr))
       (initializer qingeditor/initializer-ref))
   (qingeditor/cls/set-eventmgr initializer eventmgr)
+  (qingeditor/cls/set-modulemgr initializer qingeditor/modulemgr)
   (qingeditor/cls/init initializer)
   (qingeditor/cls/bootstrap initializer))
 

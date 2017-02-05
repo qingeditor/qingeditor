@@ -12,6 +12,7 @@
 (require 'qingeditor-init-event)
 (require 'qingeditor-eventmgr-mgr)
 (require 'qingeditor-hash-table)
+(require 'qingeditor-modulemgr-mgr)
 
 (defclass qingeditor/initializer ()
   ((default-listeners
@@ -23,14 +24,32 @@
    (eventmgr
      :initarg :eventmgr
      :initform nil
-     :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/eventmgr/mgr))))
-     :documentation "the event manager of `qingeditor/initializer' object")
+     :type (satisfies (lambda (obj)
+                        (or (null obj)
+                            (object-of-class-p obj qingeditor/eventmgr/mgr))))
+     :documentation "The event manager of `qingeditor/initializer' object")
+
+   (modulemgr
+    :initarg :modulemgr
+    :initform nil
+    :type (satisfies (lambda (obj)
+                       (or (null obj)
+                           (object-of-class-p obj qingeditor/modulemgr/mgr))))
+    :documentation "The modulemgr of `qingeditor/initializer' object")
 
    (error-count
     :initarg :error-count
     :initform 0
     :type number
     :documentation "The number of error during the `qingeditor' startup.")
+
+   (event
+    :initarg :event
+    :initform nil
+    :type (satisfies (lambda (event)
+                       (or (null event)
+                           (object-of-class-p event qingeditor/init/event))))
+    :documentation "Init event reference.")
    )
   :documentation "global initializer class")
 
@@ -46,7 +65,12 @@ we finally process `qingeditor' modules."
   (qingeditor/cls/load-editor-cfg-file this))
 
 (defmethod qingeditor/cls/bootstrap ((this qingeditor/initializer))
-  "bootstrap `qingeditor', dispatch event.")
+  "bootstrap `qingeditor', dispatch event."
+  (let ((event (oref this :event)))
+    (qingeditor/cls/set-name event qingeditor/init/event/bootstrap-event)
+    (qingeditor/cls/trigger-event (oref this :eventmgr) event)
+    (qingeditor/cls/init (oref this :modulemgr))
+    (qingeditor/cls/load-modules (oref this :modulemgr))))
 
 (defmethod qingeditor/cls/run ((this qingeditor/initializer))
   "In this method, we will finished all settup procedure and run `qingeditor'.")
@@ -62,6 +86,7 @@ we finally process `qingeditor' modules."
     (let ((event (qingeditor/init/event/init
                   qingeditor/init/event/editor-cfg-ready-event
                   this)))
+      (oset this :event event)
       (qingeditor/cls/set-initializer event this)
       (qingeditor/cls/trigger-event (oref this :eventmgr) event))))
 
@@ -150,11 +175,14 @@ a display string and the value is the actual to return."
     (setq-default qingeditor/config/target-cfg-filename target-cfg-filename)
     (list target-cfg-dir target-cfg-filename)))
 
-(defmethod qingeditor/cls/set-eventmgr
-  ((this qingeditor/initializer) eventmgr)
+(defmethod qingeditor/cls/set-eventmgr ((this qingeditor/initializer) eventmgr)
   (qingeditor/cls/set-identifiers eventmgr '("qingeditor/initializer"))
   (oset this :eventmgr eventmgr)
   this)
+
+(defmethod qingeditor/cls/set-modulemgr ((this qingeditor/initializer) modulemgr)
+  "Set modulemgr for initializer."
+  (oset this :modulemgr modulemgr))
 
 (defmethod qingeditor/cls/add-default-listener ((this qingeditor/initializer) key listener)
   (when (qingeditor/cls/has-key (oref this :default-listeners) key)

@@ -20,6 +20,11 @@
 
 (defmethod qingeditor/cls/attach
   ((this qingeditor/init/emacs-setup-listener) eventmgr)
+  (qingeditor/cls/attach
+   eventmgr
+   qingeditor/init/event/editor-cfg-ready-event
+   (qingeditor/eventmgr/event-handler/init
+    (list #'qingeditor/cls/call-cfg-ready-callback this)))
   ;; ui handler
   (qingeditor/cls/attach
    eventmgr
@@ -27,18 +32,12 @@
    (qingeditor/eventmgr/event-handler/init
     (list #'qingeditor/cls/setup-emacs-ui this)))
 
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/init/event/editor-cfg-ready-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/call-cfg-ready-callback this)))
   ;; some global initialize
   (qingeditor/cls/attach
    eventmgr
    qingeditor/init/event/editor-cfg-ready-event
    (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/invoke-global-intialize-funcs this)))
-  )
+    (list #'qingeditor/cls/invoke-global-intialize-funcs this))))
 
 (defmethod qingeditor/cls/setup-emacs-ui
   ((this qingeditor/init/emacs-setup-listener) event)
@@ -104,17 +103,16 @@
   ;; as command line arguments.
   (setq initial-buffer-choice nil)
   (unless (fboundp 'tool-bar-mode)
-    (qingeditor/startup-buffer/message (concat "No graphical support detected, "
-                                               "you won't be able to launch a "
-                                               "graphical instance of Emacs "
-                                               "with this build."))))
+    (qingeditor/startup-buffer/message
+     (concat "No graphical support detected, "
+             "you won't be able to launch a "
+             "graphical instance of Emacs "
+             "with this build."))))
 
 (defmethod qingeditor/cls/call-cfg-ready-callback
   ((this qingeditor/init/emacs-setup-listener) event)
-  (qingeditor/call-func qingeditor/config/init
-                        "Call user configuration init...")
-  (qingeditor/call-func qingeditor/config/user-init
-                        "Call user configuration custom init..."))
+  (qingeditor/call-func qingeditor/config/init  "Call user configuration init...")
+  (qingeditor/call-func qingeditor/config/user-init "Call user configuration custom init..."))
 
 (defmethod qingeditor/cls/invoke-global-intialize-funcs
   ((this qingeditor/init/emacs-setup-listener) event)
