@@ -55,8 +55,8 @@ The return value is nil if no font was found, truthy otherwise."
             ;; remove any size or height properties in order to be able to
             ;; scale the fallback fonts with the default one (for zoom-/out
             ;; for instance)
-            (let* ((fallback-props (qingeditor/core/mplist-remove
-                                    (qingeditor/core/mplist-remove font-props :size)
+            (let* ((fallback-props (qingeditor/mplist-remove
+                                    (qingeditor/mplist-remove font-props :size)
                                     :height))
                    (fallback-spec (apply 'font-spec :name fallback-font-name fallback-props))
                    (fallback-spec2 (apply 'font-spec :name fallback-font-name2 fallback-props)))
@@ -75,22 +75,24 @@ The return value is nil if no font was found, truthy otherwise."
         (throw 'break t)))
     nil))
 
-(defun qingeditor/ui/editor-font/compute-powerline-height ()
-  "获取一个调整过得powerline的高度值。"
+(defun qingeditor/font/compute-powerline-height ()
+  "Return an adjusted powerline height."
   (let ((scale (if (and (boundp 'powerline-scale) powerline-scale)
                    powerline-scale 1)))
     (truncate (* scale (frame-char-height)))))
 
-(defmacro qingeditor/ui/editor-font/diminish (mode &optional unicode ascii)
-  "根据`qingeditor/core/user-cfg/mode-line-unicode-symbols'来决定是否在`mode-line’上显示
-一个`mode'的简称，如果`ascii'没有提供就显示`unicode'，如果两个都没有提供的话，就什么也不显示。"
-  `(let* ((cell (assq ',mode qingeditor/ui/editor-font/diminished-minor-modes)))
+(defmacro qingeditor/font/diminish (mode &optional unicode ascii)
+  "Diminish `mode' name in mode line to `unicode' or `ascii' depending on
+the value `qingeditor/config/mode-line-unicode-symbols'.
+If `ascii' is not provided then `unicode' is used instead. If neither are
+provided, the mode will not show in the mode line."
+  `(let* ((cell (assq ',mode qingeditor/font/diminished-minor-modes)))
      (if cell
          (setcdr cell '(,unicode ,ascii))
-       (push '(,mode ,unicode ,ascii) qingeditor/ui/editor-font/diminished-minor-modes))))
+       (push '(,mode ,unicode ,ascii) qingeditor/font/diminished-minor-modes))))
 
 (defmacro qingeditor/ui/editor-font/hide-lighter (mode)
-  "是否显示简约版的`mode'的名字。"
+  "Diminish `mode' name in mode line to `lighter'."
   `(eval-after-load 'diminish '(diminish ',mode)))
 
 (provide 'qingeditor-editor-font)
