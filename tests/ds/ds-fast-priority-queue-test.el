@@ -15,7 +15,7 @@
 
 (defun qingeditor/test/ds/prepare-fast-priority-queue (test-func)
   "为测试准备一个`fast-priority-queue`对象'。'"
-  (let ((queue (qingeditor/fast-priority-queue)))
+  (let ((queue (make-instance 'qingeditor/fast-priority-queue)))
     (let ((init-data-paires (qingeditor/test/ds/get-fast-priority-queue-data-pairs)))
       (dolist (pair init-data-paires)
 	(qingeditor/cls/insert queue (car pair) (cdr pair)))

@@ -18,8 +18,7 @@
     :type (satisfies
 	   (lambda (data)
 	     (or (null data)
-		 (hash-table-p data))))
-    :protection private
+           (hash-table-p data))))
     :documentaion "底层的`hash-table'对象。"))
   :documentation "对原生的`hash table'做简单的封装。")
 
@@ -27,7 +26,7 @@
   "初始化一个`hash table'实例，`test'参数指定使用的比较函数。
 默认为`equal'，你可以指定为`eq', `eql', `equal'或者通过函数
 `define-hash-table-test'定义的测试函数。"
-  (qingeditor/hash-table
+  (make-instance 'qingeditor/hash-table
    :table (make-hash-table :test (or test 'equal))))
 
 (defmacro qingeditor/cls/make-table-from-paires (&rest pairs)

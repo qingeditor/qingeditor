@@ -38,12 +38,14 @@
        ;; 存放一下`list'
        (qingeditor/cls/set ht 'props '(a b c))
        ;; 存放一下`hash-table'
-       (qingeditor/cls/set ht 'data new-table)
-       (should (equal (hash-table-count table) 4))
-       (should (equal (gethash 'name table) "softboy"))
-       (should (equal (gethash 'age table) 12))
-       (should (equal (gethash 'props table) '(a b c)))
-       (should (eq (gethash 'data table) new-table))))))
+      (qingeditor/cls/set ht 'data new-table)
+      (should (equal (hash-table-count table) 4))
+      (should (equal (gethash 'name table) "softboy"))
+      (should (equal (gethash 'age table) 12))
+      (should (equal (gethash 'props table) '(a b c)))
+      (should (eq (gethash 'data table) new-table))
+
+       ))))
 
 (ert-deftest qingeditor/test/ds/hash-table-get-test ()
   :tags '(qingeditor/hash-table/get)
@@ -321,12 +323,12 @@
   (qingeditor/test/ds/prepare-hash-table
    (lambda ()
      (let ((init-alist '((age . 12) (name . "cntysoft")))
-	   (alist))
+           (alist))
        (qingeditor/cls/set-from-alist ht init-alist)
        (setq alist (qingeditor/cls/to-alist ht))
        (should (equalp (length alist) (length init-alist)))
-       (should (equalp (alist-get 'name alist) (alist-get 'name init-alist)))
-       (should (equalp (alist-get 'age alist) (alist-get 'age init-alist)))))))
+       (should (equalp (assq 'name alist) (assq 'name init-alist)))
+       (should (equalp (assq 'age alist) (assq 'age init-alist)))))))
 
 (ert-deftest qingeditor/test/ds/hash-table-has-key-test ()
   :tags '(qingeditor/hash-table/set-from-alist)

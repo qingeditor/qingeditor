@@ -45,7 +45,8 @@
       (setq type qingeditor/eventmgr/normal-callable))
     (when (= (length callable) 2)
       (setq type qingeditor/eventmgr/method-callable)))
-  (qingeditor/eventmgr/event-handler :type type :callable-data callable))
+  (make-instance 'qingeditor/eventmgr/event-handler
+                 :type type :callable-data callable))
 
 (defmethod qingeditor/cls/call
   ((this qingeditor/eventmgr/event-handler) &rest args)

@@ -5,7 +5,7 @@
 
 (defun qingeditor/test/ds/prepare-stack (test-func)
   "为测试准备一个`qingeditor/stack`对象'。'"
-  (let ((stack (qingeditor/stack)))
+  (let ((stack (make-instance 'qingeditor/stack)))
     (funcall test-func)))
 
 (ert-deftest qingeditor/test/ds/stack-test ()

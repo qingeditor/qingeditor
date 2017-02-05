@@ -16,9 +16,9 @@
 
 (ert-deftest qingeditor/test/eventmgr/event-collection-test ()
   (let (handler
-	(l (lambda (name) (message "i am %s" name)))
-	handler-ret
-	(cls-hander (event-handler-cls :data '("softboy" "beijing"))) )
+        (l (lambda (name) (message "i am %s" name)))
+        handler-ret
+        (cls-hander (make-instance 'event-handler-cls :data '("softboy" "beijing"))))
     (setq handler (qingeditor/eventmgr/event-handler/init
     		   l))
     (should (= 1 (oref handler :type)))
@@ -26,10 +26,10 @@
     (setq handler (qingeditor/eventmgr/event-handler/init
     		   (lambda (name)
     		     `("hello" ,name))))
-    (setq handler-ret (qingeditor/eventmgr/event-handler/call handler "softboy"))
+    (setq handler-ret (qingeditor/cls/call handler "softboy"))
     (should (equal handler-ret '("hello" "softboy")))
     (setq handler (qingeditor/eventmgr/event-handler/init
 		   (list #'event-handler-cls/get-name cls-hander)
 		   qingeditor/eventmgr/method-callable))
-    (setq handler-ret (qingeditor/eventmgr/event-handler/call handler "qs" 12))
+    (setq handler-ret (qingeditor/cls/call handler "qs" 12))
     (should (equal handler-ret '("softboy" "qs" 12)))))

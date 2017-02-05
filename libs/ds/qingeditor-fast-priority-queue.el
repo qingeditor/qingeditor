@@ -18,56 +18,48 @@
   ((extra-flag
     :initarg :extract-flag
     :initform (eval qingeditor/fast-priority-queue/extra-data)
-    :type number
-    :protection protected)
+    :type number)
 
    (values
     :initarg :values
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :protection protected
     :documentation "队列的值,根据优先级分开。")
 
    (priorities
     :initarg :priorities
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :protection protected
     :documentation "队列优先级数据。")
 
    (sub-priorites
     :initarg :sub-priorities
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :protection protected
     :documentation "迭代周期的优先级。")
 
    (max-priority
     :initarg :max-priority
     :initform 0
     :type number
-    :protection protected
     :documentation "最大优先级")
 
    (count
     :initarg :count
     :initform 0
     :type number
-    :protection protected
     :documentation "队列元素的个数。")
 
    (index
     :initarg :index
     :initform 0
     :type number
-    :protection protected
     :documentation "队列当前元素的索引值。")
 
    (sub-index
     :initarg :sub-index
     :initform 0
     :type number
-    :protection protected
     :documentation "迭代周期中的元素的索引值。")))
 
 (defmethod qingeditor/cls/insert
