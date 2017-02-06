@@ -74,6 +74,12 @@ a direcotry with a name starting with `+'.")
     :initform nil
     :type list
     :documentation "Detected modules information from `qingeditor/modulemgr/module-directory'.")
+
+   (eventmgr
+    :initarg :eventmgr
+    :initform nil
+    :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/eventmgr/mgr))))
+    :documentation "The eventmgr object for Module manager.")
    )
   :documentation "The module manager class")
 
@@ -81,8 +87,7 @@ a direcotry with a name starting with `+'.")
   "Initialize modulemgr internal data."
   (qingeditor/call-func qingeditor/module-configuration-setup
                         "Apply user configuration file module settings.")
-  (qinegditor/cls/detect-modules this)
-  (prin1 (oref this :detected-modules)))
+  (qinegditor/cls/detect-modules this))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
   (prin1 "\n")
@@ -174,5 +179,18 @@ Return `nil' if the direcotry is not a category."
 If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
   (unless (oref this :inhibit-warnings)
     (apply 'qingeditor/startup-buffer/warning msg args)))
+
+(defmethod qingeditor/cls/set-eventmgr ((this qingeditor/modulemgr/mgr) eventmgr)
+  "Set eventmgr for module manager."
+  (qingeditor/cls/set-identifiers eventmgr '(qingeditor/modulemgr/mgr))
+  (oset this :eventmgr eventmgr)
+  (qingeditor/cls/attact-default-listeners this)
+  this)
+
+(defmethod qingeditor/cls/get-eventmgr ((this qingeditor/modulemgr/mgr))
+  "Get the event manager object."
+  (unless (object-of-class-p (oref this :eventmgr qingeditor/eventmgr/mgr))
+    (qingeditor/cls/set-eventmgr this (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr)))
+  (oref this :eventmgr))
 
 (provide 'qingeditor-modulemgr-mgr)

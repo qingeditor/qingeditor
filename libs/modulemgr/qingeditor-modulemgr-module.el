@@ -49,4 +49,12 @@
   :documentation "`qingeditor' configuration module."
   )
 
+(defmethod qingeditor/cls/get-require-packages ((this qingeditor/modulemgr/module))
+  "Return a list of packages that the module requires."
+  '())
+
+(defmethod qingeditor/cls/resovle-dependence ((this qingeditor/modulemgr/module))
+  "When the module depend on some others modules, you can resove in this method."
+  t)
+
 (provide 'qingeditor-modulemgr-module)

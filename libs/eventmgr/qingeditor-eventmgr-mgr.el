@@ -38,7 +38,7 @@
 
 (defun qingeditor/eventmgr/mgr/init (&optional shared-mgr identifiers)
   "初始化一个事件管理器对象。"
-  (let ((mgr (qingeditor/eventmgr/mgr)))
+  (let ((mgr (make-instance 'qingeditor/eventmgr/mgr)))
     (when (and (not (stringp identifiers))
                (not (listp identifiers)))
       (error "Identifier names passed to `%s' must be a string or list, but %s given."
