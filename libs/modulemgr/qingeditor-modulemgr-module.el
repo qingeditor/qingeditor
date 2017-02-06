@@ -18,12 +18,12 @@
    (dir
     :initarg :dir
     :initform nil
-    :type (satisfies (lambda (x) (or (null x) (stringp x))))
+    :type (satisfies (lambda (dir) (or (null dir) (stringp dir))))
     :documentation "Absolute path to the module directory.")
 
    (packages
     :initarg :packages
-    :initform :nil
+    :initform nil
     :type list
     :documentation "List of package symbols declared in this module.")
 
