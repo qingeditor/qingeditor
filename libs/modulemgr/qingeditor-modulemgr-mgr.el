@@ -189,7 +189,7 @@ If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
 
 (defmethod qingeditor/cls/get-eventmgr ((this qingeditor/modulemgr/mgr))
   "Get the event manager object."
-  (unless (object-of-class-p (oref this :eventmgr qingeditor/eventmgr/mgr))
+  (unless '(object-of-class-p (oref this :eventmgr qingeditor/eventmgr/mgr))
     (qingeditor/cls/set-eventmgr this (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr)))
   (oref this :eventmgr))
 
