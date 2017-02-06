@@ -5,14 +5,15 @@
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
-;; 
-;; 封装一个事件处理器，一般事件处理器有`listener'进行维护
+;;
+;; The event handler class
 
 (defconst qingeditor/eventmgr/normal-callable 1
-  "普通类型的调用，`lisp'里面的函数闭包等。")
+  "Normal callable type, you can wrap `lambda' expression or
+function symbol in this type of event handler object")
 
 (defconst qingeditor/eventmgr/method-callable 2
-  "定义在`eieio'类里面的方法调用类型。")
+  "`eieio' class type, you can wrap `eieio' method in event handler.")
 
 (defclass qingeditor/eventmgr/event-handler ()
   ((type
@@ -20,20 +21,18 @@
     :initform (eval qingeditor/eventmgr/normal-callable)
     :type number
     :reader qingeditor/cls/get-type
-    :documentation "处理器的类型")
+    :documentation "The type of event handler.")
 
    (callable-data
     :initarg :callable-data
     :initform nil
     :type list
     :reader qingeditor/cls/get-callable
-    :documentaion "底层处理器引用，第一个元素是调用对象，如果是`qingeditor/eventmgr/method-callable'
-则第二个元素是对象的引用。"))
-  :documentaion "事件处理器类，事件处理器在事件监听器里面进行注册
-提供事件处理过程中的实际的操作。")
+    :documentaion "the callable object reference."))
+  :documentaion "The event handler class, provide actual callable object for event listener.")
 
 (defun qingeditor/eventmgr/event-handler/init (callable &optional type)
-  "初始化一个事件处理器。"
+  "init event handler object."
   (when (and type
 	     (not (= type qingeditor/eventmgr/normal-callable))
 	     (not (= type qingeditor/eventmgr/method-callable)))
@@ -50,7 +49,7 @@
 
 (defmethod qingeditor/cls/call
   ((this qingeditor/eventmgr/event-handler) &rest args)
-  "调用处理器。"
+  "Invoke event handler."
   (cond
    ((= qingeditor/eventmgr/normal-callable (oref this :type))
     (apply (car (oref this :callable-data)) args ))

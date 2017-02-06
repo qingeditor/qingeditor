@@ -1,12 +1,12 @@
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
-;; 
+;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
-;; 
-;; 封装共享的事件管理器
+;;
+;; The shared event manager
 
 (require 'qingeditor-hash-table)
 ;; for defun* return-from
@@ -17,13 +17,15 @@
     :initarg :identifiers
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :documentation "事件数据存储的地方。")
+    :documentation "The listeners of identifiers.")
    )
-  :documentation "让需要事件派发能力的对象不需要实例化一个事件管理器对象就能派发事件。")
+  :documentation "The shared event manager, give you the ability that
+you can add event listener for target event manager without have a instance
+of that event manager.")
 
 (defmethod qingeditor/cls/attach
   ((this qingeditor/eventmgr/shared-mgr) identifier event listener &optional priority)
-  "给事件对象添加事件监听器。"
+  "Add listeners for identifier identifier."
   (when (eq priority nil)
     (setq priority 1))
   (when (or (not (stringp identifier)) (eq (length identifier) 0))
@@ -52,7 +54,7 @@
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/shared-mgr) listener &optional identifier event-name force)
-  "删除指定的监听函数，这个监听函数可能绑定到了很多的事件上面。"
+  "remove listener of identifier for event `event-name'."
   (catch 'qingeditor-eventmgr-shared-mgr-detach
     (let (event-table
           listener-table
@@ -87,7 +89,7 @@
          (setq listener-list value)
          (dolist (evaluated-listener listener-list)
            (when (eq evaluated-listener listener)
-             ;; 找到了指定的监听对象，删除
+             ;; found the target listeners, delete it.
              (setq listener-list (delete evaluated-listener listener-list))))
          (if (eq (length listener-list) 0)
              (qingeditor/cls/remove listener-table key)
@@ -99,10 +101,10 @@
 
 (defmethod qingeditor/cls/get-listeners
   ((this qingeditor/eventmgr/shared-mgr) identifiers event-name)
-  "获取指定的`identifiers'集合下的所有的回调函数。
+  "Get listeners of identifier for event `event-name'.
 
-`identifiers'可以是单个字符串，也可以是一个字符串`list'
-`event-name'事件的名称。"
+`identifiers' can be a string or a list of string.
+`event-name' is the event name."
   (when (or (not (stringp event-name))
             (string= "*" event-name)
             (eq (length event-name) 0))
@@ -124,7 +126,7 @@
                 (eq (length identifier) 0))
         (error "Identifier names passed to `%s' must be a string and can be empty, but %s given."
                "qingeditor/eventmgr/shared-mgr/get-listeners" (type-of identifiers)))
-      ;; 不能是`*'
+      ;; can not be `*'
       (when (string= "*" identifier)
         (error "Identifier name can not be `*'"))
       (if (qingeditor/cls/has-key (oref this :identifiers) identifier)
@@ -139,7 +141,7 @@
       (setq merged-listener-table
             (qingeditor/cls/merge
              this merged-listener-table listener-table wildcard-listener-table)))
-    ;; 复制`* identifier'的事件监听器对象
+    ;; copy the listeners of wildcard identifier
     (when (qingeditor/cls/has-key (oref this :identifiers) "*")
       (setq wildcard-event-table
             (qingeditor/cls/get (oref this :identifiers) "*"))
@@ -155,7 +157,7 @@
 
 (defmethod qingeditor/cls/merge
   ((this qingeditor/eventmgr/shared-mgr) &rest tables)
-  "递归合并指定的事件`hash-table'。"
+  "merge the listeners of `hash-table' recursively."
   (let ((target (qingeditor/hash-table/init)))
     (dolist (table tables)
       (qingeditor/cls/iterate-items
@@ -171,11 +173,11 @@
 
 (defmethod qingeditor/cls/clear-listeners
   ((this qingeditor/eventmgr/shared-mgr) identifier &optional event-name)
-  "清除指定的`identifier'的监听对象，如果`event-name'不为`nil'则只清除`event-name'下的
-监听对象，否则清除`identifier'下所有的监听对象。"
+  "clear the listeners of identifier for event `event-name',
+if event name is `nil', then remove all listeners of `identifier'."
   (catch 'qingeditor-eventmgr-shared-mgr-clear-listeners
     (let (event-table)
-      ;; 不管什么类型，测试失败就pass
+      ;; if the `identifier' is not exist, pass.
       (unless (qingeditor/cls/has-key (oref this :identifiers) identifier)
         (throw 'qingeditor-eventmgr-shared-mgr-clear-listeners nil))
       (when (null event-name)

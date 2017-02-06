@@ -7,7 +7,7 @@
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
 ;;
-;; 抽象的`listener'类
+;; abstract `listener' class
 
 (defclass qingeditor/eventmgr/listener-aggregate ()
   ((listeners
@@ -16,11 +16,11 @@
     :type list
     :documentation "`qingeditor/eventmgr/event-handler'集合。"))
   :abstract t
-  :documentation "事件监听类。")
+  :documentation "The abstract listener class")
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/listener-aggregate) (eventmgr qingeditor/eventmgr/mgr))
-  "移除事件监听处理器。"
+  "Remove all listeners of event manager."
   (dolist (handler (oref this :listeners))
     (qingeditor/cls/detach eventmgr handler))
   (oset this :listeners nil))

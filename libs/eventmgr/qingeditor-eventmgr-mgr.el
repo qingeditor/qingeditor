@@ -1,12 +1,12 @@
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
-;; 
+;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
-;; 
-;; 定义事件管理器
+;;
+;; Define The event manager class
 
 (require 'qingeditor-eventmgr-shared-mgr)
 (require 'qingeditor-eventmgr-event)
@@ -17,14 +17,16 @@
     :initarg :events
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :documentation "事件数据存储的地方。")
+    :documentation "The event type hash table, save all specified event listeners.")
 
    (identifiers
     :initarg :identifiers
     :initform nil
     :type list
     :reader qingeditor/cls/get-identifiers
-    :documentation "用于从共享的事件对象管理器获取事件监听的`identifiers'名字集合。")
+    :documentation "This property store identifiers, identifiers used when current mgr has a
+shared event manager, event manager use identifier in this list to get listeners from
+shared event manager.")
 
    (shared-mgr
     :initarg :shared-mgr
@@ -33,11 +35,12 @@
                        (or (null mgr) (object-of-class-p mgr qingeditor/eventmgr/shared-mgr))))
     :reader qingeditor/cls/get-shared-mgr
     :writer qingeditor/cls/set-shared-mgr
-    :documentation "共享事件管理器对象的引用。"))
-  :documentation "事件管理器，为单个对象提供事件派发能力。")
+    :documentation "The shared event manager object."))
+  :documentation "The event manager class
+This class can provide event dispatch ability to the object that use it.")
 
 (defun qingeditor/eventmgr/mgr/init (&optional shared-mgr identifiers)
-  "初始化一个事件管理器对象。"
+  "create a new event manager object."
   (let ((mgr (make-instance 'qingeditor/eventmgr/mgr)))
     (when (and (not (stringp identifiers))
                (not (listp identifiers)))
@@ -50,7 +53,7 @@
 
 (defmethod qingeditor/cls/attach
   ((this qingeditor/eventmgr/mgr) event-name listener &optional priority)
-  "给当前事件管理器指定的`event-name'添加事件监听器。"
+  "Add a event listener for event `event-name'."
   (when (null priority)
     (setq priority 1))
   (when (or (not (stringp event-name))
@@ -71,7 +74,7 @@
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/mgr) listener &optional event-name force)
-  "删除指定的事件监听函数。"
+  "Delete a listener of event `event-name'."
   (catch 'qingeditor-eventmgr-mgr-detach
     (let (listener-table)
       (when (or (not event-name)
@@ -92,7 +95,7 @@
          (setq listener-list value)
          (dolist (evaluated-listener listener-list)
            (when (eq evaluated-listener listener)
-             ;; 找到了指定的监听对象，删除
+             ;; found the target event listener
              (setq listener-list (delete evaluated-listener listener-list))))
          (if (eq (length listener-list) 0)
              (qingeditor/cls/remove listener-table key)
@@ -102,14 +105,15 @@
 
 (defmethod qingeditor/cls/set-identifiers
   ((this qingeditor/eventmgr/mgr) identifiers)
-  "设置获取共享事件管理对象中的监听器的`identifier'键集合。"
+  "Get the `identifiers' list, used to retrieve listeners from
+shared event manager."
   (delete-dups identifiers)
   (oset this :identifiers identifiers)
   this)
 
 (defmethod qingeditor/cls/add-identifiers
   ((this qingeditor/eventmgr/mgr) identifiers)
-  "添加`identifiers'。"
+  "Add identifiers."
   (oset this :identifiers
         (delete-dups (append identifiers (oref this :identifiers))))
   this)
@@ -128,17 +132,19 @@
 
 (defmethod qingeditor/cls/trigger-event
   ((this qingeditor/eventmgr/mgr) event)
-  "触发一个事件`event-name'，调用所有相关的回调函数。"
+  "Trigger `event', This will invoke the listeners of the `event'."
   (qingeditor/cls/trigger-listeners this event))
 
 (defmethod qingeditor/cls/trigger-event-until
   ((this qingeditor/eventmgr/mgr) callback event)
-  "执行事件的处理器，直到`callback'返回`t'值。"
+  "Trigger `event', when event manager invoke listener handler, it will also
+invoke `callback' lambda, if lambda return `t', event manager will not invoke
+the reset listeners any more."
   (qingeditor/cls/trigger-listeners this event callback))
 
 (defmethod qingeditor/cls/trigger-listeners
   ((this qingeditor/eventmgr/mgr) event &optional callback)
-  "触发监听对象。"
+  "Invoke listeners of target event."
   (let ((name (qingeditor/cls/get-name event))
         (responses (qingeditor/eventmgr/response-collection))
         listener-handlers
@@ -166,7 +172,7 @@
 
 (defmethod qingeditor/cls/get-listeners-by-event-name
   ((this qingeditor/eventmgr/mgr) event-name)
-  "获取指定事件`event-name'的监听对象。"
+  "Get the listeners of event named `event-name'."
   (let ((merged-listener-table (qingeditor/hash-table/init))
         listener-table
         wildcard-listener-table
@@ -196,7 +202,7 @@
 
 (defmethod qingeditor/cls/merge
   ((this qingeditor/eventmgr/mgr) &rest tables)
-  "递归合并指定的事件`hash-table'。"
+  "merge the listeners of `hash-table's recursively."
   (let ((target (qingeditor/hash-table/init)))
     (dolist (table tables)
       (qingeditor/cls/iterate-items
@@ -212,7 +218,7 @@
 
 (defmethod qingeditor/cls/clear-listeners
   ((this qingeditor/eventmgr/mgr) event-name)
-  "清空事件监听函数。"
+  "Clear the listeners of the event named `event-name'."
   (when (qingeditor/cls/has-key (oref this :events) event-name)
     (qingeditor/cls/remove (oref this :events) event-name)))
 

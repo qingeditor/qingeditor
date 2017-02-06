@@ -9,6 +9,7 @@
 ;; The module manager class
 
 (require 'qingeditor-modulemgr-module)
+(require 'qingeditor-modulemgr-service-pro)
 
 ;; Define some important const
 (defconst qingeditor/modulemgr/module-directory
