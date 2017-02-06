@@ -44,10 +44,8 @@
     :initarg :lazy-install
     :initform nil
     :type boolean
-    :documentation "If non-nil then the module needs to be installed later.")
-   )
-  :documentation "`qingeditor' configuration module."
-  )
+    :documentation "If non-nil then the module needs to be installed later."))
+  :documentation "`qingeditor' configuration module.")
 
 (defmethod qingeditor/cls/get-require-packages ((this qingeditor/modulemgr/module))
   "Return a list of packages that the module requires."
@@ -56,5 +54,19 @@
 (defmethod qingeditor/cls/resovle-dependence ((this qingeditor/modulemgr/module))
   "When the module depend on some others modules, you can resove in this method."
   t)
+
+(defmethod qingeditor/cls/provide-keymap-setter ((this qingeditor/modulemgr/module))
+  "Is this module provide a key map setting script. default does not provide."
+  nil)
+
+(defmethod qingeditor/cls/provide-extra-func-definitions ((this qingeditor/modulemgr/module))
+  "Is this module provide a extra function definitions."
+  nil)
+
+(defmethod qingeditor/cls/provide-extra-module-config ((this qingeditor/modulemgr/module))
+  "Is this module provide a extra config settings, if return `t',
+Module manager will load `config.el' in current module directory. You can set some default
+variable for this module. default return `nil'"
+  nil)
 
 (provide 'qingeditor-modulemgr-module)
