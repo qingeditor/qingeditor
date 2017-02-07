@@ -18,8 +18,15 @@ dispatch this event.")
 (defconst qingeditor/modulemgr/before-load-modules-event "before-load-modules-event"
   "Before module manager begin load modules, dispatch this event.")
 
+(defconst qingeditor/modulemgr/load-modules-event "load-modules-event"
+  "when module manager load modules, dispatch this event.")
+
 (defconst qingeditor/modulemgr/after-load-modules-event "after-load-modules-event"
   "After module manager finished load all used modules, dispatch this event.")
+
+(defconst qingeditor/modulemgr/load-module-resolve-event "load-module-resolve-event"
+  "before start load module cycle begin, we
+must get a module object.")
 
 (defconst qingeditor/modulemgr/before-load-module-cycle-event "before-load-module-cycle-event"
   "Before module manager before load target module, dispatch this event.")
@@ -37,7 +44,7 @@ dispatch this event.")
     :type list
     :reader qingeditor/cls/get-module-info
     :writer qingeditor/cls/set-module-info
-    :documentation "The detected  module information."))
+    :documentation "The detected  module information.")
 
   (module
    :initarg :module
@@ -45,6 +52,15 @@ dispatch this event.")
    :reader qingeditor/cls/get-module
    :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/modulemgr/module))))
    :documentation "The create module object.")
+
+  (module-name
+   :initarg :module-name
+   :initform nil
+   :type (satisfies (lambda (name) (or (null name) (stringp name))))
+   :reader qingeditor/cls/get-module-name
+   :writer qingeditor/cls/set-module-name
+   :documentation "The module name of current module."))
+
   :documentation "The module manager event class.")
 
 (defmethod qingeditor/cls/set-module ((this qingeditor/modulemgr/event) module)

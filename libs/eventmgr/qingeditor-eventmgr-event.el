@@ -6,7 +6,7 @@
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
 ;;
-;; 封装一个事件对象
+;; The base event class
 
 (require 'qingeditor-hash-table)
 
@@ -18,20 +18,20 @@
 		       (or (null x) (stringp x))))
     :reader qingeditor/cls/get-name
     :writer qingeditor/cls/set-name
-    :documentaion "事件的名称。")
+    :documentaion "The name of the event.")
 
    (target
     :initarg :target
     :initform nil
     :reader qingeditor/cls/get-target
     :writer qingeditor/cls/set-target
-    :documentaion "当前的事件目标对象。")
+    :documentaion "The target of the event.")
 
    (params
     :initarg :params
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-    :documentation "设置事件的参数。")
+    :documentation "The params of the event.")
 
    (stop-propagation
     :initarg :stop-propagation
@@ -39,10 +39,10 @@
     :type boolean
     :reader qingeditor/cls/get-stop-propagation
     :writer qingeditor/cls/set-stop-propagation
-    :documentation "是否停止事件传播。")
+    :documentation "Is the event been stopped.")
    )
-  :documentation "封装一个目标的上下文和事件参数传递的类，这个类会定义一些与
-事件管理器交互的方法。")
+  :documentation "The base event class, encapsulate the information
+during the event dispatch process.")
 
 (defun qingeditor/eventmgr/event/init (&optional name target params)
   (let ((event (make-instance 'qingeditor/eventmgr/event)))
@@ -56,29 +56,29 @@
 
 (defmethod qingeditor/cls/set-params-from-alist
   ((this qingeditor/eventmgr/event) alist)
-  "给当前的事件设置参数。"
+  "Set the params of event object from `alist'."
   (qingeditor/cls/set-from-alist (oref this :params) alist)
   this)
 
 (defmethod qingeditor/cls/set-param
   ((this qingeditor/eventmgr/event) key value)
-  "给当前的事件对象设置参数。"
+  "Set event param use `key' and `value'."
   (qingeditor/cls/set (oref this :params) key value)
   this)
 
 (defmethod qingeditor/cls/get-params
   ((this qingeditor/eventmgr/event))
-  "获取当前事件对象的参数。"
+  "Get the params of event object."
   (oref this :params))
 
 (defmethod qingeditor/cls/get-param
   ((this qingeditor/eventmgr/event) name &optional default)
-  "获取指定的参数不存在的话返回默认值。"
+  "Get the param by `name', if `name not exist, return `default'.'"
   (qingeditor/cls/get (oref this :params) name default))
 
 (defmethod qingeditor/cls/clear-params
   ((this qingeditor/eventmgr/event))
-  "删除事件对象的所有的参数。"
+  "Clear the event params."
   (qingeditor/cls/clear (oref this :params)))
 
 (provide 'qingeditor-eventmgr-event)

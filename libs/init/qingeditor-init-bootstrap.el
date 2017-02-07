@@ -23,7 +23,10 @@
 (defvar qingeditor/shared-eventmgr (make-instance 'qingeditor/eventmgr/shared-mgr)
  "The global shared event manager object.")
 
-(defvar qingeditor/modulemgr (make-instance 'qingeditor/modulemgr/mgr))
+(defvar qingeditor/modulemgr
+  (let ((mgr (make-instance 'qingeditor/modulemgr/mgr)))
+    (qingeditor/cls/set-eventmgr mgr (qingeditor/eventmgr/mgr/init))
+    mgr))
 
 ;; setup shared eventmgr
 ;; we attach some important global event listeners

@@ -9,7 +9,9 @@
 ;; The module manager class
 
 (require 'qingeditor-modulemgr-module)
-(require 'qingeditor-modulemgr-service-pro)
+(require 'qingeditor-modulemgr-event)
+(require 'qingeditor-modulemgr-service-provider)
+(require 'qingeditor-eventmgr-event-handler)
 
 ;; Define some important const
 (defconst qingeditor/modulemgr/module-directory
@@ -39,7 +41,7 @@
 modules in repo is released with `qingeditor'.")
 
    (used-modules
-    :initarg :enabled-modules
+    :initarg :used-modules
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
     :documentation "`qingeditor' used modules, the modules defined in
@@ -55,7 +57,7 @@ modules in repo is released with `qingeditor'.")
     :initarg :used-packages
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
-on    :documentation "All packages that required by enabled modules.")
+    :documentation "All packages that required by enabled modules.")
 
    (module-categories
     :initarg :module-categories
@@ -79,8 +81,37 @@ a direcotry with a name starting with `+'.")
    (eventmgr
     :initarg :eventmgr
     :initform nil
-    :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/eventmgr/mgr))))
+    :type (satisfies (lambda (obj)
+                       (or (null obj)
+                           (object-of-class-p obj qingeditor/eventmgr/mgr))))
     :documentation "The eventmgr object for Module manager.")
+
+   (event
+    :initarg :event
+    :initform nil
+    :type (satisfies (lambda (obj)
+                       (or (null obj)
+                           (object-of-class-p obj qingeditor/eventmgr/event))))
+    :documentation "The event object during loading modules.")
+
+   (modules-are-loaded
+    :initarg :modules-are-loaded
+    :initform nil
+    :type boolean
+    :documentation "Is the modules already loaded, avoid multi load actions.")
+
+   (target-modules
+    :initarg :target-modules
+    :intiform nil
+    :type list
+    :writer qingeditor/cls/set-target-modules
+    :documentation "The target loaded modules specifics.")
+
+   (load-finished
+    :initarg :load-finished
+    :initform 0
+    :type number
+    :documentation "The guard variable during recursively load module.")
    )
   :documentation "The module manager class")
 
@@ -88,11 +119,78 @@ a direcotry with a name starting with `+'.")
   "Initialize modulemgr internal data."
   (qingeditor/call-func qingeditor/module-configuration-setup
                         "Apply user configuration file module settings.")
-  (qinegditor/cls/detect-modules this))
+  (qingeditor/cls/set-target-modules qingeditor/modulemgr
+                                     (copy-sequence qingeditor/config/configuration-modules))
+  (qinegditor/cls/detect-modules this)
+  (let ((event (qingeditor/cls/get-event this))
+        (eventmgr (qingeditor/cls/get-eventmgr this)))
+    (qingeditor/cls/set-name event qingeditor/modulemgr/module-detect-event)
+    (qingeditor/cls/trigger-event eventmgr event)))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
-  (prin1 "\n")
-  (prin1 "load modules"))
+  "This method do loaded the target modules."
+  (catch 'qingeditor-cls-register-module-return
+    (when (oref this :modules-are-loaded)
+      (throw 'qingeditor-cls-register-module-return this))
+    (let ((event (qingeditor/cls/get-event this))
+          (eventmgr (qingeditor/cls/get-eventmgr this)))
+
+      ;; dispatch before load modules
+      (qingeditor/cls/set-name event qingeditor/modulemgr/before-load-modules-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+
+      ;; dispatch load modules
+      (qingeditor/cls/set-name event qingeditor/modulemgr/load-modules-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+
+      ;; dispatch after load modules
+      (qingeditor/cls/set-name event qingeditor/modulemgr/after-load-modules-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+      this)))
+
+(defmethod qingeditor/cls/load-modules-handler ((this qingeditor/modulemgr/mgr) event)
+  "The actually load modules method."
+  (catch 'qingeditor-cls-load-modules-handler-return
+    (when (oref this :modules-are-loaded)
+      (throw 'qingeditor-cls-load-modules-handler-return t))
+    (dolist (module-spec (oref this :target-modules))
+      (qingeditor/cls/load-module this module-spec))
+    (oset this :modules-are-loaded t)))
+
+(defmethod qingeditor/cls/load-module ((this qingeditor/modulemgr/mgr) module-spec)
+  "Do load the module specified by `module-spec.'"
+  (catch 'qingeditor-cls-load-module-return
+    (let ((module-name (if (listp module-spec) (car module-spec) module-spec))
+          event
+          module)
+      (when (qingeditor/cls/has-key (oref this :used-modules) module-name)
+        (throw 'qingeditor-cls-load-module-return
+               (qingeditor/cls/get (oref this :used-modules) module-name)))
+      (if (> (oref this :load-finished) 0)
+          (setq event (clone (qingeditor/cls/get-event this)))
+        (setq event (qingeditor/cls/get-event this)))
+      (qingeditor/cls/set-module-name event (symbol-name module-name))
+      (oset this :load-finished (1+ (oref this :load-finished)))
+      (setq module (qingeditor/cls/get-module-by-spec this module-spec event))
+      ))
+  )
+
+(defmethod qingeditor/cls/get-module-by-spec ((this qingeditor/modulemgr/mgr) module-spec event)
+  "Get module from `module-spec'."
+  (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-resolve-event)
+  (let (result
+        module)
+    ;; dispatch module resove event
+    (setq result (qingeditor/cls/trigger-event-until
+           eventmgr
+           (lambda (response)
+             (and response
+                  (object-of-class-p response qingeditor/modulemgr/module)))
+           event))
+    (setq module (qingeditor/cls/last result))
+    (unless (and module
+                 (object-of-class-p module qingeditor/modulemgr/module))
+      (error "Module (%s) could not be initialized." (qingeditor/cls/get-module-name event)))))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
@@ -185,13 +283,35 @@ If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
   "Set eventmgr for module manager."
   (qingeditor/cls/set-identifiers eventmgr '(qingeditor/modulemgr/mgr))
   (oset this :eventmgr eventmgr)
-  (qingeditor/cls/attact-default-listeners this)
+  (qingeditor/cls/attach-default-listeners this)
   this)
 
 (defmethod qingeditor/cls/get-eventmgr ((this qingeditor/modulemgr/mgr))
   "Get the event manager object."
-  (unless '(object-of-class-p (oref this :eventmgr qingeditor/eventmgr/mgr))
+  (unless (and (oref this :eventmgr)
+               (object-of-class-p (oref this :eventmgr) qingeditor/eventmgr/mgr))
     (qingeditor/cls/set-eventmgr this (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr)))
   (oref this :eventmgr))
+
+(defmethod qingeditor/cls/set-event ((this qingeditor/modulemgr/mgr) event)
+  "Set the module event."
+  (qingeditor/cls/set-target event this)
+  (oset this :event event)
+  this)
+
+(defmethod qingeditor/cls/get-event ((this qingeditor/modulemgr/mgr))
+  "Get the module event."
+  (unless (and (oref this :event)
+               (object-of-class-p (oref this :event) qingeditor/modulemgr/event))
+    (qingeditor/cls/set-event this (make-instance 'qingeditor/modulemgr/event)))
+  (oref this :event))
+
+(defmethod qingeditor/cls/attach-default-listeners ((this qingeditor/modulemgr/mgr))
+  "Attach the default module listeners for the event mgr of module manager."
+  (let ((eventmgr (oref this :eventmgr)))
+    (qingeditor/cls/attach
+     eventmgr
+     qingeditor/modulemgr/load-modules-event
+     (qingeditor/eventmgr/event-handler/init (list #'qingeditor/cls/load-modules-handler this)))))
 
 (provide 'qingeditor-modulemgr-mgr)

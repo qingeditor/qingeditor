@@ -117,6 +117,7 @@
 (defmethod qingeditor/cls/invoke-global-intialize-funcs
   ((this qingeditor/init/emacs-setup-listener) event)
   (qingeditor/modulemgr/installer/initialize)
-  (prefer-coding-system 'utf-8))
+  (prefer-coding-system 'utf-8)
+  )
 
 (provide 'qingeditor-emacs-setup-listener)
