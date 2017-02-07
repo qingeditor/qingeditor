@@ -74,8 +74,8 @@ a direcotry with a name starting with `+'.")
 
    (detected-modules
     :initarg :detected-modules
-    :initform nil
-    :type list
+    :initform (qingeditor/hash-table/init)
+    :type qingeditor/hash-table
     :documentation "Detected modules information from `qingeditor/modulemgr/module-directory'.")
 
    (eventmgr
@@ -104,14 +104,26 @@ a direcotry with a name starting with `+'.")
     :initarg :target-modules
     :intiform nil
     :type list
-    :writer qingeditor/cls/set-target-modules
-    :documentation "The target loaded modules specifics.")
+    :documentation "The target loaded modules specifics, commonly specified in `~/.qingeditor' file.")
 
    (load-finished
     :initarg :load-finished
     :initform 0
     :type number
     :documentation "The guard variable during recursively load module.")
+
+   (force-distribution
+    :initarg :force-distribution
+    :initform nil
+    :type (satisfies (lambda (x) (or (null x) (symbolp x))))
+    :documentation "If set, bypass user set `qingeditor/config/distribution' value, then
+`qingeditor' will use this property value for distribution type.")
+
+   (recheck-dependency
+    :initarg :recheck-dependency
+    :initform nil
+    :type boolean
+    :documentation "If `non-nil' module manager will recheck dependency modules wether or not loaded.")
    )
   :documentation "The module manager class")
 
@@ -178,8 +190,12 @@ a direcotry with a name starting with `+'.")
 (defmethod qingeditor/cls/get-module-by-spec ((this qingeditor/modulemgr/mgr) module-spec event)
   "Get module from `module-spec'."
   (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-resolve-event)
-  (let (result
-        module)
+  (let* (result
+        module
+        (module-name (qingeditor/cls/get-module-name event))
+        (module-sym (intern module-name)))
+    (unless (qingeditor/cls/has-key (oref this :detected-modules) module-sym)
+      (error "Module (%s) is not supported by qingdeditor." module-name))
     ;; dispatch module resove event
     (setq result (qingeditor/cls/trigger-event-until
            eventmgr
@@ -190,7 +206,7 @@ a direcotry with a name starting with `+'.")
     (setq module (qingeditor/cls/last result))
     (unless (and module
                  (object-of-class-p module qingeditor/modulemgr/module))
-      (error "Module (%s) could not be initialized." (qingeditor/cls/get-module-name event)))))
+      (error "Module (%s) could not be initialized." module-name))))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
@@ -217,7 +233,8 @@ a direcotry with a name starting with `+'.")
                   (object-add-to-list this :module-categories category)
                   (setq search-paths (cons sub search-paths))))
                ((eq 'module type)
-                (object-add-to-list this :detected-modules sub))
+                (qingeditor/cls/set (oref this :detected-modules)
+                                    (qingeditor/cls/get-module-sym-from-path this sub) sub))
                (t
                 ;; module not found, add it to search path, recursively to search
                 (setq search-paths (cons sub search-paths)))))))))))
@@ -254,8 +271,7 @@ nil       - the directory is a regular direcotry"
   (when (file-directory-p path)
     (if (string-match
          "^+" (file-name-nondirectory
-               (directory-file-name
-                (concat qingeditor/modulemgr/module-directory path))))
+               (directory-file-name path)))
         'category
       (let ((files (directory-files path)))
         ;; moest frequent encounter in a module are tested first
@@ -268,10 +284,13 @@ The directory name must start with `+'.
 Return `nil' if the direcotry is not a category."
   (when (file-directory-p dirpath)
     (let ((dirname (file-name-nondirectory
-                    (directory-file-name
-                     (concat qingeditor/modulemgr/module-directory dirpath)))))
+                    (directory-file-name dirpath))))
       (when (string-match "^+" dirname)
         (intern (substring dirname 1))))))
+
+(defmethod qingeditor/cls/get-module-sym-from-path ((this qingeditor/modulemgr/mgr) dirpath)
+  "Get module symbol from `dirpath'."
+  (intern (file-name-nondirectory (directory-file-name dirpath))))
 
 (defmethod qingeditor/cls/warning ((this qingeditor/modulemgr/mgr) msg &rest args)
   "Display `msg' as a warning message in buffer `*Message*'.
@@ -313,5 +332,19 @@ If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
      eventmgr
      qingeditor/modulemgr/load-modules-event
      (qingeditor/eventmgr/event-handler/init (list #'qingeditor/cls/load-modules-handler this)))))
+
+(defmethod qingeditor/cls/set-target-modules ((this qingeditor/modulemgr/mgr) specs)
+  "Set the target modules to be load. Will first `delq' all item
+that eq `editor-base' or `editor-standard' or `editor-bootstrap' from `specs'."
+  (let ((distribution (if (oref this :force-distribution)
+                          (oref this :force-distribution)
+                        qingeditor/config/distribution)))
+    (setq specs (delq 'editor-base specs))
+    (setq specs (delq 'editor-standard specs))
+    (setq specs (delq 'editor-bootstrap specs))
+    (push distribution specs)
+    (push 'editor-bootstrap specs)
+    (oset this :target-modules specs)
+    this))
 
 (provide 'qingeditor-modulemgr-mgr)

@@ -44,7 +44,7 @@ must get a module object.")
     :type list
     :reader qingeditor/cls/get-module-info
     :writer qingeditor/cls/set-module-info
-    :documentation "The detected  module information.")
+    :documentation "The detected module information.")
 
   (module
    :initarg :module
