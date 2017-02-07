@@ -34,8 +34,8 @@ function symbol in this type of event handler object")
 (defun qingeditor/eventmgr/event-handler/init (callable &optional type)
   "init event handler object."
   (when (and type
-	     (not (= type qingeditor/eventmgr/normal-callable))
-	     (not (= type qingeditor/eventmgr/method-callable)))
+             (not (= type qingeditor/eventmgr/normal-callable))
+             (not (= type qingeditor/eventmgr/method-callable)))
     (error "type specified, but not supported, please check."))
   (when (eq (car callable) 'lambda)
     (setq callable (list callable)))
@@ -52,7 +52,7 @@ function symbol in this type of event handler object")
   "Invoke event handler."
   (cond
    ((= qingeditor/eventmgr/normal-callable (oref this :type))
-    (apply (car (oref this :callable-data)) args ))
+    (apply (car (oref this :callable-data)) args))
    ((= qingeditor/eventmgr/method-callable (oref this :type))
     (apply (car (oref this :callable-data)) (cadr (oref this :callable-data)) args))))
 

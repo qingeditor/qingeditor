@@ -11,6 +11,7 @@
 (require 'qingeditor-eventmgr-shared-mgr)
 (require 'qingeditor-eventmgr-event)
 (require 'qingeditor-eventmgr-response-collection)
+(require 'qingeditor-eventmgr-event-handler)
 
 (defclass qingeditor/eventmgr/mgr ()
   ((events

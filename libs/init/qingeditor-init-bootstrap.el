@@ -16,6 +16,7 @@
 (require 'qingeditor-modulemgr-installer)
 (require 'qingeditor-theme)
 (require 'qingeditor-font)
+(require 'qingeditor-modulemgr-default-listener-aggregate)
 
 (defvar qingeditor/geventmgr (qingeditor/eventmgr/mgr/init)
  "`qingeditor' global event mgr, some global event trigger by this manager.")
@@ -24,8 +25,11 @@
  "The global shared event manager object.")
 
 (defvar qingeditor/modulemgr
-  (let ((mgr (make-instance 'qingeditor/modulemgr/mgr)))
-    (qingeditor/cls/set-eventmgr mgr (qingeditor/eventmgr/mgr/init))
+  (let ((mgr (make-instance 'qingeditor/modulemgr/mgr))
+        (eventmgr (qingeditor/eventmgr/mgr/init))
+        (listener-aggregate (make-instance 'qingeditor/modulemgr/default-listener-aggregate)))
+    (qingeditor/cls/attach listener-aggregate eventmgr)
+    (qingeditor/cls/set-eventmgr mgr eventmgr)
     mgr))
 
 ;; setup shared eventmgr

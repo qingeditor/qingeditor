@@ -196,6 +196,9 @@ a direcotry with a name starting with `+'.")
         (module-sym (intern module-name)))
     (unless (qingeditor/cls/has-key (oref this :detected-modules) module-sym)
       (error "Module (%s) is not supported by qingdeditor." module-name))
+    (qingeditor/cls/set-module-info
+     event
+     (list module-sym (qingeditor/cls/get (oref this :detected-modules) module-sym)))
     ;; dispatch module resove event
     (setq result (qingeditor/cls/trigger-event-until
            eventmgr
