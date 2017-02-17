@@ -10,7 +10,6 @@
 
 (require 'qingeditor-modulemgr-module)
 (require 'qingeditor-modulemgr-event)
-(require 'qingeditor-modulemgr-service-provider)
 (require 'qingeditor-eventmgr-event-handler)
 
 ;; Define some important const
