@@ -4,51 +4,53 @@
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
-;; Commentary:
+;; This file is not part of GNU Emacs.
+;; License: MIT
 ;;
-;; 定义一个简单的栈类
+;; Define a simple stack class
 
 (defclass qingeditor/stack ()
   ((data
-   :initarg :data
-   :initform nil
-   :type list
-   :documetation "底层数据储存，`list'对象。"))
-  :documentation "对`list'简单封装，提供一个一致的栈操作接口。")
+    :initarg :data
+    :initform nil
+    :type list
+    :documetation "The data repo that store stack item."))
+  :documentation "Define a simple stack class
+
+Provide a simple interface that support stack operation.")
 
 (defmethod qingeditor/cls/push ((this qingeditor/stack) data)
-  "将一个数据入栈。"
+  "push a item into stack."
   (push data (oref this :data))
   this)
 
 (defmethod qingeditor/cls/pop ((this qingeditor/stack))
-  "将数据出栈，返回栈顶的数据。"
+  "Pop a item from stack."
   (pop (oref this :data)))
 
 (defmethod qingeditor/cls/bottom ((this qingeditor/stack))
-  "获取栈底的数据。"
+  "Get the bottom item of the stack."
   (car (last (oref this :data))))
 
 (defmethod qingeditor/cls/top ((this qingeditor/stack))
-  "获取栈顶的数据。"
+  "Get the top item of the stack."
   (car (oref this :data)))
 
 (defmethod qingeditor/cls/clear ((this qingeditor/stack))
-  "清空数据。"
+  "Clear the stack."
   (oset this :data nil))
 
 (defmethod qingeditor/cls/count ((this qingeditor/stack))
-  "当前栈中的数据。"
+  "Get the count of the stack."
   (length (oref this :data)))
 
 (defmethod qingeditor/cls/empty ((this qingeditor/stack))
-  "当前的栈是否为空。"
+  "If current stack if empty return `t' otherwise return `nil'."
   (eq 0 (length (oref this :data))))
 
 (defmethod qingeditor/cls/iterate ((this qingeditor/stack) func)
-  "从栈顶到栈底依次调用`func'函数
-
-`func'传入当前元素作为参数。"
+  "Iterate the stack from top tp bottom, apply the function `func',
+`func' receive the current item as argument."
   (dolist (item (oref this :data))
     (funcall func item))
   this)
