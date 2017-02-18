@@ -133,10 +133,17 @@ a direcotry with a name starting with `+'.")
   (qingeditor/cls/set-target-modules qingeditor/modulemgr
                                      (copy-sequence qingeditor/config/configuration-modules))
   (qinegditor/cls/detect-modules this)
+  (qingeditor/cls/init-module-and-package-repo this)
   (let ((event (qingeditor/cls/get-event this))
         (eventmgr (qingeditor/cls/get-eventmgr this)))
     (qingeditor/cls/set-name event qingeditor/modulemgr/module-detect-event)
     (qingeditor/cls/trigger-event eventmgr event)))
+
+(defmethod qingeditor/cls/init-module-and-package-repo
+  ((this qingeditor/modulemgr/mgr))
+  "Before we do module init, configure module, we must init all module object
+that `qingeditor' support and all the packages that module require."
+  (prin1 (oref this :detected-modules)))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
   "This method do loaded the target modules."
