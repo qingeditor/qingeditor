@@ -11,7 +11,6 @@
 (defun qingeditor/modulemgr/module-resolve (event)
   "This function handl the module resolve, it make a `qingeditor/modulemgr/module' object
 from a module `specific'."
-  (prin1 (qingeditor/cls/get-module-info event))
   nil)
 
 (provide 'qingeditor-modulemgr-module-resolve-listener)

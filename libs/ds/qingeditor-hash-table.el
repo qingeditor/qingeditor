@@ -4,7 +4,8 @@
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
-;; Commentary:
+;; This file is not part of GNU Emacs.
+;; License: MIT
 ;;
 ;; define a simple hash table class
 ;;

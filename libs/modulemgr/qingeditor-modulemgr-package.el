@@ -9,10 +9,11 @@
 ;; define package class
 ;; we use `qingeditor/modulemgr/package' to describe the `emacs' package
 
-(defclass qingeditor/modulemgr/packge ()
+(defclass qingeditor/modulemgr/package ()
   ((name
     :initarg :name
     :type symbol
+    :reader qingeditor/cls/get-name
     :documentation "Name of the package.")
 
    (min-version
@@ -74,14 +75,14 @@
 cannot being changed."))
   :documentation "The `qingeditor' package description class.")
 
-(defmethod qingeditor/cls/enabled ((this qingeditor/modulemgr/packge) &optional inhibit-messages)
+(defmethod qingeditor/cls/enabled ((this qingeditor/modulemgr/package) &optional inhibit-messages)
   "Check the package is enabled or not."
   (let ((message-log-max (unless inhibit-messages message-log-max))
         (toggle (oref pkg :toggle)))
     ;; maybe expression here
     (eval toggle)))
 
-(defmethod qingeditor/cls/set-property ((this qingeditor/modulemgr/packge) slot value)
+(defmethod qingeditor/cls/set-property ((this qingeditor/modulemgr/package) slot value)
   "Set `slot' to the given `value' for the package `pkg'.
 If `property-readonly' of the `qingeditor/modulemgr/packge' is `t', the value will not been
 changed."

@@ -9,6 +9,7 @@
 ;; The module manager class
 
 (require 'qingeditor-modulemgr-module)
+(require 'qingeditor-modulemgr-package)
 (require 'qingeditor-modulemgr-event)
 (require 'qingeditor-eventmgr-event-handler)
 
@@ -130,8 +131,9 @@ a direcotry with a name starting with `+'.")
   "Initialize modulemgr internal data."
   (qingeditor/call-func qingeditor/module-configuration-setup
                         "Apply user configuration file module settings.")
-  (qingeditor/cls/set-target-modules qingeditor/modulemgr
-                                     (copy-sequence qingeditor/config/configuration-modules))
+  (qingeditor/cls/set-target-modules
+   qingeditor/modulemgr
+   (copy-sequence qingeditor/config/configuration-modules))
   (qinegditor/cls/detect-modules this)
   (qingeditor/cls/init-module-and-package-repo this)
   (let ((event (qingeditor/cls/get-event this))
@@ -143,7 +145,35 @@ a direcotry with a name starting with `+'.")
   ((this qingeditor/modulemgr/mgr))
   "Before we do module init, configure module, we must init all module object
 that `qingeditor' support and all the packages that module require."
-  (prin1 (oref this :detected-modules)))
+  (qingeditor/cls/iterate-items
+   (oref this :detected-modules)
+   (let* ((module-dir (file-name-as-directory value))
+          (module-filename (concat module-dir "module.el"))
+          (module-sym (intern (concat "qingeditor/module/" (symbol-name key))))
+          module
+          package-sepcs)
+     ;; first phase, we just load module define file and instance
+     ;; module class
+     (unless (file-exists-p module-filename)
+       (error "The module.el file of %S is not exist." key))
+     (load module-filename)
+     ;; check module class exis
+     (unless (find-class module-sym)
+       (error "module class `%S' is not exist." module-sym))
+     (setq module (make-instance module-sym))
+     ;; invoke the `qingeditor/cls/init' method of module object.
+     (qingeditor/cls/init module)
+     (qingeditor/cls/set-module-dir module module-dir)
+     (qingeditor/cls/set (oref this :module-repo) key module)
+     (setq package-sepcs (qingeditor/cls/get-require-package-specs module))
+     (dolist (spec package-sepcs)
+       ;; we just simple instance the package class
+       ;; and set the name of package object.
+       (let* ((package-sym (if (listp spec) (car spec) spec))
+              (package-name (symbol-name package-sym)))
+         (qingeditor/cls/set
+          (oref this :pakage-repo) package-sym
+          (qingeditor/modulemgr/package package-name :name package-sym)))))))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
   "This method do loaded the target modules."
@@ -189,33 +219,25 @@ that `qingeditor' support and all the packages that module require."
         (setq event (qingeditor/cls/get-event this)))
       (qingeditor/cls/set-module-name event (symbol-name module-name))
       (oset this :load-finished (1+ (oref this :load-finished)))
-      (setq module (qingeditor/cls/get-module-by-spec this module-spec event))
+      (qingeditor/cls/resolve-module this module-spec event)
       ))
   )
 
-(defmethod qingeditor/cls/get-module-by-spec ((this qingeditor/modulemgr/mgr) module-spec event)
+(defmethod qingeditor/cls/resolve-module
+  ((this qingeditor/modulemgr/mgr) module-spec event)
   "Get module from `module-spec'."
   (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-resolve-event)
   (let* (result
-        module
-        (module-name (qingeditor/cls/get-module-name event))
-        (module-sym (intern module-name)))
+         (module-name (qingeditor/cls/get-module-name event))
+         (module-sym (intern module-name))
+         (module (qingeditor/cls/get (oref this :module-repo) module-sym)))
     (unless (qingeditor/cls/has-key (oref this :detected-modules) module-sym)
       (error "Module (%s) is not supported by qingdeditor." module-name))
     (qingeditor/cls/set-module-info
      event
      (list module-sym (qingeditor/cls/get (oref this :detected-modules) module-sym)))
     ;; dispatch module resove event
-    (setq result (qingeditor/cls/trigger-event-until
-           eventmgr
-           (lambda (response)
-             (and response
-                  (object-of-class-p response qingeditor/modulemgr/module)))
-           event))
-    (setq module (qingeditor/cls/last result))
-    (unless (and module
-                 (object-of-class-p module qingeditor/modulemgr/module))
-      (error "Module (%s) could not be initialized." module-name))))
+    (setq result (qingeditor/cls/trigger-event eventmgr event))))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
@@ -253,23 +275,6 @@ that `qingeditor' support and all the packages that module require."
 Return nil if module is not found."
   (when (qingeditor/cls/has-key (oref this :module-repo) module-name)
     (qingeditor/cls/get (oref this :module-repo))))
-
-(defmethod qingeditor/cls/create-module ((this qingeditor/modulemgr/mgr)
-                                         module-specs &optional module usedp dir)
-  "Return a `qingeditor/modulemgr/mgr' object based on `module-specs'.
-`dir' is the directory where the module is, if it is nil then search in the
-indexed modules for the path."
-  (let* ((module-name (if (listp module-specs) (car module-specs) module-specs))
-         (module (if module module
-                   (qingeditor/modulemgr/module (symbol-name module-name)
-                                                :name module-name)))
-         (dir (or dir (oref module :dir))))
-    (message "create module %S" module-specs)))
-
-(defmethod qingeditor/cls/register-module ((this qingeditor/modulemgr/mgr) module &optional usedp)
-  "Add a `module' objecy to the system.
-`usedp' non-nil means that `pkg' is a used module."
-  )
 
 (defmethod qingeditor/cls/get-directory-type ((this qingeditor/modulemgr/mgr) path)
   "Get the type of directory pointed by `path'

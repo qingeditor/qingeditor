@@ -19,13 +19,16 @@
     :initarg :dir
     :initform nil
     :type (satisfies (lambda (dir) (or (null dir) (stringp dir))))
+    :reader qingeditor/cls/get-module-dir
+    :writer qingeditor/cls/set-module-dir
     :documentation "Absolute path to the module directory.")
 
-   (packages
-    :initarg :packages
+   (require-package-specs
+    :initarg :require-package-specs
     :initform nil
     :type list
-    :documentation "List of package symbols declared in this module.")
+    :reader qingeditor/cls/get-require-package-specs
+    :documentation "List of package specs required by this module.")
 
    (selected-packages
     :initarg :selected-packages
@@ -46,6 +49,16 @@
     :type boolean
     :documentation "If non-nil then the module needs to be installed later."))
   :documentation "`qingeditor' configuration module.")
+
+(defmethod qingeditor/cls/init ((this qingeditor/modulemgr/module))
+  "The init method that will invoked after instance finished construct."
+  (oset this :require-package-specs
+        (qingeditor/cls/get-require-package-specs this)))
+
+(defmethod qingeditor/cls/get-require-package-specs
+  ((this qingeditor/modulemgr/module))
+  "Get the require package specs of this module."
+  nil)
 
 (defmethod qingeditor/cls/get-require-packages ((this qingeditor/modulemgr/module))
   "Return a list of packages that the module requires."
