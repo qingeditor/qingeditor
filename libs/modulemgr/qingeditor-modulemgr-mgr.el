@@ -104,7 +104,8 @@ a direcotry with a name starting with `+'.")
     :initarg :target-modules
     :intiform nil
     :type list
-    :documentation "The target loaded modules specifics, commonly specified in `~/.qingeditor' file.")
+    :documentation "The target loaded modules specifics, commonly specified in
+`~/.qingeditor' file.")
 
    (load-finished
     :initarg :load-finished
@@ -123,7 +124,8 @@ a direcotry with a name starting with `+'.")
     :initarg :recheck-dependency
     :initform nil
     :type boolean
-    :documentation "If `non-nil' module manager will recheck dependency modules wether or not loaded.")
+    :documentation "If `non-nil' module manager will recheck dependency modules wether
+or not loaded.")
    )
   :documentation "The module manager class")
 
@@ -208,9 +210,12 @@ that `qingeditor' support and all the packages that module require."
 (defmethod qingeditor/cls/load-module ((this qingeditor/modulemgr/mgr) module-spec)
   "Do load the module specified by `module-spec.'"
   (catch 'qingeditor-cls-load-module-return
-    (let ((module-name (if (listp module-spec) (car module-spec) module-spec))
-          event
-          module)
+    (let* ((module-name (if (listp module-spec) (car module-spec) module-spec))
+           (module (qingeditor/cls/get (oref this :module-repo) module-name))
+           event)
+      ;; we must first check wether `qingeditor' support the module named `module-name'
+      (unless module
+        (error "qingeditor doesn't support module: %S" module-name))
       (when (qingeditor/cls/has-key (oref this :used-modules) module-name)
         (throw 'qingeditor-cls-load-module-return
                (qingeditor/cls/get (oref this :used-modules) module-name)))
@@ -218,10 +223,21 @@ that `qingeditor' support and all the packages that module require."
           (setq event (clone (qingeditor/cls/get-event this)))
         (setq event (qingeditor/cls/get-event this)))
       (qingeditor/cls/set-module-name event (symbol-name module-name))
+      (qingeditor/cls/set-module event module)
       (oset this :load-finished (1+ (oref this :load-finished)))
       (qingeditor/cls/resolve-module this module-spec event)
-      ))
-  )
+      ;;trigger before load module event
+      (qingeditor/cls/set-name event qingeditor/modulemgr/before-load-module-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+      ;; trigger load module event
+      (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+      ;; trigger after load module event
+      (qingeditor/cls/set-name event qingeditor/modulemgr/after-load-module-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+      (oset this :load-finished (1- (oref this :load-finished)))
+      (qingeditor/cls/set (oref this :used-modules) module-name module)
+      module)))
 
 (defmethod qingeditor/cls/resolve-module
   ((this qingeditor/modulemgr/mgr) module-spec event)
@@ -293,16 +309,16 @@ nil       - the directory is a regular direcotry"
           'module)))))
 
 (defmethod qingeditor/cls/get-category-from-path ((this qingeditor/modulemgr/mgr) dirpath)
-  "Return a ctaegory symbol from the given `dirpath'
-The directory name must start with `+'.
-Return `nil' if the direcotry is not a category."
+  "Return a ctaegory symbol from the given `dirpath' The directory name must start
+with `+'.Return `nil' if the direcotry is not a category."
   (when (file-directory-p dirpath)
     (let ((dirname (file-name-nondirectory
                     (directory-file-name dirpath))))
       (when (string-match "^+" dirname)
         (intern (substring dirname 1))))))
 
-(defmethod qingeditor/cls/get-module-sym-from-path ((this qingeditor/modulemgr/mgr) dirpath)
+(defmethod qingeditor/cls/get-module-sym-from-path
+  ((this qingeditor/modulemgr/mgr) dirpath)
   "Get module symbol from `dirpath'."
   (intern (file-name-nondirectory (directory-file-name dirpath))))
 
@@ -323,7 +339,8 @@ If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
   "Get the event manager object."
   (unless (and (oref this :eventmgr)
                (object-of-class-p (oref this :eventmgr) qingeditor/eventmgr/mgr))
-    (qingeditor/cls/set-eventmgr this (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr)))
+    (qingeditor/cls/set-eventmgr
+     this (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr)))
   (oref this :eventmgr))
 
 (defmethod qingeditor/cls/set-event ((this qingeditor/modulemgr/mgr) event)
@@ -345,7 +362,8 @@ If `qingeditor/modulemgr/mgr:inhibit-warnings' is non nil this method is no-op."
     (qingeditor/cls/attach
      eventmgr
      qingeditor/modulemgr/load-modules-event
-     (qingeditor/eventmgr/event-handler/init (list #'qingeditor/cls/load-modules-handler this)))))
+     (qingeditor/eventmgr/event-handler/init
+      (list #'qingeditor/cls/load-modules-handler this)))))
 
 (defmethod qingeditor/cls/set-target-modules ((this qingeditor/modulemgr/mgr) specs)
   "Set the target modules to be load. Will first `delq' all item

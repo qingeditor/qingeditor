@@ -75,6 +75,7 @@ dispatch this event.")
    :initarg :module
    :initform nil
    :reader qingeditor/cls/get-module
+   :writer qingeditor/cls/set-module
    :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/modulemgr/module))))
    :documentation "The create module object.")
 
