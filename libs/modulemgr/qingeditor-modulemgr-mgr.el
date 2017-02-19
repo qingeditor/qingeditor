@@ -194,6 +194,10 @@ that `qingeditor' support and all the packages that module require."
                                                                (eq 'bootstrap stage)))
            (when protected
              (qingeditor/cls/set (oref this :protected-packages) package-sym package)))
+         (when toggle
+           (qingeditor/cls/set-property package :toggle toggle))
+         (when stage
+           (qingeditor/cls/set-property package :stage stage))
          (if min-version
              (progn
                (qingeditor/cls/set-property package :min-version (version-to-list min-version))

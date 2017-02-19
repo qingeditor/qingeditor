@@ -79,10 +79,6 @@
   "Get the require package specs of this module."
   nil)
 
-(defmethod qingeditor/cls/resovle-dependence ((this qingeditor/modulemgr/module))
-  "When the module depend on some others modules, you can resove in this method."
-  t)
-
 (defmethod qingeditor/cls/provide-keymap-setter ((this qingeditor/modulemgr/module))
   "Is this module provide a key map setting script. default does not provide."
   nil)

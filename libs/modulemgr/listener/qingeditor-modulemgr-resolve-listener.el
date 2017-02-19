@@ -29,8 +29,11 @@
   (let ((module-package-specs (qingeditor/cls/get-require-package-specs module)))
     (dolist (spec module-package-specs)
       (let* ((pkg-name (if (listp spec) (car spec) spec))
-             (pkg (qingeditor/cls/get (oref modulemgr :pakage-repo) pkg-name)))
-        
+             (pkg (qingeditor/cls/get (oref modulemgr :pakage-repo) pkg-name))
+             (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
+             (location (when (listp spec) (plist-get (cdr spec) :location))))
+        (qingeditor/cls/set-property pkg :excluded excluded)
+
         ))))
 
 (provide 'qingeditor-modulemgr-resolve-listener)

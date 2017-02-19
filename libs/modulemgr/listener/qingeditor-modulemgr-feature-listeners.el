@@ -6,7 +6,7 @@
 ;; This file is not part of GNU Emacs.
 ;; License: MIT
 ;;
-;; define the modulemgr built in feature listeners
+;; define the feature listeners
 ;;
 ;; the load path listener
 (defun qingeditor/modulemgr/loadpath-provider (event)
