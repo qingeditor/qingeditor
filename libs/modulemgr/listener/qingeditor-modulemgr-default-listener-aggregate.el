@@ -9,9 +9,10 @@
 ;; The default module manager aggregate listener
 
 (require 'qingeditor-eventmgr-listener-aggregate)
-(require 'qingeditor-modulemgr-module-resolve-listener)
+(require 'qingeditor-modulemgr-feature-listeners)
 
-(defclass qingeditor/modulemgr/default-listener-aggregate (qingeditor/eventmgr/listener-aggregate)
+(defclass qingeditor/modulemgr/default-listener-aggregate
+  (qingeditor/eventmgr/listener-aggregate)
   ()
   :documentaion "The default module manager aggregate, set listeners for the
 event of the module manager.")
@@ -19,12 +20,21 @@ event of the module manager.")
 (defmethod qingeditor/cls/attach
   ((this qingeditor/modulemgr/default-listener-aggregate) eventmgr)
   "Attach listener handler for `eventmgr'."
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/modulemgr/load-module-resolve-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/modulemgr/module-resolve)
-    qingeditor/eventmgr/normal-callable))
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/load-module-resolve-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/module-resolve))))
+
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/loadpath-provider))))
   )
 
 (provide 'qingeditor-modulemgr-default-listener-aggregate)

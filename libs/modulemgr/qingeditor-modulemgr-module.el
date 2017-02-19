@@ -55,6 +55,10 @@
   (oset this :require-package-specs
         (qingeditor/cls/get-require-package-specs this)))
 
+(defmethod qingeditor/cls/get-load-paths ((this qingeditor/modulemgr/module))
+  "The return list of this method will be added into load-path."
+  nil)
+
 (defmethod qingeditor/cls/get-require-package-specs
   ((this qingeditor/modulemgr/module))
   "Get the require package specs of this module."

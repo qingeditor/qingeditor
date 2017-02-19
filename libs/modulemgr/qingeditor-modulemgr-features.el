@@ -58,7 +58,7 @@ need load these packages and you must add these packages direcotry into
 load path. If this module has this requirements, you can inherit this
 interface.")
 
-(defmethod qingeditor/cls/get-target-paths
+(defmethod qingeditor/cls/get-load-paths
   ((this qingeditor/modulemgr/feature/load-path-provider))
   "Returns the filenames to be loaded by module manager. Related to current
 module direcotry."

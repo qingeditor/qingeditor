@@ -76,13 +76,17 @@ dispatch this event.")
    :initform nil
    :reader qingeditor/cls/get-module
    :writer qingeditor/cls/set-module
-   :type (satisfies (lambda (obj) (or (null obj) (object-of-class-p obj qingeditor/modulemgr/module))))
+   :type (satisfies
+          (lambda (obj)
+            (or (null obj)
+                (object-of-class-p obj qingeditor/modulemgr/module))))
    :documentation "The create module object.")
 
   (module-name
    :initarg :module-name
    :initform nil
-   :type (satisfies (lambda (name) (or (null name) (stringp name))))
+   :type (satisfies
+          (lambda (name) (or (null name) (stringp name))))
    :reader qingeditor/cls/get-module-name
    :writer qingeditor/cls/set-module-name
    :documentation "The module name of current module."))

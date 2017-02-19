@@ -14,7 +14,7 @@
     :initarg :listeners
     :initform nil
     :type list
-    :documentation "`qingeditor/eventmgr/event-handler'集合。"))
+    :documentation "`qingeditor/eventmgr/event-handler' collection"))
   :abstract t
   :documentation "The abstract listener class")
 

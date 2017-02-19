@@ -8,6 +8,8 @@
 ;;
 ;; The editor-base module class
 
-(defclass qingeditor/module/editor-base (qingeditor/modulemgr/module)
+(defclass qingeditor/module/editor-base
+  (qingeditor/modulemgr/module
+   qingeditor/modulemgr/feature/load-path-provider)
   ()
   :documentaion "The editor-base module class")

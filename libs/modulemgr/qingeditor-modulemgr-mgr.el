@@ -11,6 +11,7 @@
 (require 'qingeditor-modulemgr-module)
 (require 'qingeditor-modulemgr-package)
 (require 'qingeditor-modulemgr-event)
+(require 'qingeditor-modulemgr-features)
 (require 'qingeditor-eventmgr-event-handler)
 
 ;; Define some important const
@@ -243,17 +244,21 @@ that `qingeditor' support and all the packages that module require."
   ((this qingeditor/modulemgr/mgr) module-spec event)
   "Get module from `module-spec'."
   (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-resolve-event)
-  (let* (result
-         (module-name (qingeditor/cls/get-module-name event))
+  (let* ((module-name (qingeditor/cls/get-module-name event))
          (module-sym (intern module-name))
          (module (qingeditor/cls/get (oref this :module-repo) module-sym)))
-    (unless (qingeditor/cls/has-key (oref this :detected-modules) module-sym)
-      (error "Module (%s) is not supported by qingdeditor." module-name))
+    ;; we need check dependencies of current module
+    (when (object-of-class-p module qingeditor/modulemgr/feature/require-modules)
+      ;; we load module recursively
+      (let ((require-modules (qingeditor/cls/get-require-modules module)))
+        ;; TODO we just leave this function, when finished first version, we
+        ;; devel this function.
+        ))
     (qingeditor/cls/set-module-info
      event
      (list module-sym (qingeditor/cls/get (oref this :detected-modules) module-sym)))
     ;; dispatch module resove event
-    (setq result (qingeditor/cls/trigger-event eventmgr event))))
+    (qingeditor/cls/trigger-event eventmgr event)))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
