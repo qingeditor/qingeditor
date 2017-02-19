@@ -60,6 +60,12 @@ modules in repo is released with `qingeditor'.")
     :type qingeditor/hash-table
     :documentation "All packages that required by enabled modules.")
 
+   (protected-packages
+    :initarg :protected-packages
+    :initform (qingeditor/hash-table/init)
+    :type qingeditor/hash-table
+    :documentation "A list of packages that will be protected from remove as orphans.")
+
    (module-categories
     :initarg :module-categories
     :initform '()
@@ -173,10 +179,27 @@ that `qingeditor' support and all the packages that module require."
        ;; we just simple instance the package class
        ;; and set the name of package object.
        (let* ((package-sym (if (listp spec) (car spec) spec))
-              (package-name (symbol-name package-sym)))
-         (qingeditor/cls/set
-          (oref this :pakage-repo) package-sym
-          (qingeditor/modulemgr/package package-name :name package-sym)))))))
+              (package-name (symbol-name package-sym))
+              (package (qingeditor/cls/get (oref this :pakage-repo) package-sym nil))
+              (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
+              (stage (when (listp spec) (plist-get (cdr spec) :stage)))
+              (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
+              (protected (when (listp spec) (plist-get (cdr spec) :protected)))
+              (package-installed nil))
+         (unless package
+           (setq package (qingeditor/modulemgr/package package-name :name package-sym))
+           (qingeditor/cls/set (oref this :pakage-repo) package-sym package)
+           ;; a bootstrap package is protected
+           (qingeditor/cls/set-property package :protected (or protected
+                                                               (eq 'bootstrap stage)))
+           (when protected
+             (qingeditor/cls/set (oref this :protected-packages) package-sym package)))
+         (if min-version
+             (progn
+               (qingeditor/cls/set-property package :min-version (version-to-list min-version))
+               (setq package-installed (package-installed-p package-sym min-version)))
+           (setq package-installed (package-installed-p package-sym)))
+         (oset package :installed package-installed))))))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
   "This method do loaded the target modules."
@@ -230,12 +253,15 @@ that `qingeditor' support and all the packages that module require."
        event (qingeditor/cls/get-module-spec-by-name this module-name))
       (oset this :load-finished (1+ (oref this :load-finished)))
       (qingeditor/cls/resolve-module this module-spec event)
+
       ;;trigger before load module event
       (qingeditor/cls/set-name event qingeditor/modulemgr/before-load-module-cycle-event)
       (qingeditor/cls/trigger-event eventmgr event)
+
       ;; trigger load module event
       (qingeditor/cls/set-name event qingeditor/modulemgr/load-module-cycle-event)
       (qingeditor/cls/trigger-event eventmgr event)
+
       ;; trigger after load module event
       (qingeditor/cls/set-name event qingeditor/modulemgr/after-load-module-cycle-event)
       (qingeditor/cls/trigger-event eventmgr event)

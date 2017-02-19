@@ -43,8 +43,8 @@
     :type (satisfies (lambda (x) (or (symbolp x) (listp x))))
     :documentation "Packge is enable/installed if toggle evaluates to non-nil.")
 
-   (init-stage
-    :initarg :init-stage
+   (stage
+    :initarg :stage
     :initform nil
     :type (satisfies (lambda (x) (member x '(nil bootstrap pre))))
     :documentation "Package initialization stage.")
@@ -72,7 +72,23 @@
     :initform nil
     :type boolean
     :documentation "If this property is `t', then the properties of `package'
-cannot being changed."))
+cannot being changed.")
+
+   (installed
+    :initarg :installed
+    :initform nil
+    :type boolean
+    :reader qingeditor/cls/get-installed
+    :documentation "Whether current package is installed.")
+
+   (from-source
+    :initarg :from-source
+    :initform module
+    :type (satisfies (lambda (x) (or (eq x 'module) (eq x 'config))))
+    :documentation "The location of the package spec defined.
+ support `module' or `config'"
+    )
+   )
   :documentation "The `qingeditor' package description class.")
 
 (defmethod qingeditor/cls/enabled ((this qingeditor/modulemgr/package) &optional inhibit-messages)
@@ -83,10 +99,10 @@ cannot being changed."))
     (eval toggle)))
 
 (defmethod qingeditor/cls/set-property ((this qingeditor/modulemgr/package) slot value)
-  "Set `slot' to the given `value' for the package `pkg'.
+  "Set `slot' to the given `value' for the `package'.
 If `property-readonly' of the `qingeditor/modulemgr/packge' is `t', the value will not been
 changed."
   (unless (oref this :property-readonly)
-    (eval `(oset pkg ,slot value))))
+    (eval `(oset this ,slot value))))
 
 (provide 'qingeditor-modulemgr-package)

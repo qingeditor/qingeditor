@@ -11,7 +11,26 @@
   "This function handle the module resolve, it make a `qingeditor/modulemgr/module'
  object from a module `specific'."
   (let* ((module (qingeditor/cls/get-module event))
-         (module-spec (qingeditor/cls/get-module-spec event)))
-    (prin1 module-spec)))
+         (module-name (qingeditor/cls/get-name module))
+         (module-spec (qingeditor/cls/get-module-spec event))
+         (disabled (qingeditor/mplist-get module-spec :disabled-for))
+         (enabled (if (memq :enable-for module-spec)
+                      (qingeditor/mplist-get module-spec :enable-for)
+                    'unspecified))
+         (variables (qingeditor/mplist-get module-spec :variables)))
+    (oset module :disabled-for disabled)
+    (oset module :enable-for enabled)
+    (oset module :variables variables)
+    (qingeditor/modulemgr/resolve-package module (qingeditor/cls/get-modulemgr event))
+    ))
+
+(defun qingeditor/modulemgr/resolve-package (module modulemgr)
+  "Resolve the packages of `module'."
+  (let ((module-package-specs (qingeditor/cls/get-require-package-specs module)))
+    (dolist (spec module-package-specs)
+      (let* ((pkg-name (if (listp spec) (car spec) spec))
+             (pkg (qingeditor/cls/get (oref modulemgr :pakage-repo) pkg-name)))
+        
+        ))))
 
 (provide 'qingeditor-modulemgr-resolve-listener)

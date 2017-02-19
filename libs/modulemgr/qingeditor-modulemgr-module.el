@@ -13,6 +13,8 @@
   ((name
     :initarg :name
     :initform symbol
+    :reader qingeditor/cls/get-name
+    :writer qingeditor/cls/set-name
     :documentation "The name of the layer.")
 
    (dir
@@ -43,6 +45,19 @@
     :type list
     :documentation "A list of variable-value pairs.")
 
+   (disabled
+    :initarg :disabled-for
+    :initform nil
+    :type list
+    :documentation "A list of modules where this module is disabled.")
+
+   (enabled
+    :initarg :enable-for
+    :initform 'unspecified
+    :type (satisfies (lambda (x) (or (listp x) (eq 'unspecified x))))
+    :documentation (concat "A list of modules where this module is enabled."
+                           "(Takes precedence over `:disabled-for'.)"))
+
    (lazy-install
     :initarg :lazy-install
     :initform nil
@@ -63,10 +78,6 @@
   ((this qingeditor/modulemgr/module))
   "Get the require package specs of this module."
   nil)
-
-(defmethod qingeditor/cls/get-require-packages ((this qingeditor/modulemgr/module))
-  "Return a list of packages that the module requires."
-  '())
 
 (defmethod qingeditor/cls/resovle-dependence ((this qingeditor/modulemgr/module))
   "When the module depend on some others modules, you can resove in this method."
