@@ -225,6 +225,9 @@ that `qingeditor' support and all the packages that module require."
         (setq event (qingeditor/cls/get-event this)))
       (qingeditor/cls/set-module-name event (symbol-name module-name))
       (qingeditor/cls/set-module event module)
+      (qingeditor/cls/set-modulemgr event this)
+      (qingeditor/cls/set-module-spec
+       event (qingeditor/cls/get-module-spec-by-name this module-name))
       (oset this :load-finished (1+ (oref this :load-finished)))
       (qingeditor/cls/resolve-module this module-spec event)
       ;;trigger before load module event
@@ -239,6 +242,18 @@ that `qingeditor' support and all the packages that module require."
       (oset this :load-finished (1- (oref this :load-finished)))
       (qingeditor/cls/set (oref this :used-modules) module-name module)
       module)))
+
+(defmethod qingeditor/cls/get-module-spec-by-name
+  ((this qingeditor/modulemgr/mgr) module-name)
+  "Find module spec by name, if nothing found, return `nil'."
+  (catch 'modulemgr-get-module-spec-by-name-return
+    (dolist (spec (oref this :target-modules))
+      (let ((name (if (listp spec) (car spec) spec)))
+        (when (eq name module-name)
+          (unless (listp spec)
+            (setq spec (list spec)))
+          (throw 'modulemgr-get-module-spec-by-name-return spec))))
+    nil))
 
 (defmethod qingeditor/cls/resolve-module
   ((this qingeditor/modulemgr/mgr) module-spec event)

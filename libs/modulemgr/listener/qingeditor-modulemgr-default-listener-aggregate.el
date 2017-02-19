@@ -10,6 +10,7 @@
 
 (require 'qingeditor-eventmgr-listener-aggregate)
 (require 'qingeditor-modulemgr-feature-listeners)
+(require 'qingeditor-modulemgr-resolve-listener)
 
 (defclass qingeditor/modulemgr/default-listener-aggregate
   (qingeditor/eventmgr/listener-aggregate)

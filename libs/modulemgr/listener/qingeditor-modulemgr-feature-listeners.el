@@ -21,10 +21,4 @@
       ;; auto add module dir into load path.
       (add-to-list 'load-path module-dir t))))
 
-;; The module resolve listener
-(defun qingeditor/modulemgr/module-resolve (event)
-  "This function handl the module resolve, it make a `qingeditor/modulemgr/module'
- object from a module `specific'."
-  nil)
-
 (provide 'qingeditor-modulemgr-feature-listeners)
