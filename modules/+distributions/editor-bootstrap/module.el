@@ -13,7 +13,7 @@
   ()
   :documentaion "The editor-bootstrap module class")
 
-(defmethod qingeditor/cls/get-require-package-specs
+(defmethod qingeditor/cls/define-package-specs
   ((this qingeditor/module/editor-bootstrap))
   "Declare the require package specs of this module."
   '((async :stage bootstrap)

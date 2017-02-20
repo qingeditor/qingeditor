@@ -96,5 +96,5 @@ can inherit this interface.")
   ((this qingeditor/modulemgr/feature/service-provider)
    servicemgr)
   t)
-
+ 
 (provide 'qingeditor-modulemgr-features)

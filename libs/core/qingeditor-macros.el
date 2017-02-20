@@ -43,7 +43,7 @@ we attach a listener to `qingeditor/display-system-ready-event' event."
          (progn
            ,@body)
        (push (qingeditor/cls/attach
-              qingeditor/shared-eventmgr
+              qingeditor/geventmgr
               qingeditor/display-system-ready-event
               (qingeditor/eventmgr/event-handler/init (lambda ()
                                                         ,@body)))

@@ -62,21 +62,33 @@
     :initarg :lazy-install
     :initform nil
     :type boolean
-    :documentation "If non-nil then the module needs to be installed later."))
+    :documentation "If non-nil then the module needs to be installed later.")
+
+   (package-init-list
+    :initarg :package-init-list
+    :initform nil
+    :type list
+    :documentation "Save the package list information."))
   :documentation "`qingeditor' configuration module.")
 
 (defmethod qingeditor/cls/init ((this qingeditor/modulemgr/module))
   "The init method that will invoked after instance finished construct."
   (oset this :require-package-specs
-        (qingeditor/cls/get-require-package-specs this)))
+        (qingeditor/cls/define-package-specs this))
+  (oset this :package-init-list
+        (qingeditor/cls/get-package-init-list this))
+  (qingeditor/cls/module-init this))
 
-(defmethod qingeditor/cls/get-load-paths ((this qingeditor/modulemgr/module))
-  "The return list of this method will be added into load-path."
+(defmethod qingeditor/cls/get-local-dir ((this qingeditor/modulemgr/module))
+  "Return local dir of current module."
+  (concat (oref this :dir) "local/"))
+
+(defmethod qingeditor/cls/module-init ((this qingeditor/modulemgr/module))
+  "You can override this method to provide user init procedure."
   nil)
 
-(defmethod qingeditor/cls/get-require-package-specs
-  ((this qingeditor/modulemgr/module))
-  "Get the require package specs of this module."
+(defmethod qingeditor/cls/define-package-specs ((this qingeditor/modulemgr/module))
+  "This method define the package specs that module required."
   nil)
 
 (defmethod qingeditor/cls/provide-keymap-setter ((this qingeditor/modulemgr/module))
@@ -91,6 +103,31 @@
   "Is this module provide a extra config settings, if return `t',
 Module manager will load `config.el' in current module directory. You can set some default
 variable for this module. default return `nil'"
+  nil)
+
+(defmethod qingeditor/cls/get-package-init-list ((this qingeditor/modulemgr/module))
+  "This will be invoked when we need to know wether a package has a module initializer,
+default will return a list of package name that doesn't has a :has-init nil in spec."
+  (let ((specs (qingeditor/cls/get-require-package-specs this))
+        (ret nil))
+    (dolist (spec specs)
+      (if (not (listp spec))
+          (push spec ret)
+        (let ((has-init t))
+          (setq has-init (or (not (plist-member (cdr spec) :has-init))
+                             (plist-get (cdr spec) :has-init)))
+          (when has-init
+            (push (car spec) ret)))))
+    ret))
+
+(defmethod qingeditor/cls/get-package-pre-init-list ((this qingeditor/modulemgr/module))
+  "Return a list of package names that has a pre init method.
+default return `nil'."
+  nil)
+
+(defmethod qingeditor/cls/get-package-post-init-list ((this qingeditor/modulemgr/module))
+  "Return a list of package names that has a post init method.
+default return `nil'."
   nil)
 
 (provide 'qingeditor-modulemgr-module)

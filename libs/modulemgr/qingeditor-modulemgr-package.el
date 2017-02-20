@@ -26,6 +26,7 @@
     :initarg :owners
     :initform nil
     :type list
+    :reader qingeditor/cls/get-owners
     :documentation "The modules which the package belong to.")
 
    (location
@@ -84,6 +85,7 @@ cannot being changed.")
    (from-source
     :initarg :from-source
     :initform module
+    :reader qingeditor/cls/get-from-source
     :type (satisfies (lambda (x) (or (eq x 'module) (eq x 'config))))
     :documentation "The location of the package spec defined.
  support `module' or `config'"

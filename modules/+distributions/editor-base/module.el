@@ -9,7 +9,11 @@
 ;; The editor-base module class
 
 (defclass qingeditor/module/editor-base
-  (qingeditor/modulemgr/module
-   qingeditor/modulemgr/feature/load-path-provider)
+  (qingeditor/modulemgr/module)
   ()
   :documentaion "The editor-base module class")
+
+(defmethod qingeditor/cls/define-package-specs
+  ((this qingeditor/module/editor-base))
+  "Declare the require package specs of this module."
+  '((abbrev :location built-in)))
