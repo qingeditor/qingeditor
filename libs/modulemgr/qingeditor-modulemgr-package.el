@@ -88,8 +88,19 @@ cannot being changed.")
     :reader qingeditor/cls/get-from-source
     :type (satisfies (lambda (x) (or (eq x 'module) (eq x 'config))))
     :documentation "The location of the package spec defined.
- support `module' or `config'"
-    )
+ support `module' or `config'.")
+
+   (pre-init-modules
+    :initarg :pre-init-modules
+    :initform '()
+    :type list
+    :documentation "The list of modules with a pre init method.")
+
+   (post-init-modules
+    :initarg :post-init-modules
+    :initform '()
+    :type list
+    :documentation "The list of modules with a post init method.")
    )
   :documentation "The `qingeditor' package description class.")
 

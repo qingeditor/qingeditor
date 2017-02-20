@@ -1,5 +1,5 @@
-;; 第二阶段初始化脚本
-;; 这个阶段我们主要实例化初始化类，配置相关监听器以及加载全局函数
+;; second stage init script
+;; in this stage we instance initializer class, setup listeners and load global functions.
 (require 'eieio)
 (require 'package)
 (require 'qingeditor-macros)

@@ -63,6 +63,47 @@
                   ;; TODO what is the local path for a packages owned by the user config file?
                   nil))
               (qingeditor/cls/set-property pkg :location location))))
-        ))))
+        (when ownerp
+          ;; warn about multiple owners
+          (when (and (qingeditor/cls/get-owners pkg)
+                     (not (memq pkg-name (qingeditor/cls/get-owners pkg))))
+            (qingeditor/cls/warning
+             module
+             (format (concat "More than one init function found for "
+                             "package %S. previous owner was %S, "
+                             "replacing it with module %S.")
+                     pkg-name (car (qingeditor/cls/get-owners pkg))
+                     (qingeditor/cls/get-name module))))
+          ;; last owner wins over the previous one
+          (object-add-to-list pkg :owners (qingeditor/cls/get-name module)))
+        ;; check consistency between package and defined init functions
+        (unless (or ownerp
+                    (eq 'config (qingeditor/cls/get-from-source pkg))
+                    has-pre-init
+                    has-post-init
+                    (oref pkg :excluded))
+          (qingeditor/cls/warning
+           module
+           (format (concat "package %s not initialized in module %s"
+                           "package %S. previous owner was %S, "
+                           "replacing it with module %S.")
+                   pkg-name (car (qingeditor/cls/get-owners pkg))
+                   (qingeditor/cls/get-name module))))
+        ;; check if toggle can be applied
+        (when (and (not ownerp)
+                   (and (not (eq 'unspecified toggle))
+                        toggle))
+          (qingeditor/cls/warning
+           module
+           (format (concat "Ignoring :toggle for package %s because "
+                           "module %S does not own it."
+                           pkg-name
+                           (qingeditor/cls/get-name module)))))
+        (when has-pre-init
+          (object-add-to-list pkg :pre-init-modules (qingeditor/cls/get-name module)))
+        (when has-post-init
+          (object-add-to-list pkg :post-init-modules (qingeditor/cls/get-name module)))
+        ;; add to used package hash table
+        (qingeditor/cls/set (oref modulemgr :used-packages) pkg-name pkg)))))
 
 (provide 'qingeditor-modulemgr-resolve-listener)
