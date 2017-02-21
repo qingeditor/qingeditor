@@ -40,6 +40,24 @@ event of the module manager.")
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/extra-func-defs-handler))))
 
+  ;; keypmap setter
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/after-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/keymap-provider-handler))))
+
+  ;; extra module config setup
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/after-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/keymap-provider-handler))))
+
   (object-add-to-list
    this :listeners
    (qingeditor/cls/attach
