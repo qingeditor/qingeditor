@@ -40,6 +40,15 @@ event of the module manager.")
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/extra-func-defs-handler))))
 
+  ;; bind before load module
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/before-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/extra-files-loader-handler))))
+
   ;; keypmap setter
   (object-add-to-list
    this :listeners
@@ -58,13 +67,32 @@ event of the module manager.")
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/keymap-provider-handler))))
 
+
   (object-add-to-list
    this :listeners
    (qingeditor/cls/attach
     eventmgr
-    qingeditor/modulemgr/load-module-cycle-event
+    qingeditor/modulemgr/before-load-module-cycle-event
     (qingeditor/eventmgr/event-handler/init
-     (list #'qingeditor/modulemgr/loadpath-provider))))
+     (list #'qingeditor/modulemgr/loadpath-provider-handler))))
+
+  ;; service object register
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/after-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/service-provider-handler))))
+
+  ;; dependency indicator
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/after-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/dependency-indicator-handler))))
   )
 
 (provide 'qingeditor-modulemgr-default-listener-aggregate)

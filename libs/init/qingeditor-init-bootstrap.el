@@ -18,6 +18,9 @@
 (require 'qingeditor-font)
 (require 'qingeditor-modulemgr-default-listener-aggregate)
 
+(defvar qingeditor/servicemgr (qingeditor/hash-table/init)
+  "the global service manager.")
+
 (defvar qingeditor/geventmgr (qingeditor/eventmgr/mgr/init)
  "`qingeditor' global event mgr, some global event trigger by this manager.")
 
