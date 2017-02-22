@@ -23,7 +23,7 @@
   "when all configured modules loaded, dispatch this event.")
 
 (defconst qingeditor/init/event/render-event-event "render-event-event"
-  "after loaded target modules, `qingeditor' render starup screen. but
+  "before loaded target modules, `qingeditor' render starup screen. but
 if you invoke `qingeditor' from terminal with a file path, this event will not
 been dispatched.")
 

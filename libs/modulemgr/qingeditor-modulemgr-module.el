@@ -91,7 +91,7 @@
   "This method define the package specs that module required."
   nil)
 
-(defmethod qingeditor/cls/provide-keymap-setter ((this qingeditor/modulemgr/module))
+(defmethod qingeditor/cls/provide-keymap-defs ((this qingeditor/modulemgr/module))
   "Is this module provide a key map setting script. default does not provide."
   nil)
 

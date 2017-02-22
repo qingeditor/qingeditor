@@ -133,6 +133,15 @@ a direcotry with a name starting with `+'.")
     :type boolean
     :documentation "If `non-nil' module manager will recheck dependency modules wether
 or not loaded.")
+
+   (error-count
+    :initarg :error-count
+    :initform 0
+    :type integer
+    :reader qingeditor/cls/get-error-count
+    :documentation "Non nil indicates the number of errors occurred during the
+    installation of initialization.")
+
    )
   :documentation "The module manager class")
 
@@ -204,6 +213,21 @@ that `qingeditor' support and all the packages that module require."
                (setq package-installed (package-installed-p package-sym min-version)))
            (setq package-installed (package-installed-p package-sym)))
          (oset package :installed package-installed))))))
+
+(defmethod qingeditor/cls/process ((this qingeditor/modulemgr/mgr))
+  "Do actually module process."
+  (qingeditor/cls/load-modules this)
+  (qingeditor/cls/register-lazy-load-modules this)
+  (qingeditor/cls/install-packages this)
+  (qingeditor/cls/configure-packages this)
+  )
+
+(defmethod qingeditor/cls/register-lazy-load-modules ((this qingeditor/modulemgr/mgr))
+  "Register lazy load modules."
+  (let* ((module-dir qingeditor/modulemgr/module-directory)
+         (register-filename (concat module-dir "lazy-mode-register.el")))
+    (when (file-exists-p register-filename)
+      (load register-filename))))
 
 (defmethod qingeditor/cls/load-modules ((this qingeditor/modulemgr/mgr))
   "This method do loaded the target modules."
@@ -304,6 +328,14 @@ that `qingeditor' support and all the packages that module require."
      (list module-sym (qingeditor/cls/get (oref this :detected-modules) module-sym)))
     ;; dispatch module resove event
     (qingeditor/cls/trigger-event eventmgr event)))
+
+(defmethod qingeditor/cls/install-packages ((this qingeditor/modulemgr/mgr))
+  "Install used packages."
+  )
+
+(defmethod qingeditor/cls/configure-packages ((this qingeditor/modulemgr/mgr))
+  "Configure used packages."
+  )
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
@@ -428,5 +460,9 @@ that eq `editor-base' or `editor-standard' or `editor-bootstrap' from `specs'."
     (push 'editor-bootstrap specs)
     (oset this :target-modules specs)
     this))
+
+(defmethod qingeditor/cls/increment-error-count ()
+  "Increment the error counter."
+  (oset this :error-count (1+ (oref this :error-count))))
 
 (provide 'qingeditor-modulemgr-mgr)

@@ -69,16 +69,22 @@ we finally process `qingeditor' modules."
   (let ((event (oref this :event)))
     (qingeditor/cls/set-name event qingeditor/init/event/bootstrap-event)
     (qingeditor/cls/trigger-event (oref this :eventmgr) event)
+    (qingeditor/cls/set-name event qingeditor/init/event/render-event-event)
+    (qingeditor/cls/trigger-event (oref this :eventmgr) event)
     (qingeditor/cls/init (oref this :modulemgr))
-    (qingeditor/cls/load-modules (oref this :modulemgr))))
+    (qingeditor/cls/process (oref this :modulemgr))))
 
 (defmethod qingeditor/cls/run ((this qingeditor/initializer))
-  "In this method, we will finished all settup procedure and run `qingeditor'.")
+  "In this method, we will finished all settup procedure and run `qingeditor'."
+  )
+
+(defmethod qingeditor/cls/notify-finished-init ((this qingeditor/initializer))
+  "Do something to notify the qingeditor finish init."
+  (setq-default qingeditor/initialized t))
 
 (defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))
   "load `qingeditor' configuration file."
-  (qingeditor/cls/detect-init-filename this)
   (unless (file-exists-p qingeditor/config/target-cfg-filename)
     (qingeditor/cls/generate-new-cfg-filename-from-tpl
      this 'with-wizard))
@@ -143,37 +149,6 @@ we finally process `qingeditor' modules."
 a display string and the value is the actual to return."
   (let ((ido-max-window-height (1+ (length candidates))))
     (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates)) candidates))))
-
-(defmethod qingeditor/cls/detect-init-filename
-  ((this qingeditor/initializer))
-  "figure out the target configuration full filename."
-  (let* ((env (getenv "QINGEDITOR_DIR"))
-         (env-dir (when env (expand-file-name (concat env "/"))))
-         (env-init-filename (and env-dir (expand-file-name "init.el" env-dir)))
-         (no-env-dir-default
-          (expand-file-name (concat qingeditor/user-home-dir ".qingeditor.d/")))
-         (default-init-filename (expand-file-name ".qingeditor" qingeditor/user-home-dir))
-         target-cfg-dir
-         target-cfg-filename)
-    (setq target-cfg-dir
-          (cond
-           ((and env (file-exists-p env-dir))
-            env-dir)
-           ((file-exists-p no-env-dir-default)
-            no-env-dir-default)
-           (t nil)))
-    (let ((default-qingeditor-init-filename
-            (when target-cfg-dir
-              (concat target-cfg-dir "init.el"))))
-      (setq target-cfg-filename
-            (cond (env-init-filename)
-                  ((file-exists-p default-init-filename) default-init-filename)
-                  ((and target-cfg-dir (file-exists-p default-qingeditor-init-filename))
-                   default-qingeditor-init-filename)
-                  (t default-init-filename))))
-    (setq-default qingeditor/config/target-cfg-dir target-cfg-dir)
-    (setq-default qingeditor/config/target-cfg-filename target-cfg-filename)
-    (list target-cfg-dir target-cfg-filename)))
 
 (defmethod qingeditor/cls/set-eventmgr ((this qingeditor/initializer) eventmgr)
   (qingeditor/cls/set-identifiers eventmgr '("qingeditor/initializer"))

@@ -37,7 +37,7 @@ current module, check them wether already loaded."
       ;; auto add module dir into load path.
       (add-to-list 'load-path module-dir t))))
 
-(defun qingeditor/modulemgr/service-provider-handler ()
+(defun qingeditor/modulemgr/service-provider-handler (event)
   "The service provider."
   (let* ((module (qingeditor/cls/get-module event)))
     (when (object-of-class-p module qingeditor/modulemgr/feature/service-provider)

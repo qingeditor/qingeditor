@@ -20,7 +20,7 @@
   "If non-nil force `qingeditor' to operate without secured protocols.")
 
 (defvar qingeditor/post-theme-change-hook nil
-  "当风格变化的时候执行的钩子函数。")
+  "theme change hooks.")
 
 (defvar qingeditor/global-listeners-pool nil
   "Collect the listeners of shared eventmgr, we can use this
@@ -34,5 +34,8 @@ list to prevent listener handler memory leak.")
 
 (defconst qinegditor/theme-changed-event "theme-changed-event"
   "After a new theme loaded, dispatch this event.")
+
+(defvar qingeditor/initialized nil
+  "`t' if the qingeditor finished init.")
 
 (provide 'qingeditor-gvars)

@@ -16,7 +16,7 @@
     :type list
     :documentation "`qingeditor/eventmgr/event-handler' collection"))
   :abstract t
-  :documentation "The abstract listener class")
+  :documentation "The abstract listener class.")
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/eventmgr/listener-aggregate) (eventmgr qingeditor/eventmgr/mgr))

@@ -278,4 +278,32 @@ List sizes may be nil, in which case
 (defvar qingeditor/config/verbose-loading nil
   "If non nil output loading progress in `*Messages*' buffer. (default nil)")
 
+"figure out the target configuration full filename."
+(let* ((env (getenv "QINGEDITOR_DIR"))
+       (env-dir (when env (expand-file-name (concat env "/"))))
+       (env-init-filename (and env-dir (expand-file-name "init.el" env-dir)))
+       (no-env-dir-default
+        (expand-file-name (concat qingeditor/user-home-dir ".qingeditor.d/")))
+       (default-init-filename (expand-file-name ".qingeditor" qingeditor/user-home-dir))
+       target-cfg-dir
+       target-cfg-filename)
+  (setq target-cfg-dir
+        (cond
+         ((and env (file-exists-p env-dir))
+          env-dir)
+         ((file-exists-p no-env-dir-default)
+          no-env-dir-default)
+         (t nil)))
+  (let ((default-qingeditor-init-filename
+          (when target-cfg-dir
+            (concat target-cfg-dir "init.el"))))
+    (setq target-cfg-filename
+          (cond (env-init-filename)
+                ((file-exists-p default-init-filename) default-init-filename)
+                ((and target-cfg-dir (file-exists-p default-qingeditor-init-filename))
+                 default-qingeditor-init-filename)
+                (t default-init-filename))))
+  (setq-default qingeditor/config/target-cfg-dir target-cfg-dir)
+  (setq-default qingeditor/config/target-cfg-filename target-cfg-filename))
+
 (provide 'qingeditor-config)

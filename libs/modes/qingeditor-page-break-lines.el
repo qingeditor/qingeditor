@@ -55,13 +55,10 @@
 ;; display the rule.
 
 ;; Adapted from code http://www.emacswiki.org/emacs/PageBreaks
-
-;;
-
 ;;; Code:
 
-(defgroup qingeditor/page-break-lines
-  "Display ugly ^L page breaks as tidy horizontal lines,"
+(defgroup qingeditor/page-break-lines nil
+  "Display ugly ^L page breaks as tidy horizontal lines."
   :prefix "qingeditor/page-break-lines-"
   :group 'faces)
 
@@ -70,7 +67,7 @@
   :type 'character
   :group 'qingeditor/page-break-lines)
 
-(defcustom qingeditor/page-break-lines/lighter "PgLn"
+(defcustom qingeditor/page-break-lines/lighter " PgLn"
   "Mode-line indicator for `qingeditor/page-break-lines-mode'."
   :type '(choice (const :tag "No lighter" "") string)
   :group 'qingeditor/page-break-lines)
@@ -78,7 +75,7 @@
 (defcustom qingeditor/page-break-lines/modes
   '(emacs-lisp-mode lisp-mode scheme-mode compilation-mode outline-mode help-mode)
   "Modes the which to enable `qingeditor/page-break-lines-mode'."
-  :group 'qingeditor/mode/page-break-lines)
+  :group 'qingeditor/page-break-lines)
 
 (defface qingeditor/page-break-lines/face
   '((t :inherit font-lock-comment-face :bold nil :italic nil))
@@ -86,7 +83,7 @@
 If using :bold or :italic, please ensure `qingeditor/mode/page-break-lines-char'
 is available in that variant of your font, otherwise it may be displayed
 as junk character."
-  :group qingeditor/page-break-lines)
+  :group 'qingeditor/page-break-lines)
 
 
 
@@ -120,7 +117,7 @@ horizontal line of `qingeditor/page-break-lines/display-char' characters."
   "Function called for updating display table."
   (mapc 'qingeditor/page-break-lines/update-display-table (window-list nil 'no-minibuffer)))
 
-(defun qingeditor/page-break-lines/update-display-table ()
+(defun qingeditor/page-break-lines/update-display-table (window)
   "Modify a display-table that displays page-breaks prettily.
 If the buffer inside `window' has `qingeditor/page-break-lines-mode' enabled,
 its display table will be modified as necessary."
@@ -131,7 +128,7 @@ its display table will be modified as necessary."
             (setq buffer-display-table (make-display-table)))
           (let* ((width (- (window-width window) 1))
                  (glyph (make-glyph-code
-                         qingeditor/page-break-lines/display-char qingeditor/page-break-lines/face))
+                         qingeditor/page-break-lines/display-char 'qingeditor/page-break-lines/face))
                  (new-display-entry (vconcat (make-list width glyph))))
             (unless (equal new-display-entry (elt buffer-display-table ?\^L))
               (aset buffer-display-table ?\^L new-display-entry))))

@@ -6,13 +6,16 @@
 (require 'qingeditor-gvars)
 (require 'qingeditor-funcs)
 (require 'qingeditor-hash-table)
+(require 'qingeditor-hidden-mode-line)
+(require 'qingeditor-page-break-lines)
 (require 'qingeditor-eventmgr-shared-mgr)
 (require 'qingeditor-eventmgr-mgr)
+(require 'qingeditor-stddir)
 (require 'qingeditor-config)
 (require 'qingeditor-initializer)
 (require 'qingeditor-startup-buffer)
 (require 'qingeditor-emacs-setup-listener)
-(require 'qingeditor-hidden-mode-line)
+(require 'qingeditor-startup-buffer-render-listener)
 (require 'qingeditor-modulemgr-installer)
 (require 'qingeditor-theme)
 (require 'qingeditor-font)
@@ -56,7 +59,11 @@ initialized."
 
 ;; setup default event listeners
 (qingeditor/cls/add-default-listener
-qingeditor/initializer-ref "emacs-setup" (qingeditor/init/emacs-setup-listener))
+ qingeditor/initializer-ref "emacs-setup" (make-instance 'qingeditor/init/emacs-setup-listener))
+
+;; setup the startup renderer listeners
+(qingeditor/cls/add-default-listener
+ qingeditor/initializer-ref "startup-renderer" (make-instance 'qingeditor/init/startup-buffer-render-listener))
 
 (let ((eventmgr (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr))
      (initializer qingeditor/initializer-ref))
@@ -64,6 +71,8 @@ qingeditor/initializer-ref "emacs-setup" (qingeditor/init/emacs-setup-listener))
   (qingeditor/cls/set-modulemgr initializer qingeditor/modulemgr)
   (qingeditor/cls/init initializer)
   (qingeditor/cls/bootstrap initializer)
+  (qingeditor/cls/run initializer)
+  (qingeditor/cls/notify-finished-init initializer)
  )
 
 (provide 'qingeditor-init-bootstrap)

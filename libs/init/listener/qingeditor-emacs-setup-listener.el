@@ -16,28 +16,35 @@
 (defclass qingeditor/init/emacs-setup-listener
   (qingeditor/eventmgr/listener-aggregate)
   ()
-  :documentation "The emacs setup listene")
+  :documentation "The emacs setup listener")
 
 (defmethod qingeditor/cls/attach
   ((this qingeditor/init/emacs-setup-listener) eventmgr)
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/init/event/editor-cfg-ready-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/call-cfg-ready-callback this)))
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/init/event/editor-cfg-ready-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/cls/call-cfg-ready-callback this))))
+
   ;; ui handler
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/init/event/editor-cfg-ready-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/setup-emacs-ui this)))
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/init/event/editor-cfg-ready-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/cls/setup-emacs-ui this))))
 
   ;; some global initialize
-  (qingeditor/cls/attach
-   eventmgr
-   qingeditor/init/event/editor-cfg-ready-event
-   (qingeditor/eventmgr/event-handler/init
-    (list #'qingeditor/cls/invoke-global-intialize-funcs this))))
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/init/event/editor-cfg-ready-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/cls/invoke-global-intialize-funcs this)))))
 
 (defmethod qingeditor/cls/setup-emacs-ui
   ((this qingeditor/init/emacs-setup-listener) event)
