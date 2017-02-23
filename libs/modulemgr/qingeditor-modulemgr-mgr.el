@@ -404,25 +404,40 @@ that `qingeditor' support and all the packages that module require."
     (oset event :module nil)
     (oset event :module-name nil)
     (oset event :module-spec nil)
+    ;; brefore configure packages
     (qingeditor/cls/set-name event qingeditor/modulemgr/before-configure-packages-event)
     (qingeditor/cls/trigger-event eventmgr event)
+    (qingeditor/cls/configure-packages-by-stage this 'bootstrap)
+    (qingeditor/cls/configure-packages-by-stage this 'pre)
+    (qingeditor/cls/configure-packages-by-stage this nil)
+    ;; after configure packages
+    (qingeditor/cls/set-name event qingeditor/modulemgr/after-configure-packages-event)
+    (qingeditor/cls/trigger-event eventmgr event)))
+
+(defmethod qingeditor/cls/configure-packages-by-stage ((this qingeditor/modulemgr/mgr) stage)
+  "Configure used packages."
+  (let ((event (qingeditor/cls/get-event this)))
     (qingeditor/cls/iterate-items
      (oref this :used-packages)
      (progn
-       (qingeditor/cls/set-param event 'target-package value)
-       ;; before install cycle
-       (qingeditor/cls/set-name event qingeditor/modulemgr/before-configure-package-cycle-event)
-       (qingeditor/cls/trigger-event eventmgr event)
+       (when (eq stage (qingeditor/cls/get-stage value))
+         (qingeditor/cls/set-param event 'target-package value)
+         (qingeditor/cls/set-param event 'configure-stage stage)
+         ;; before install cycle
+         (qingeditor/cls/set-name
+          event
+          qingeditor/modulemgr/before-configure-package-cycle-event)
+         (qingeditor/cls/trigger-event eventmgr event)
 
-       ;; do install
-       (qingeditor/cls/set-name event qingeditor/modulemgr/configure-package-cycle-event)
-       (qingeditor/cls/trigger-event eventmgr event)
+         ;; do install
+         (qingeditor/cls/set-name
+          event qingeditor/modulemgr/configure-package-cycle-event)
+         (qingeditor/cls/trigger-event eventmgr event)
 
-       ;; after install cycle
-       (qingeditor/cls/set-name event qingeditor/modulemgr/after-configure-package-cycle-event)
-       (qingeditor/cls/trigger-event eventmgr event)))
-    (qingeditor/cls/set-name event qingeditor/modulemgr/after-configure-packages-event)
-    (qingeditor/cls/trigger-event eventmgr event)))
+         ;; after install cycle
+         (qingeditor/cls/set-name
+          event qingeditor/modulemgr/after-configure-package-cycle-event)
+         (qingeditor/cls/trigger-event eventmgr event))))))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."

@@ -49,6 +49,7 @@
    (stage
     :initarg :stage
     :initform nil
+    :reader qingeditor/cls/get-stage
     :type (satisfies (lambda (x) (member x '(nil bootstrap pre))))
     :documentation "Package initialization stage.")
 
