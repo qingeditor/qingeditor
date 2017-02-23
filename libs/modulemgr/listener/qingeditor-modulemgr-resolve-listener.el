@@ -35,7 +35,7 @@
     (dolist (spec module-package-specs)
       (let* ((pkg-name (if (listp spec) (car spec) spec))
              (pkg-name-str (symbol-name pkg-name))
-             (pkg (qingeditor/cls/get (oref modulemgr :pakage-repo) pkg-name))
+             (pkg (qingeditor/cls/get (oref modulemgr :package-repo) pkg-name))
              (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
              (location (when (listp spec) (plist-get (cdr spec) :location)))
              (has-init (memq pkg-name init-list))
@@ -75,7 +75,7 @@
                      pkg-name (car (qingeditor/cls/get-owners pkg))
                      (qingeditor/cls/get-name module))))
           ;; last owner wins over the previous one
-          (object-add-to-list pkg :owners (qingeditor/cls/get-name module)))
+          (object-add-to-list pkg :owners module))
         ;; check consistency between package and defined init functions
         (unless (or ownerp
                     (eq 'config (qingeditor/cls/get-from-source pkg))

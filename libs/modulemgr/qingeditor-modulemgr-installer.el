@@ -88,7 +88,7 @@ startup buffer.
 
 If `force' is non `nil' then refresh the archives event if they have been already
 refreshed during the current session."
-  (unless (and (qingeditor/modulemgr/installer/package-archives-refreshed)
+  (unless (and qingeditor/modulemgr/installer/package-archives-refreshed
                (not force))
     (setq qingeditor/modulemgr/installer/package-archives-refreshed t)
     (let ((count (length package-archives))
@@ -147,8 +147,8 @@ left untouched. The return list has a `package-archives' compliant format."
                        ;; `(not (equal "org" (car archive)))'
                        (not (equal "org" (car archive))))
                   "https://"
-                "http://"
-                (cdr archive))))))
+                "http://")
+              (cdr archive)))))
    archives))
 
 (defun qingeditor/modulemgr/installer/get-elpa-directory (root-dir)
@@ -211,5 +211,43 @@ is returned."
                      pkg-name2)))
         (when reqs2 (setq reqs (append reqs2 reqs)))))
     reqs))
+
+(defun qingeditor/modulemgr/installer/install-package (package)
+  "Unconditionally install the package `package'."
+  (let* ((package-name (when package (qingeditor/cls/get-name package)))
+         (location (when package (qingeditor/cls/get-location package)))
+         (min-version (when package (qingeditor/cls/get-min-version package))))
+    (unless (package-installed-p package-name min-version)
+      (cond
+       ((or (null package) (eq 'elpa location))
+        (qingeditor/modulemgr/installer/install-from-elpa package-name)
+        (when package (qingeditor/cls/set-property package :lazy-install nil)))
+       ((and (listp location) (eq 'recipe (car location)))
+        (configuration-layer//install-from-recipe pkg)
+        (cfgl-package-set-property package :lazy-install nil))
+       (t (error "Cannot install package %S." package-name))))))
+
+(defun qingeditor/modulemgr/installer/install-from-elpa (package-name)
+  "Install `package' from ELPA."
+  (if (not (assq package-name package-archive-contents))
+      (qingeditor/startup-buffer/append
+       (format (concat "\nPackage %s is unavailable. "
+                       "Is the package name misspelled?\n")
+               package-name))
+    (let ((pkg-desc (assq package-name package-archive-contents)))
+      (dolist
+          (dep (qingeditor/modulemgr/installer/get-package-deps-from-archive
+                package-name))
+        (if (package-installed-p (car dep) (cadr dep))
+            (qingeditor/modulemgr/installer/activate-package (car dep))
+          (qingeditor/modulemgr/installer/install-from-elpa (car dep))))
+      (if pkg-desc
+          (package-install (cadr pkg-desc))
+        (package-install package-name)))))
+
+(defun qingeditor/modulemgr/installer/activate-package (pkg)
+  "Activate `pkg'."
+  (unless (memq pkg package-activated-list)
+    (package-activate pkg)))
 
 (provide 'qingeditor-modulemgr-installer)

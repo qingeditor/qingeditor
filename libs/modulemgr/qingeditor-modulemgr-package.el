@@ -20,6 +20,7 @@
     :initarg :min-version
     :initform nil
     :type list
+    :reader qingeditor/cls/get-min-version
     :documentation "Minimum version to install as version list.")
 
    (owners
@@ -32,6 +33,7 @@
    (location
     :initarg :location
     :initform elpa
+    :reader qingeditor/cls/get-location
     :type (satisfies (lambda (x)
                        (or (stringp x)
                            (memq x '(built-in local site elpa))

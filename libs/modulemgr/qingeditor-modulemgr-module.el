@@ -15,7 +15,7 @@
     :initform symbol
     :reader qingeditor/cls/get-name
     :writer qingeditor/cls/set-name
-    :documentation "The name of the layer.")
+    :documentation "The name of the module.")
 
    (dir
     :initarg :dir

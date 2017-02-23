@@ -48,8 +48,8 @@ modules in repo is released with `qingeditor'.")
     :documentation "`qingeditor' used modules, the modules defined in
 `~/.qingeditor' file.")
 
-   (pakage-repo
-    :initarg :pakage-repo
+   (package-repo
+    :initarg :package-repo
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
     :documentation "All package that required by `qingeditor' supported modules.")
@@ -181,6 +181,7 @@ that `qingeditor' support and all the packages that module require."
        (error "module class `%S' is not exist." module-sym))
      (setq module (make-instance module-sym))
      ;; invoke the `qingeditor/cls/init' method of module object.
+     (qingeditor/cls/set-name module key)
      (qingeditor/cls/init module)
      (qingeditor/cls/set-module-dir module module-dir)
      (qingeditor/cls/set (oref this :module-repo) key module)
@@ -190,7 +191,7 @@ that `qingeditor' support and all the packages that module require."
        ;; and set the name of package object.
        (let* ((package-sym (if (listp spec) (car spec) spec))
               (package-name (symbol-name package-sym))
-              (package (qingeditor/cls/get (oref this :pakage-repo) package-sym nil))
+              (package (qingeditor/cls/get (oref this :package-repo) package-sym nil))
               (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
               (stage (when (listp spec) (plist-get (cdr spec) :stage)))
               (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
@@ -198,7 +199,7 @@ that `qingeditor' support and all the packages that module require."
               (package-installed nil))
          (unless package
            (setq package (qingeditor/modulemgr/package package-name :name package-sym))
-           (qingeditor/cls/set (oref this :pakage-repo) package-sym package)
+           (qingeditor/cls/set (oref this :package-repo) package-sym package)
            ;; a bootstrap package is protected
            (qingeditor/cls/set-property package :protected (or protected
                                                                (eq 'bootstrap stage)))
@@ -348,7 +349,9 @@ that `qingeditor' support and all the packages that module require."
     (qingeditor/cls/iterate-items
      (oref this :used-packages)
      (progn
-       (when (not (oref value :lazy-install))
+       (when (and (not (oref value :lazy-install))
+                  (not (memq (qingeditor/cls/get-location value) '(built-in site local)))
+                  (not (stringp (qingeditor/cls/get-location value))))
          (push value packages))))
     (setq packages (qingeditor/cls/get-uninstalled-packages this packages))
     (qingeditor/cls/set-param event 'target-packages packages)
@@ -371,21 +374,27 @@ that `qingeditor' support and all the packages that module require."
 
     ;; trigger after install packages event
     (qingeditor/cls/set-name event qingeditor/modulemgr/after-install-packages-event)
-    (qingeditor/cls/trigger-event eventmgr event)
-    )
-  )
+    (qingeditor/cls/trigger-event eventmgr event)))
 
 (defmethod qingeditor/cls/get-uninstalled-packages ((this qingeditor/modulemgr/mgr) packages)
   "Return a filtered list of PKG-NAMES to install."
-  (let (pkg-names)
+  (let (pkg-names
+        uninstalled-pkg-names
+        ret)
     (dolist (pkg packages)
       (push (qingeditor/cls/get-name pkg) pkg-names))
-    (qingeditor/modulemgr/installer/get-packages-with-deps
-     pkg-names
-     (lambda (pkg-name)
-       (let* ((pkg (qingeditor/cls/get-package this pkg-name))
-              (min-version (when pkg (oref pkg :min-version))))
-         (not (package-installed-p pkg-name min-version)))))))
+    (setq uninstalled-pkg-names
+          (qingeditor/modulemgr/installer/get-packages-with-deps
+           pkg-names
+           (lambda (pkg-name)
+             (let* ((pkg (qingeditor/cls/get-package this pkg-name))
+                    (min-version (when pkg (oref pkg :min-version))))
+               (not (package-installed-p pkg-name min-version))))))
+    (dolist (pkg-name uninstalled-pkg-names)
+      (if (qingeditor/cls/has-key (oref this :package-repo) pkg-name)
+          (add-to-list 'ret (qingeditor/cls/get-package pkg-name t))
+        (add-to-list 'ret (qingeditor/modulemgr/package (symbol-name pkg-name) :name pkg-name) t)))
+    ret))
 
 (defmethod qingeditor/cls/configure-packages ((this qingeditor/modulemgr/mgr))
   "Configure used packages."
@@ -521,6 +530,6 @@ that eq `editor-base' or `editor-standard' or `editor-bootstrap' from `specs'."
 
 (defmethod qingeditor/cls/get-package ((this qingeditor/modulemgr/mgr) name)
   "Return a package object by `name'."
-  (qingeditor/cls/get (oref this :pakage-repo) name))
+  (qingeditor/cls/get (oref this :package-repo) name))
 
 (provide 'qingeditor-modulemgr-mgr)
