@@ -65,6 +65,18 @@ home buffer buttons. Do not set this variable.")
 (defvar qingeditor/startup-buffer/default-mode-line mode-line-format
   "Backup of default mode line format.")
 
+;; loading progress bar variables
+(defvar qingeditor/startup-buffer/loading-total-count 0)
+(defvar qingeditor/startup-buffer/loading-char ?█)
+(defvar qingeditor/startup-buffer/loading-string "")
+(defvar qingeditor/startup-buffer/loading-counter 0)
+(defvar qingeditor/startup-buffer/loading-value 0)
+(defvar qingeditor/startup-buffer/loading-dots-chunk-count 3)
+(defvar qingeditor/startup-buffer/loading-dots-count (window-total-size nil 'width))
+(defvar qingeditor/startup-buffer/loading-dots-chunk-size
+  (/ qingeditor/startup-buffer/loading-dots-count qingeditor/startup-buffer/loading-dots-chunk-count))
+(defvar qingeditor/startup-buffer/loading-dots-chunk-threshold 0)
+
 (defun qingeditor/startup-buffer/message (msg &rest args)
   "Display `msg' in message prepend with `(qingeditor)'
 The message is displayed only if `init-file-debug' is non `nil'."
@@ -447,5 +459,29 @@ buffer, right justified."
                                                         qingeditor/config/startup-banner))
              (qingeditor/startup-banner/get-banner-path 1)))
           (t (qingeditor/startup-banner/get-banner-path 1)))))
+
+(defun qingeditor/startup-buffer/loading-animation ()
+  "Display the progress bar by chunk of size
+`qingeditor/startup-buffer/loading-dots-chunk-threshold'."
+  (when (and (not noninteractive)
+             qingeditor/config/loading-progress-bar)
+    (setq qingeditor/startup-buffer/loading-counter (1+ qingeditor/startup-buffer/loading-counter))
+    (setq qingeditor/startup-buffer/loading-value (1+ qingeditor/startup-buffer/loading-value))
+    (when (>= qingeditor/startup-buffer/loading-counter
+              qingeditor/startup-buffer/loading-dots-chunk-threshold)
+      (let ((suffix (format "> %s/%s" qingeditor/startup-buffer/loading-value
+                            qingeditor/startup-buffer/loading-total-count)))
+        (setq qingeditor/startup-buffer/loading-counter 0)
+        (setq qingeditor/startup-buffer/loading-string
+              (make-string
+               (max 0
+                    (- (* qingeditor/startup-buffer/loading-dots-chunk-size
+                          (floor (/ qingeditor/startup-buffer/loading-value
+                                    qingeditor/startup-buffer/loading-dots-chunk-threshold)))
+                       (length suffix)))
+               qingeditor/startup-buffer/loading-char))
+        (qingeditor/startup-buffer/set-mode-line (concat qingeditor/startup-buffer/loading-string
+                                                         suffix)))
+      (qingeditor/redisplay))))
 
 (provide 'qingeditor-startup-buffer)
