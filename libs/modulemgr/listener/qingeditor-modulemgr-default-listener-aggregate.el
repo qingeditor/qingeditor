@@ -12,6 +12,7 @@
 (require 'qingeditor-modulemgr-feature-listeners)
 (require 'qingeditor-modulemgr-builtin-feature-listeners)
 (require 'qingeditor-modulemgr-resolve-listener)
+(require 'qingeditor-modulemgr-install-packages-listener)
 
 (defclass qingeditor/modulemgr/default-listener-aggregate
   (qingeditor/eventmgr/listener-aggregate)
@@ -67,7 +68,6 @@ event of the module manager.")
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/keymap-provider-handler))))
 
-
   (object-add-to-list
    this :listeners
    (qingeditor/cls/attach
@@ -93,6 +93,11 @@ event of the module manager.")
     qingeditor/modulemgr/after-load-module-cycle-event
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/dependency-indicator-handler))))
-  )
+
+  (let (install-packages-listener)
+    (setq install-packages-listener
+          (make-instance 'qingeditor/modulemgr/install-packages-listener))
+    (qingeditor/cls/attach install-packages-listener eventmgr)
+    (object-add-to-list this :listeners install-packages-listener)))
 
 (provide 'qingeditor-modulemgr-default-listener-aggregate)

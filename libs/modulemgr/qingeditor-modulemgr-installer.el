@@ -174,4 +174,42 @@ is returned."
              (dir (car (directory-files elpa-dir 'full pkg-match))))
         (when dir (file-name-as-directory dir))))))
 
+(defun qingeditor/modulemgr/installer/get-packages-with-deps
+  (pkg-names filter &optional use-archive)
+  "Return a filtered `pkg-names' list where each elements satisfies `filter'."
+  (when pkg-names
+    (let (result)
+      (dolist (pkg-name pkg-names)
+        ;; recursively check dependencies
+        (let* ((deps
+                (if use-archive
+                    (qingeditor/modulemgr/installer/get-package-deps-from-archive pkg-name)
+                  (qingeditor/modulemgr/installer/get-package-deps-from-alist pkg-name)))
+               (install-deps
+                (when deps (qingeditor/modulemgr/installer/get-packages-with-deps
+                            (mapcar 'car deps) filter))))
+          (when install-deps
+            (setq result (append install-deps result))))
+        (when (funcall filter pkg-name)
+          (add-to-list 'result pkg-name t)))
+      (delete-dups result))))
+
+(defun qingeditor/modulemgr/installer/get-package-deps-from-alist (pkg-name)
+  "Return the dependencies alist for package with name `pkg-name'."
+  (let ((pkg-desc (assq pkg-name package-alist)))
+    (when pkg-desc
+      (package-desc-reqs (cadr pkg-desc)))))
+
+(defun qingeditor/modulemgr/installer/get-package-deps-from-archive (pkg-name)
+  "Return the dependencies alist for a PKG-NAME from the archive data."
+  (let* ((pkg-arch (assq pkg-name package-archive-contents))
+         (reqs (when pkg-arch (package-desc-reqs (cadr pkg-arch)))))
+    ;; recursively get the requirements of reqs
+    (dolist (req reqs)
+      (let* ((pkg-name2 (car req))
+             (reqs2 (qingeditor/modulemgr/installer/get-package-deps-from-archive
+                     pkg-name2)))
+        (when reqs2 (setq reqs (append reqs2 reqs)))))
+    reqs))
+
 (provide 'qingeditor-modulemgr-installer)

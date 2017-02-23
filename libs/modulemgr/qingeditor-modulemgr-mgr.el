@@ -88,6 +88,7 @@ a direcotry with a name starting with `+'.")
    (eventmgr
     :initarg :eventmgr
     :initform nil
+    :reader qingeditor/cls/get-eventmgr
     :type (satisfies (lambda (obj)
                        (or (null obj)
                            (object-of-class-p obj qingeditor/eventmgr/mgr))))
@@ -331,7 +332,60 @@ that `qingeditor' support and all the packages that module require."
 
 (defmethod qingeditor/cls/install-packages ((this qingeditor/modulemgr/mgr))
   "Install used packages."
+  (let* ((event (qingeditor/cls/get-event this))
+         (eventmgr (qingeditor/cls/get-eventmgr this))
+         (display-buffer-alist
+          '(("\\(\\*Compile-Log\\*\\)\\|\\(\\*Warnings\\*\\)"
+             (display-buffer-in-side-window)
+             (inhibit-same-window . t)
+             (side . bottom)
+             (window-height . 0.2))))
+         packages)
+    ;; reset these meanleass values
+    (oset event :module nil)
+    (oset event :module-name nil)
+    (oset event :module-spec nil)
+    (qingeditor/cls/iterate-items
+     (oref this :used-packages)
+     (progn
+       (when (not (oref value :lazy-install))
+         (push value packages))))
+    (setq packages (qingeditor/cls/get-uninstalled-packages this packages))
+    (qingeditor/cls/set-param event 'target-packages packages)
+    ;; trigger before install packages event
+    (qingeditor/cls/set-name event qingeditor/modulemgr/before-install-packages-event)
+    (qingeditor/cls/trigger-event eventmgr event)
+    (dolist (package packages)
+      (qingeditor/cls/set-param event 'target-package package)
+      ;; before install cycle
+      (qingeditor/cls/set-name event qingeditor/modulemgr/before-install-package-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+
+      ;; do install
+      (qingeditor/cls/set-name event qingeditor/modulemgr/install-package-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event)
+
+      ;; after install cycle
+      (qingeditor/cls/set-name event qingeditor/modulemgr/after-install-package-cycle-event)
+      (qingeditor/cls/trigger-event eventmgr event))
+
+    ;; trigger after install packages event
+    (qingeditor/cls/set-name event qingeditor/modulemgr/after-install-packages-event)
+    (qingeditor/cls/trigger-event eventmgr event)
+    )
   )
+
+(defmethod qingeditor/cls/get-uninstalled-packages ((this qingeditor/modulemgr/mgr) packages)
+  "Return a filtered list of PKG-NAMES to install."
+  (let (pkg-names)
+    (dolist (pkg packages)
+      (push (qingeditor/cls/get-name pkg) pkg-names))
+    (qingeditor/modulemgr/installer/get-packages-with-deps
+     pkg-names
+     (lambda (pkg-name)
+       (let* ((pkg (qingeditor/cls/get-package this pkg-name))
+              (min-version (when pkg (oref pkg :min-version))))
+         (not (package-installed-p pkg-name min-version)))))))
 
 (defmethod qingeditor/cls/configure-packages ((this qingeditor/modulemgr/mgr))
   "Configure used packages."
@@ -461,8 +515,12 @@ that eq `editor-base' or `editor-standard' or `editor-bootstrap' from `specs'."
     (oset this :target-modules specs)
     this))
 
-(defmethod qingeditor/cls/increment-error-count ()
+(defmethod qingeditor/cls/increment-error-count ((this qingeditor/modulemgr/mgr))
   "Increment the error counter."
   (oset this :error-count (1+ (oref this :error-count))))
+
+(defmethod qingeditor/cls/get-package ((this qingeditor/modulemgr/mgr) name)
+  "Return a package object by `name'."
+  (qingeditor/cls/get (oref this :pakage-repo) name))
 
 (provide 'qingeditor-modulemgr-mgr)

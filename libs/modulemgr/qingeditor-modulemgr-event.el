@@ -43,23 +43,24 @@ dispatch this event.")
   "after-load-module-cycle-event"
   "After module manager load target module, dispatch this event.")
 
-(defconst qingeditor/modulemgr/before-packages-process-event
-  "before-packages-process-event"
+(defconst qingeditor/modulemgr/before-install-packages-event
+  "before-install-packages-event"
   "before install/update/uninstall packages, dispatch this event.")
 
-(defconst qingeditor/modulemgr/before-package-process-cycle-event
-  "before-package-process-cycle-event"
+(defconst qingeditor/modulemgr/before-install-package-cycle-event
+  "before-install-package-cycle-event"
   "before module manager process package, dispatch this event.")
 
-(defconst qingeditor/modulemgr/package-process-cycle-event
+(defconst qingeditor/modulemgr/install-package-cycle-event
+  "install-package-cycle-event"
   "process target package, install/update/uninstall, dispatch this event.")
 
-(defconst qingeditor/modulemgr/after-package-process-cycle-event
-  "after-package-process-cycle-event"
+(defconst qingeditor/modulemgr/after-install-package-cycle-event
+  "after-install-package-cycle-event"
   "after module manager finish process package, dispatch this event.")
 
-(defconst qingeditor/modulemgr/after-packages-process-event
-  "after-packages-process-event"
+(defconst qingeditor/modulemgr/after-install-packages-event
+  "after-install-packages-event"
   "after all packages have been processed, dispatch this event.")
 
 (defclass qingeditor/modulemgr/event (qingeditor/eventmgr/event)
