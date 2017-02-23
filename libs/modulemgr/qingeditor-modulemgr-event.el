@@ -63,6 +63,26 @@ dispatch this event.")
   "after-install-packages-event"
   "after all packages have been processed, dispatch this event.")
 
+(defconst qingeditor/modulemgr/before-configure-packages-event
+  "before-packages-configure-event"
+  "before configure packages, dispatch this event.")
+
+(defconst qingeditor/modulemgr/after-configure-packages-event
+  "after-packages-configure-event"
+  "after configure packages, dispatch this event.")
+
+(defconst qingeditor/modulemgr/before-configure-package-cycle-event
+  "before-configure-package-cycle-event"
+  "before configure package cycle, dispatch this event.")
+
+(defconst qingeditor/modulemgr/configure-package-cycle-event
+  "configure-package-cycle-event"
+  "configure package cycle, dispatch this event.")
+
+(defconst qingeditor/modulemgr/after-configure-package-cycle-event
+  "after-configure-package-cycle-event"
+  "after configure package cycle, dispatch this event.")
+
 (defclass qingeditor/modulemgr/event (qingeditor/eventmgr/event)
   ((module-info
     :initarg :module-info

@@ -398,7 +398,31 @@ that `qingeditor' support and all the packages that module require."
 
 (defmethod qingeditor/cls/configure-packages ((this qingeditor/modulemgr/mgr))
   "Configure used packages."
-  )
+  (let* ((event (qingeditor/cls/get-event this))
+         (eventmgr (qingeditor/cls/get-eventmgr this)))
+    ;; reset these meanleass values
+    (oset event :module nil)
+    (oset event :module-name nil)
+    (oset event :module-spec nil)
+    (qingeditor/cls/set-name event qingeditor/modulemgr/before-configure-packages-event)
+    (qingeditor/cls/trigger-event eventmgr event)
+    (qingeditor/cls/iterate-items
+     (oref this :used-packages)
+     (progn
+       (qingeditor/cls/set-param event 'target-package value)
+       ;; before install cycle
+       (qingeditor/cls/set-name event qingeditor/modulemgr/before-configure-package-cycle-event)
+       (qingeditor/cls/trigger-event eventmgr event)
+
+       ;; do install
+       (qingeditor/cls/set-name event qingeditor/modulemgr/configure-package-cycle-event)
+       (qingeditor/cls/trigger-event eventmgr event)
+
+       ;; after install cycle
+       (qingeditor/cls/set-name event qingeditor/modulemgr/after-configure-package-cycle-event)
+       (qingeditor/cls/trigger-event eventmgr event)))
+    (qingeditor/cls/set-name event qingeditor/modulemgr/after-configure-packages-event)
+    (qingeditor/cls/trigger-event eventmgr event)))
 
 (defmethod qinegditor/cls/detect-modules ((this qingeditor/modulemgr/mgr))
   "Gather `qingeditor' modules."
