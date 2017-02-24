@@ -5,6 +5,8 @@
 (require 'qingeditor-macros)
 (require 'qingeditor-gvars)
 (require 'qingeditor-funcs)
+(require 'qingeditor-key-binder)
+(require 'qingeditor-toggle)
 (require 'qingeditor-hash-table)
 (require 'qingeditor-hidden-mode-line)
 (require 'qingeditor-page-break-lines)

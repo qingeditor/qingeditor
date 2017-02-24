@@ -1,44 +1,52 @@
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: MIT
+;;
+
 (require 'qingeditor-funcs)
 
-(defvar qingeditor/core/toggle/toggles '()
-  "所有定义的toggles的列表，列表的元素结构是一个属性列表
-\(name :func function :doc string :key string\)。")
+(defvar qingeditor/toggle/toggles '()
+  "List of all declared toggles. The structure of an element is a
+property list (name :func FUNCTION :doc STRING :key STRING).")
 
-(defmacro qingeditor/core/toggle/add-toggle (name &rest props)
-  "增加一个叫做`name'的toggle。
+(defmacro qingeditor/toggle/add-toggle (name &rest props)
+  "Add a toggle with `name' symbol.
 
-这个宏创建如下几个函数：
-- qingeditor/toggle-NAME 根据当前的状态打开或者关闭
-- qingeditor/toggle-NAME-on 当前状态时关闭的时候就打开
-- qingeditor/toggle-NAME-off 当前状态是打开就关闭当前状态
+This macro creates the following functions:
+- qingeditor/toggle-NAME switches on or off depending on the current state
+- qingeditor/toggle-NAME-on only switches on if currently disabled
+- qingeditor/toggle-NAME-off only switches off if currently enabled
 
-提供的属性如下 PROPS:
+Avaiblabe PROPS:
+
 `:status EXPRESSION'
-   指定一个表达式，通过求值获取当前的状态
-
-`:if EXPRESSION'
-                                                               如果`EXPRESSION'求值得到`nil'的话，不在更新`toggle'的状态
+    The EXPRESSION to evaluate to get the current status of the toggle.
 
 `:on BODY'
-   当打开`toggle'的时候对`BODY'表达式求值
+    Evaluate BODY when the toggle is switched on.
 
 `:off BODY'
-   当关闭`toggle'的时候对`BODY'表达式求
+    Evaluate BODY when the toggle is switched off.
 
 `:documentation STRING'
-   指定`toggle'的描述字符串
+    STRING describes what the toggle does.
 
 `:prefix SYMBOL'
     SYMBOL is bound to the raw value of prefix-arg (same as calling
     (interactive \"P\")) in the wrapper function.
 
 `:on-message EXPRESSION'
-    当`toggle'打开的时候计算`EXPRESSION'然后显示出来。
+    EXPRESSION is evaluated and displayed when the \"on\" toggle is activated.
 
 `:mode SYMBOL'
-    如果不为`nil'那么必须是一个`minor mode',这个将覆盖`:on', `:off'和`:status'。
+    If given, must be a minor mode. This overrides `:on', `:off' and `:status'.
 
-所有函数`qingeditor/core/key-binder/create-key-binding-form'支持的属性都支持。
+All properties supported by `qingeditor/create-key-binding-form' can be
+used.
 "
   (declare (indent 1))
   (let* ((wrapper-func (intern (format "qingeditor/toggle-%s"
@@ -47,25 +55,26 @@
          (wrapper-func-on (intern (format "%s-on" wrapper-func)))
          (wrapper-func-off (intern (format "%s-off" wrapper-func)))
          (mode (plist-get props :mode))
-         (status (or mode (plist-get props :if)))
+         (status (or mode (plist-get props :status)))
          (condition (plist-get props :if))
          (doc (plist-get props :documentation))
-         (on-body (if mode `((,mode)) (qingeditor/core/mplist-get props :on)))
-         (off-body (if mode `((,mode -1)) (qingeditor/core/mplist-get props :off)))
+         (on-body (if mode `((,mode)) (qingeditor/mplist-get props :on)))
+         (off-body (if mode `((,mode -1)) (qingeditor/mplist-get props :off)))
          (prefix-arg-var (plist-get props :prefix))
          (on-message (plist-get props :on-message))
-         (bind-keys (qingeditor/core/key-binder/create-key-binding-form props wrapper-func))
-         ;; 当他们是列表和绑定的符号的时候计算条件和状态
+         (bind-keys (qingeditor/key-binder/create-key-binding-form props wrapper-func))
+         ;; we evaluate condition and status only if they are a list or
+         ;; a bound symbol
          (status-eval `(and (or (and (symbolp ',status) (boundp ',status))
                                 (listp ',status))
                             ,status)))
     `(progn
        (push (append '(,name) '(:function ,wrapper-func
                                           :predicate ,wrapper-func-status) ',props)
-             qingeditor/core/toggle/toggles)
-       ;; 打开函数
+             qingeditor/toggle/toggles)
+       ;; toggle function
        (defun ,wrapper-func ,(if prefix-arg-var (list prefix-arg-var) ())
-         ,(format "Toggle %s打开或者关闭。" (symbol-name name))
+         ,(format "Toggle %s on and off." (symbol-name name))
          ,(if prefix-arg-var '(interactive "P") (interactive))
          (if (or (null ',condition)
                  (and (or (and (symbolp ',condition) (boundp ',condition))
@@ -74,25 +83,25 @@
              (if (,wrapper-func-status)
                  (progn ,@off-body
                         (when (called-interactively-p 'any)
-                          (message ,(format "%s禁止。" name))))
+                          (message ,(format "%s disabled." name))))
                ,@on-body
                (when (called-interactively-p 'any)
-                 (message ,(or on-message (format "%s开启。" name)))))
-           (message "当前`Toggle'不被支持。")))
-       ;; 函数断言
+                 (message ,(or on-message (format "%s enabled." name)))))
+           (message "This toggle is not supported.")))
+       ;; predicate function
        (defun ,wrapper-func-status ()
-         ,(format "如果%s打开就计算状态表达书。" (symbol-name name))
+         ,(format "Check if %s is on." (symbol-name name))
          ,status-eval)
-       ;; 当状态可用的时候定义相关 `on-'跟`off-'函数
+       ;; Only define on- or off-functions when status is available
        ,@(when status
            ;; on-function
            `((defun ,wrapper-func-on ()
-               ,(format "将%s打开。" (symbol-name name))
+               ,(format "Toggle %s on." (symbol-name name))
                (interactive)
                (unless (,wrapper-func-status) (,wrapper-func)))
              ;; off-function
              (defun ,wrapper-func-off ()
-               ,(format "将%s关闭。" (symbol-name name))
+               ,(format "Toggle %s off." (symbol-name name))
                (interactive)
                (when (,wrapper-func-status) (,wrapper-func)))))
        ,@bind-keys)))

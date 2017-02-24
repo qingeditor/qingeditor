@@ -1,12 +1,19 @@
-;; 按键绑定相关函数
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: MIT
+;;
 
 (require 'qingeditor-funcs)
 
-(defvar qingeditor/core/key-binder/prefix-titles nil
-  "将命令的缩写映射到全名的`alist'。")
+(defvar qingeditor/key-binder/prefix-titles nil
+  "alist for mapping command prefixes to long names.")
 
-(defvar qingeditor/core/key-binder/default-map (make-sparse-keymap)
-  "所有的qingeditor leader按键命令的基础`keymap'。")
+(defvar qingeditor/default-map (make-sparse-keymap)
+  "Base keymap for all spacemacs leader key commands.")
 
 (defun qingeditor/core/key-binder/translate-C-i (_)
   "If `qingeditor/core/user-cfg/distinguish-gui-tab' is non nil, the raw key
@@ -15,88 +22,92 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
   (interactive)
   (if (and (not (cl-position 'tab (this-single-command-raw-keys)))
            (not (cl-position 'kp-tab (this-single-command-raw-keys)))
-           qingeditor/core/user-cfg/distinguish-gui-tab
+           qingeditor/config/distinguish-gui-tab
            (display-graphic-p))
       [C-i] [?\C-i]))
 
-(define-key key-translation-map [?\C-i] 'qingeditor/core/key-binder/translate-C-i)
+(define-key key-translation-map [?\C-i] 'qingeditor/key-binder/translate-C-i)
 
 ;; (defun qingeditor/key-binder/translate-C-m (_)
-;;   "If `qingeditor/core/user-cfg/distinguish-gui-ret' is non nil, the raw key
+;;   "If `qingeditor/config/distinguish-gui-ret' is non nil, the raw key
 ;; sequence does not include <ret>, and we are in the gui, translate
 ;; to [C-m]. Otherwise, [9] (TAB)."
 ;;   (interactive)
 ;;   (if (and
 ;;        (not (cl-position 'return (this-single-command-raw-keys)))
 ;;        (not (cl-position 'kp-enter (this-single-command-raw-keys)))
-;;        qingeditor/core/user-cfg/distinguish-gui-ret
+;;        qingeditor/core/config/distinguish-gui-ret
 ;;        (display-graphic-p))
 ;;     [C-m] [?\C-m]))
 ;; (define-key key-translation-map [?\C-m] 'qingeditor/key-binder/translate-C-m)
 
-(defun qingeditor/core/key-binder/declare-prefix (prefix name &optional long-name)
-  "定义一个前缀`prefix',`prefix'是描述一个按键序列的，`name'是一前缀命令的名字。如果
-`long-name'不为空那么他保存在`qingeditor/core/key-binder/prefix-titles'中。"
+(defun qingeditor/key-binder/declare-prefix (prefix name &optional long-name)
+  "Declare a prefix PREFIX. PREFIX is a string describing a key
+sequence. NAME is a string used as the prefix command.
+LONG-NAME if given is stored in `qingeditor/key-binder/prefix-titles'."
   (let* ((command name)
-         (full-prefix-emacs (concat qingeditor/core/user-cfg/emacs-leader-key " " prefix))
-         (full-prefix-emacs-lst (listify-key-sequence (kbd full-prefix-emacs))))
-    ;; 如果指定的前缀命令不存在就定义
+         (full-prefix (concat qingeditor/config/leader-key " " prefix))
+         (full-prefix-lst (listify-key-sequence (kbd full-prefix))))
+    ;; define the prefix command only if it does not already exist
     (unless long-name
       (setq long-name name))
     (which-key-declare-prefixes
-      full-prefix-emacs (cons name long-name))))
+      full-prefix (cons name long-name))))
 
-(defun qingeditor/core/key-binder/declare-prefix-for-mode (mode prefix name &optional long-name)
-  "为指定的`mode'定义前缀命令，`prefix'用来描述这个前缀命令，`name'是一个符号名，用作前缀命令。"
+(defun qingeditor/key-binder/declare-prefix-for-mode (mode prefix name &optional long-name)
+  "Declare a prefix `prefix'. `mode' is the mode in which this prefix command should
+be added. `prefix' is a string describing a key sequence. NAME is a symbol name
+used as the prefix command."
   (let ((command (intern (concat (symbol-name mode) name)))
-        (full-prefix (concat qingeditor/core/user-cfg/leader-key " " prefix))
-        (full-prefix-emacs (concat qingeditor/core/user-cfg/emacs-leader-key " " prefix))
+        (full-prefix (concat qingeditor/config/leader-key " " prefix))
         (is-major-mode-prefix (string-prefix-p "m" prefix))
-        (major-mode-prefix (concat qingeditor/core/user-cfg/major-mode-leader-key " " (substring prefix 1)))
-        (major-mode-prefix-emacs
-         (concat qingeditor/core/user-cfg/major-mode-emacs-leader-key " " (substring prefix 1))))
+        (major-mode-prefix (concat qingeditor/config/major-mode-leader-key " " (substring prefix 1))))
     (unless long-name (setq long-name name))
     (let ((prefix-name (cons name long-name)))
       (which-key-declare-prefixes-for-mode mode
-        full-prefix-emacs prefix-name
         full-prefix prefix-name)
-      (when (and is-major-mode-prefix qingeditor/core/user-cfg/major-mode-leader-key)
-        (which-key-declare-prefixes-for-mode mode major-mode-prefix prefix-name))
-      (when (and is-major-mode-prefix qingeditor/core/user-cfg/major-mode-emacs-leader-key)
-        (which-key-declare-prefixes-for-mode mode major-mode-prefix-emacs prefix-name)))))
+      (when (and is-major-mode-prefix qingeditor/config/major-mode-leader-key)
+        (which-key-declare-prefixes-for-mode mode major-mode-prefix prefix-name)))))
 
-(defun qingeditor/core/key-binder/set-leader-keys (key def &rest bindings)
-  "在`qingeditor/core/user-cfg/leader-key'和`qingeditor/core/user-cfg/emacs-leader-key'
-下面添加按键`key'和这个按键的绑定。`key'必须是一个能用在`kbd'里面的字符串，`def'是一个命令的名称。
-详情可以看`define-key'，这个函数文档有对`def'格式有详细的描述。
-为了方便，这个函数接受一下的键值对
+(defun qingeditor/key-binder/set-leader-keys (key def &rest bindings)
+  "Add `key' and `def' as key bindings under `qingeditor/config/leader-key'.
+`key' should be a string suitable for passing to `kbd', and it
+should not include the leaders. `def' is most likely a quoted
+command. See `define-key' for more information about the possible
+choices for `def'. This function simply uses `define-key' to add
+the bindings.
 
-\(qingeditor/core/key-binder/set-leader-keys
-    \"a\" 'command1
-    \"C-c\" 'command2
-    \"bb\" 'command3\)"
+For convenience, this function will accept additional KEY DEF
+pairs. For example,
+
+\(qingeditor/key-binder/set-leader-keys
+   \"a\" 'command1
+   \"C-c\" 'command2
+   \"bb\" 'command3\)"
+ 
   (while key
-    (define-key qingeditor/core/key-binder/default-map (kbd key) def)
+    (define-key qingeditor/default-map (kbd key) def)
     (setq key (pop bindings)
           def (pop bindings))))
-(put 'qingeditor/core/key-binder/set-leader-keys 'lisp-indent-function 'defun)
+(put 'qingeditor/key-binder/set-leader-keys 'lisp-indent-function 'defun)
 
-(defun qingeditor/core/key-binder/acceptable-leader-p (key)
-  "当`key'是一个字符串并且不为空的时候返回`t'。"
+(defun qingeditor/key-binder/acceptable-leader-p (key)
+  "Return t if key is a string and non-empty."
   (and (stringp key) (not (string= key ""))))
 
-(defun qingeditor/core/key-binder/init-leader-mode-map (mode map &optional minor)
-  "检查`map-prefix',如果不存在，使用`bind-map'创建并且绑定到`qingeditor/core/user-cfg/major-mode-leader-key'
-和`qingeditor/core/user-cfg/major-mode-emacs-leader-key'。如果`mode'是minor mode，那么第三个
-参数不能为`nil'。"
+(defun qingeditor/key-binder/init-leader-mode-map (mode map &optional minor)
+  "Check for MAP-prefix. If it doesn't exist yet, use `bind-map'
+  to create it and bind it to `dotspacemacs-major-mode-leader-key'
+  and `dotspacemacs-major-mode-emacs-leader-key'. If MODE is a
+  minor-mode, the third argument should be non nil."
   (let* ((prefix (intern (format "%s-prefix" map)))
-         (emacs-leader1 (when (qingeditor/core/key-binder/acceptable-leader-p
-                               qingeditor/core/user-cfg/major-mode-emacs-leader-key)
-                          qingeditor/core/user-cfg/major-mode-emacs-leader-key))
-         (emacs-leader2 (when (qingeditor/core/key-binder/acceptable-leader-p
-                               qingeditor/core/user-cfg/emacs-leader-key)
-                          (concat qingeditor/core/user-cfg/emacs-leader-key
-                                  (unless minor " m"))))
+         (leader1 (when (qingeditor/key-binder/acceptable-leader-p
+                         qingeditor/config/major-mode-leader-key)
+                    qingeditor/config/major-mode-leader-key))
+         (leader2 (when (qingeditor/config/key-binder/acceptable-leader-p
+                         qingeditor/config/leader-key)
+                    (concat qingeditor/config/leader-key
+                            (unless minor " m"))))
          (emacs-leaders (delq nil (list emacs-leader1 emacs-leader2))))
     (or (boundp prefix)
         (progn
@@ -107,44 +118,48 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
               :keys ,emacs-leaders))
           (boundp prefix)))))
 
-(defun qingeditor/core/key-binder/set-leader-keys-for-major-mode (mode key def &rest bindings)
-  "在`qingeditor/core/user-cfg/major-mode-leader-key'和
-`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
-下为`mode'增加按键绑定`key'->`def',`mode'必须是一个quote符号并且是major mode。其他的参数函数跟在
-函数`qingeditor/core/kye-binder/set-leader-keys'里面一样。"
-  (let* ((map (intern (format "qingeditor-%s-map" mode))))
-    (when (qingeditor/core/key-binder/init-leader-mode-map mode map)
+(defun qingeditor/key-binder/set-leader-keys-for-major-mode (mode key def &rest bindings)
+  "Add KEY and DEF as key bindings under
+`qingeditor/config/major-mode-leader-key'  for the major-mode
+`mode'. `mode' should be a quoted symbol corresponding to a valid
+major mode. The rest of the arguments are treated exactly like
+they are in `qingeditor/key-binder/set-leader-keys'."
+  (let* ((map (intern (format "qingeditor/%s-map" mode))))
+    (when (qingeditor/key-binder/init-leader-mode-map mode map)
       (while key
         (define-key (symbol-value map) (kbd key) def)
         (setq key (pop bindings)
               def (pop bindings))))))
-(put 'qingeditor/core/key-bninder/set-leader-keys-for-major-mode 'lisp-indent-function 'defun)
+(put 'qingeditor/key-bninder/set-leader-keys-for-major-mode 'lisp-indent-function 'defun)
 
-(defun qingeditor/core/key-binder/set-leader-keys-for-minor-mode (mode key def &rest bindings)
-  "在`qingeditor/core/user-cfg/major-mode-leader-key'和
-`qingeditor/core/user-cfg/major-mode-emacs-leader-key'
-下为`mode'增加按键绑定`key'->`def',`mode'必须是一个quote符号并且是minor mode。其他的参数函数跟在
-函数`qingeditor/core/kye-binder/set-leader-keys'里面一样。"
-  (let* ((map (intern (format "qingeditor-%s-map" mode))))
-    (when (qingeditor/core/key-binder/init-leader-mode-map mode map t)
+(defun qingeditor/key-binder/set-leader-keys-for-minor-mode (mode key def &rest bindings)
+  "Add `key' and `def' as key bindings under
+`qingeditor/config/major-mode-leader-key' and for the minor-mode
+`mode'. `mode' should be a quoted symbol corresponding to a valid
+minor mode. The rest of the arguments are treated exactly like
+they are in `qingeditor/config/set-leader-keys'."
+  (let* ((map (intern (format "qingeditor/%s-map" mode))))
+    (when (qingeditor/key-binder/init-leader-mode-map mode map t)
       (while key
         (define-key (symbol-value map) (kbd key) def)
         (setq key (pop bindings) def (pop bindings))))))
 
-(put 'qingeditor/core/key-binder/set-leader-keys-for-minor-mode 'lisp-indent-function 'defun)
+(put 'qingeditor/key-binder/set-leader-keys-for-minor-mode 'lisp-indent-function 'defun)
 
-(defun qingeditor/core/key-binder/create-key-binding-form (props func)
-  "帮助函数，根据`props'绑定一个`key'到`func'。
-支持的属性有：
+(defun qingeditor/key-binder/create-key-binding-form (props func)
+  "Helper which returns a form to build `func' to a key according to `props'.
 
-`:global-key string'
-     一个或者多个按键序列，调用`global-set-key'进行设置。
+Supported properties:
 
-`:define-key cons cell'
-     一个或者多个cons cell \(MAP . KEY\)，其中`map'是一个`keymap',`key'是一个
-按键序列，使用`define-key'进行设置。"
-  (let ((global-key (qingeditor/core/mplist-get props :global-key))
-        (def-key (qingeditor/core/mplist-get props :define-key)))
+`:global-key STRING'
+    One or several key sequence strings to be set with `global-set-key'.
+
+`:define-key CONS CELL'
+    One or several cons cells (MAP . KEY) where MAP is a mode map and KEY is a
+    key sequence string to be set with `define-key'.
+"
+  (let ((global-key (qingeditor/mplist-get props :global-key))
+        (def-key (qingeditor/mplist-get props :define-key)))
     (append
      (when global-key
        `((dolist (key ',global-key)

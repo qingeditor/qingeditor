@@ -43,5 +43,10 @@
 
 (defmethod qingeditor/cls/init-which-key ((this qingeditor/module/editor-bootstrap))
   "init which key."
-  (require 'which-key))
+  (require 'which-key)
+  (qingeditor/toggle/add-toggle
+   which-key
+   :mode which-key-mode
+   :documentation "Display a buffer with available key bindings."
+   ))
 
