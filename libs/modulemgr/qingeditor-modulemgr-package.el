@@ -97,24 +97,28 @@ cannot being changed.")
     :initarg :pre-init-modules
     :initform '()
     :type list
+    :reader qingeditor/cls/get-pre-init-modules
     :documentation "The list of modules with a pre init method.")
 
    (post-init-modules
     :initarg :post-init-modules
     :initform '()
     :type list
+    :reader qingeditor/cls/get-post-init-modules
     :documentation "The list of modules with a post init method.")
    )
   :documentation "The `qingeditor' package description class.")
 
-(defmethod qingeditor/cls/enabled ((this qingeditor/modulemgr/package) &optional inhibit-messages)
+(defmethod qingeditor/cls/enabledp
+  ((this qingeditor/modulemgr/package) &optional inhibit-messages)
   "Check the package is enabled or not."
   (let ((message-log-max (unless inhibit-messages message-log-max))
-        (toggle (oref pkg :toggle)))
+        (toggle (oref this :toggle)))
     ;; maybe expression here
     (eval toggle)))
 
-(defmethod qingeditor/cls/set-property ((this qingeditor/modulemgr/package) slot value)
+(defmethod qingeditor/cls/set-property
+  ((this qingeditor/modulemgr/package) slot value)
   "Set `slot' to the given `value' for the `package'.
 If `property-readonly' of the `qingeditor/modulemgr/packge' is `t', the value will not been
 changed."

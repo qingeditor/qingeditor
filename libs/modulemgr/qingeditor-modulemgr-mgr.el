@@ -221,8 +221,22 @@ that `qingeditor' support and all the packages that module require."
   (qingeditor/cls/load-modules this)
   (qingeditor/cls/register-lazy-load-modules this)
   (qingeditor/cls/install-packages this)
-  (qingeditor/cls/configure-packages this)
-  )
+  (qingeditor/cls/configure-packages this))
+
+(defmethod qingeditor/cls/module-usedp ((this qingeditor/modulemgr/mgr) module-name)
+  "Return non-nil if `module-name' is the name of a used module."
+  (qingeditor/cls/has-key (oref this :used-modules) module-name))
+
+(defmethod qingeditor/cls/package-enabled-p
+  ((this qingeditor/modulemgr/mgr) package module-name)
+  "Returns true if `package' should be configured for `module'.
+`module' must not be the owner of `package'."
+  (let* ((owner (car (qingeditor/cls/get-owners package)))
+         (disabled (oref owner :disabled-for))
+         (enabled (oref owner :enabled-for)))
+    (if (not (eq 'unspecified enabled))
+        (memq module-name enabled))
+    (not (memq module-name disabled))))
 
 (defmethod qingeditor/cls/register-lazy-load-modules ((this qingeditor/modulemgr/mgr))
   "Register lazy load modules."
