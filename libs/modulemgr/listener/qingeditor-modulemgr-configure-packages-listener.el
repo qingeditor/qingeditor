@@ -127,7 +127,7 @@
   (let* ((package-name (qingeditor/cls/get-name package))
          (owner (car (qingeditor/cls/get-owners package))))
     (qingeditor/startup-buffer/message
-     (format "Configuring %S..." package-name))
+     (format "> Configuring %S..." package-name))
     ;; pre-init
     (mapc
      (lambda (module-name)
@@ -149,11 +149,36 @@
                           "in module %S (error: %s)\n"
                           package-name module-name err)))))))))
      (qingeditor/cls/get-pre-init-modules package))
-    ))
 
+    ;; init
+    (when (qingeditor/cls/has-init-for-package owner package-name)
+      (qingeditor/startup-buffer/message (format " -> init (%S)..." (qingeditor/cls/get-name owner)))
+      (funcall (intern (format "qingeditor/cls/init-%S" package-name)) owner))
+
+    ;; post init
+    (mapc
+     (lambda (module-name)
+       (when (qingeditor/cls/module-usedp modulemgr module-name)
+         (let ((module (qingeditor/cls/get (oref modulemgr :used-modules) module-name))
+               pre-init-method)
+           (if (not (qingeditor/cls/package-enabled-p package module-name))
+               (qingeditor/startup-buffer/message
+                (format " -> ignore post-init (%S)..." module-name))
+             (qingeditor/startup-buffer/message
+              (format " -> post-init (%S)..." module-name))
+             (condition-case-unless-debug err
+                 (funcall (intern (format "qingeditor/cls/post-init-%S" package-name)) module)
+               ('error
+                (qingeditor/cls/increment-error-count modulemgr)
+                (qingeditor/startup-buffer/append
+                 (format
+                  (concat "\nAn error occurred while post-configuring %S "
+                          "in module %S (error: %s)\n"
+                          package-name module-name err)))))))))
+     (qingeditor/cls/get-pre-init-modules package))))
 
 (defmethod qingeditor/cls/after-configure-packages
   ((this qingeditor/modulemgr/configure-packages-listener) event)
-  (qingeditor/startup-buffer/message "+ Configure finished"))
+  (qingeditor/startup-buffer/message "> Configure finished"))
 
 (provide 'qingeditor-modulemgr-configure-packages-listener)

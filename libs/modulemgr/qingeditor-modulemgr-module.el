@@ -105,6 +105,10 @@ Module manager will load `config.el' in current module directory. You can set so
 variable for this module. default return `nil'"
   nil)
 
+(defmethod qingeditor/cls/has-init-for-package ((this qingeditor/modulemgr/module) package-name)
+  "check wether has a init method for `package-name'."
+  (memq package-name (oref this :package-init-list)))
+
 (defmethod qingeditor/cls/get-package-init-list ((this qingeditor/modulemgr/module))
   "This will be invoked when we need to know wether a package has a module initializer,
 default will return a list of package name that doesn't has a :has-init nil in spec."
