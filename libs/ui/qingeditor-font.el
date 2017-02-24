@@ -9,7 +9,7 @@
 ;; Define some functions for font handle.
 
 (defvar qingeditor/font/diminished-minor-modes nil
-  "。List of diminished moodes to unicode or ascii values.")
+  "List of diminished moodes to unicode or ascii values.")
 
 (defun qingeditor/font/set-default-font (plists)
   "Set the font given the passed `plist'.

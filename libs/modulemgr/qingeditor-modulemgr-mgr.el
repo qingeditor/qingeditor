@@ -182,6 +182,7 @@ that `qingeditor' support and all the packages that module require."
      (setq module (make-instance module-sym))
      ;; invoke the `qingeditor/cls/init' method of module object.
      (qingeditor/cls/set-name module key)
+     (qingeditor/cls/set-modulemgr module this)
      (qingeditor/cls/init module)
      (qingeditor/cls/set-module-dir module module-dir)
      (qingeditor/cls/set (oref this :module-repo) key module)
@@ -200,6 +201,7 @@ that `qingeditor' support and all the packages that module require."
          (unless package
            (setq package (qingeditor/modulemgr/package package-name :name package-sym))
            (qingeditor/cls/set (oref this :package-repo) package-sym package)
+           (qingeditor/cls/set-modulemgr package this)
            ;; a bootstrap package is protected
            (qingeditor/cls/set-property package :protected (or protected
                                                                (eq 'bootstrap stage)))
@@ -226,6 +228,13 @@ that `qingeditor' support and all the packages that module require."
 (defmethod qingeditor/cls/module-usedp ((this qingeditor/modulemgr/mgr) module-name)
   "Return non-nil if `module-name' is the name of a used module."
   (qingeditor/cls/has-key (oref this :used-modules) module-name))
+
+(defmethod qingeditor/cls/package-usedp ((this qingeditor/modulemgr/mgr) package-name)
+  "Return non-nil if NAME is the name of a used package."
+  (let* ((package (qingeditor/cls/get (oref this :package-repo) package-name)))
+    (and package
+         (qingeditor/cls/get-safe-owner package)
+         (not (oref package :excluded)))))
 
 (defmethod qingeditor/cls/package-enabled-p
   ((this qingeditor/modulemgr/mgr) package module-name)

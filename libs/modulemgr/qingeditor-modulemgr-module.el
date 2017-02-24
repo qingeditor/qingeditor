@@ -68,7 +68,17 @@
     :initarg :package-init-list
     :initform nil
     :type list
-    :documentation "Save the package list information."))
+    :documentation "Save the package list information.")
+
+   (modulemgr
+    :initarg :modulemgr
+    :initform nil
+    :type (satisfies (lambda (x)
+                       (or (null x)
+                           (object-of-class-p x qingeditor/modulemgr/mgr))))
+    :reader qingeditor/cls/get-modulemgr
+    :writer qingeditor/cls/set-modulemgr
+    :documentation "The module manager reference."))
   :documentation "`qingeditor' configuration module.")
 
 (defmethod qingeditor/cls/init ((this qingeditor/modulemgr/module))

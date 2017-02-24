@@ -12,7 +12,7 @@
   "Hand the extra function definitions of the module."
   (let* ((module (qingeditor/cls/get-module event))
          (has-func-defs (qingeditor/cls/provide-extra-func-definitions module))
-         (func-filename (concat (qingeditor/cls/get-module-dir module) "func.el")))
+         (func-filename (concat (qingeditor/cls/get-module-dir module) "funcs.el")))
     (when (and has-func-defs
                (file-exists-p func-filename))
       (load func-filename))))

@@ -23,3 +23,7 @@
     (hydra :stage bootstrap)
     (use-package :stage bootstrap)
     (which-key :stage bootstrap)))
+
+(defmethod qingeditor/cls/provide-extra-func-definitions
+  ((this qingeditor/module/editor-bootstrap))
+  t)

@@ -49,5 +49,11 @@ we attach a listener to `qingeditor/display-system-ready-event' event."
                                                         ,@body)))
              qingeditor/global-listeners-pool))))
 
+(defmacro qingeditor/symbol-value (symbol)
+  "Return the value of SYMBOL corresponding to a dotspacemacs variable.
+If SYMBOL value is `display-graphic-p' then return the result of
+ `(display-graphic-p)', otherwise return the value of the symbol."
+  `(if (eq 'display-graphic-p ,symbol) (display-graphic-p) ,symbol))
+
 (provide 'qingeditor-macros)
 

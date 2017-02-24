@@ -106,6 +106,16 @@ cannot being changed.")
     :type list
     :reader qingeditor/cls/get-post-init-modules
     :documentation "The list of modules with a post init method.")
+
+   (modulemgr
+    :initarg :modulemgr
+    :initform nil
+    :type (satisfies (lambda (x)
+                       (or (null x)
+                           (object-of-class-p x qingeditor/modulemgr/mgr))))
+    :reader qingeditor/cls/get-modulemgr
+    :writer qingeditor/cls/set-modulemgr
+    :documentation "The module manager reference.")
    )
   :documentation "The `qingeditor' package description class.")
 
@@ -124,5 +134,18 @@ If `property-readonly' of the `qingeditor/modulemgr/packge' is `t', the value wi
 changed."
   (unless (oref this :property-readonly)
     (eval `(oset this ,slot value))))
+
+(defmethod qingeditor/cls/get-safe-owner ((this qingeditor/modulemgr/package))
+  "Safe method to return the name of the `module' which owns `package'."
+  ;; The owner of a package is the first *used* module in `:owners' slot.
+  ;; Note: for packages in `used-packages' the owner is
+  ;; always the car of the `:owners' slot.
+  (let ((modules (oref this :owners))
+        (modulemgr (oref this :modulemgr)))
+    (while (and (consp modules)
+                (not (qingeditor/cls/module-usedp modulemgr (car modules))))
+      (pop modules))
+    (when (qingeditor/cls/module-usedp modulemgr (car layers))
+      (car modules))))
 
 (provide 'qingeditor-modulemgr-package)
