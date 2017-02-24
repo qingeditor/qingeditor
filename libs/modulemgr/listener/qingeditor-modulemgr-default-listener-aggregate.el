@@ -60,7 +60,6 @@ event of the module manager.")
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/keymap-provider-handler))))
 
-  ;; extra module config setup
   (object-add-to-list
    this :listeners
    (qingeditor/cls/attach
@@ -68,6 +67,15 @@ event of the module manager.")
     qingeditor/modulemgr/after-load-module-cycle-event
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/keymap-provider-handler))))
+
+  ;; init method defs
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/after-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/init-method-init-handler))))
 
   (object-add-to-list
    this :listeners
@@ -107,8 +115,7 @@ event of the module manager.")
     (setq configure-packages-listener
           (make-instance 'qingeditor/modulemgr/configure-packages-listener))
     (qingeditor/cls/attach configure-packages-listener eventmgr)
-    (object-add-to-list this :listeners configure-packages-listener))
-  )
+    (object-add-to-list this :listeners configure-packages-listener)))
 
 (defmethod qingeditor/cls/detach
   ((this qingeditor/modulemgr/default-listener-aggregate) (eventmgr qingeditor/eventmgr/mgr))

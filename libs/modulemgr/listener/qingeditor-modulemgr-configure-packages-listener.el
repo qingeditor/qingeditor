@@ -56,9 +56,9 @@
   (let ((modulemgr (qingeditor/cls/get-modulemgr event)))
     (setq qingeditor/startup-buffer/loading-total-count
           (qingeditor/cls/count (oref modulemgr :used-packages)))
-    (setq qingeditor/startup-buffer/loading-dots-chunk-threshold
-          (max 1 (/ qingeditor/startup-buffer/loading-total-count
-                    qingeditor/startup-buffer/loading-dots-count)))))
+    (setq qingeditor/startup-buffer/loading-dots-chunk-size
+          (/ qingeditor/startup-buffer/loading-dots-count
+             qingeditor/startup-buffer/loading-total-count))))
 
 (defmethod qingeditor/cls/before-configure-package
   ((this qingeditor/modulemgr/configure-packages-listener) event)

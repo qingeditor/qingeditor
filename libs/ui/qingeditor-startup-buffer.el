@@ -66,16 +66,14 @@ home buffer buttons. Do not set this variable.")
   "Backup of default mode line format.")
 
 ;; loading progress bar variables
-(defvar qingeditor/startup-buffer/loading-total-count 0)
 (defvar qingeditor/startup-buffer/loading-char ?█)
 (defvar qingeditor/startup-buffer/loading-string "")
+(defvar qingeditor/startup-buffer/loading-total-count 0)
 (defvar qingeditor/startup-buffer/loading-counter 0)
 (defvar qingeditor/startup-buffer/loading-value 0)
-(defvar qingeditor/startup-buffer/loading-dots-chunk-count 3)
 (defvar qingeditor/startup-buffer/loading-dots-count (window-total-size nil 'width))
-(defvar qingeditor/startup-buffer/loading-dots-chunk-size
-  (/ qingeditor/startup-buffer/loading-dots-count qingeditor/startup-buffer/loading-dots-chunk-count))
-(defvar qingeditor/startup-buffer/loading-dots-chunk-threshold 0)
+(defvar qingeditor/startup-buffer/loading-dots-chunk-size)
+(defvar qingeditor/startup-buffer/loading-dots-chunk-threshold 3)
 
 (defun qingeditor/startup-buffer/message (msg &rest args)
   "Display `msg' in message prepend with `(qingeditor)'
@@ -476,8 +474,7 @@ buffer, right justified."
               (make-string
                (max 0
                     (- (* qingeditor/startup-buffer/loading-dots-chunk-size
-                          (floor (/ qingeditor/startup-buffer/loading-value
-                                    qingeditor/startup-buffer/loading-dots-chunk-threshold)))
+                          qingeditor/startup-buffer/loading-value)
                        (length suffix)))
                qingeditor/startup-buffer/loading-char))
         (qingeditor/startup-buffer/set-mode-line (concat qingeditor/startup-buffer/loading-string

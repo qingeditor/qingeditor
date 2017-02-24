@@ -33,4 +33,13 @@
                (file-exists-p extra-config-filename))
       (load extra-config-filename))))
 
+(defun qingeditor/modulemgr/init-method-init-handler (event)
+  "Load package init file."
+  (let* ((module (qingeditor/cls/get-module event))
+         (init-method-filename
+          (concat (qingeditor/cls/get-module-dir module)
+                  "package-init-defs.el")))
+    (when (file-exists-p init-method-filename)
+      (load init-method-filename))))
+
 (provide 'qingeditor-modulemgr-builtin-feature-listeners)
