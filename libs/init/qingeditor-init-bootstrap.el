@@ -71,7 +71,6 @@ initialized."
   (qingeditor/cls/set-modulemgr initializer qingeditor/modulemgr)
   (qingeditor/cls/init initializer)
   (qingeditor/cls/bootstrap initializer)
-  (qingeditor/cls/run initializer)
   (qingeditor/cls/notify-finished-init initializer))
 
 (provide 'qingeditor-init-bootstrap)

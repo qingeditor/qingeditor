@@ -74,13 +74,21 @@ we finally process `qingeditor' modules."
     (qingeditor/cls/init (oref this :modulemgr))
     (qingeditor/cls/process (oref this :modulemgr))))
 
-(defmethod qingeditor/cls/run ((this qingeditor/initializer))
-  "In this method, we will finished all settup procedure and run `qingeditor'."
-  )
-
 (defmethod qingeditor/cls/notify-finished-init ((this qingeditor/initializer))
   "Do something to notify the qingeditor finish init."
-  (setq-default qingeditor/initialized t))
+  ;; TODO
+  (add-hook
+   'emacs-startup-hook
+   (lambda ()
+     ;; This is set here so that emacsclient will show the startup buffer (and
+     ;; so that it can be changed in user-config if necessary). It was set to
+     ;; nil earlier in the startup process to properly handle command line
+     ;; arguments.
+     (setq initial-buffer-choice (lambda () (get-buffer qingeditor/startup-buffer/name)))
+     (when (fboundp qingeditor/config/scratch-mode)
+       (with-current-buffer "*scratch*"
+         (funcall qingeditor/config/scratch-mode)))
+     (setq-default qingeditor/initialized t))))
 
 (defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))
