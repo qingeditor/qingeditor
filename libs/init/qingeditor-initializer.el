@@ -88,7 +88,8 @@ we finally process `qingeditor' modules."
      (when (fboundp qingeditor/config/scratch-mode)
        (with-current-buffer "*scratch*"
          (funcall qingeditor/config/scratch-mode)))
-     (setq-default qingeditor/initialized t))))
+     (setq-default qingeditor/initialized t)
+     (run-hooks 'qingeditor/editor-ready-hooks))))
 
 (defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))

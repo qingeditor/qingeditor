@@ -102,6 +102,14 @@ event of the module manager.")
     qingeditor/modulemgr/after-load-module-cycle-event
     (qingeditor/eventmgr/event-handler/init
      (list #'qingeditor/modulemgr/dependency-indicator-handler))))
+  
+  (object-add-to-list
+   this :listeners
+   (qingeditor/cls/attach
+    eventmgr
+    qingeditor/modulemgr/before-load-module-cycle-event
+    (qingeditor/eventmgr/event-handler/init
+     (list #'qingeditor/modulemgr/extra-module-config-handler))))
 
   ;; install package listener
   (let (install-packages-listener)

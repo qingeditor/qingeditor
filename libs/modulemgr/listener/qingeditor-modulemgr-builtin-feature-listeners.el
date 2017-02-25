@@ -28,7 +28,7 @@
 (defun qingeditor/modulemgr/extra-module-config-handler (event)
   "Provide some extra config settup."
   (let* ((module (qingeditor/cls/get-module event))
-         (extra-config-filename (concat (qingeditor/cls/get-module-dir module))))
+         (extra-config-filename (concat (qingeditor/cls/get-module-dir module) "config.el")))
     (when (and (qingeditor/cls/provide-extra-module-config module)
                (file-exists-p extra-config-filename))
       (load extra-config-filename))))

@@ -16,6 +16,9 @@
 (defvar qingeditor/post-user-cfg-hook-run nil
   "标志变量，判断`qingeditor/post-user-config-hook'是否已经运行。")
 
+(defvar qingeditor/editor-ready-hooks nil
+  "when qineditor load finished, run hook in this list.")
+
 (defvar qingeditor/insecure nil
   "If non-nil force `qingeditor' to operate without secured protocols.")
 
@@ -34,6 +37,9 @@ list to prevent listener handler memory leak.")
 
 (defconst qinegditor/theme-changed-event "theme-changed-event"
   "After a new theme loaded, dispatch this event.")
+
+(defconst qingeditor/editor-ready-event "editor-ready-event"
+  "After qingeditor finish all the setup procedure, dispatch this event.")
 
 (defvar qingeditor/initialized nil
   "`t' if the qingeditor finished init.")

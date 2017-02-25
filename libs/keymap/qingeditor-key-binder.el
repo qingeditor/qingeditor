@@ -108,14 +108,14 @@ pairs. For example,
                          qingeditor/config/leader-key)
                     (concat qingeditor/config/leader-key
                             (unless minor " m"))))
-         (emacs-leaders (delq nil (list emacs-leader1 emacs-leader2))))
+         (leaders (delq nil (list leader1 leader2))))
     (or (boundp prefix)
         (progn
           (eval
            `(bind-map ,map
               :prefix-cmd ,prefix
               ,(if minor :minor-modes :major-modes) (,mode)
-              :keys ,emacs-leaders))
+              :keys ,leaders))
           (boundp prefix)))))
 
 (defun qingeditor/key-binder/set-leader-keys-for-major-mode (mode key def &rest bindings)
