@@ -76,6 +76,62 @@ earlier values."
         (setq sequence
               (plist-put result (pop sequence) (pop sequence)))))))
 
+(defun qingeditor/concat-keymap-alists (&rest sequences)
+  "Concatenate keymap association lists, removing duplicates.
+A keymap alist is a list of cons cells (VAR . MAP) where each keymap
+may ocurr only once, but where the variables may be repeated
+\(e.g., (VAR . MAP1) (VAR . MAP2) is allowed). The order matters,
+with the highest priority keymaps being listed first."
+  (let (result)
+    (dolist (sequence sequences)
+      (dolist (elt sequence)
+        (unless (rassq (cdr-safe elt) result)
+          (push elt result))))
+    (nreverse result)))
+
+(defun qingeditor/plist-delete (prop plist)
+  "Delete by side effect the property `prop' from `plist'.
+If `prop' is the first property in `plist', there is no way
+to remove it by side-effect; therefore, write
+\(setq foo (qingeditor/plist-delete :prop foo)) to be sure of
+changing the value of `foo'."
+  (let ((tail plist)
+        elt head)
+    (while tail
+      (setq elt (car tail))
+      (cond
+       ((eq elt prop)
+        (setq tail (cdr (cdr tail)))
+        (if head
+            (setcdr (cdr head) tail)
+          (setq plist tail)))
+       (t
+        (setq head tail
+              tail (cdr (cdr tail))))))
+    plist))
+
+(defun qingeditor/get-property (alist key &optional prop)
+  "Return property `prop' for `key' in `alist'.
+`alist' is an association list with entries of the form
+\(KEY . PLIST), where `plist' is a property list.
+if `prop' is nil, return all properties for `key'.
+if `key' is `t', return an assocation list of keys and
+their `prop' values."
+  (cond
+   ((null prop)
+    (cdr (assq key alist)))
+   ((eq key t)
+    (let (result
+          val)
+      (dolist (entry alist result)
+        (setq key (car entry)
+              val (cdr entry))
+        (when (plist-member val prop)
+          (setq val (plist-get val prop))
+          (push (cons key val) result)))))
+   (t
+    (plist-get (cdr (assq key alist)) prop))))
+
 (unless (fboundp 'region-active-p)
   (defun region-active-p ()
     "Returns t iff region and mark are active."
@@ -111,5 +167,7 @@ in the list."
       (dolist (elt tree)
         (when (setq elt (qingeditor/member-recursive-if predicate elt))
           (throw 'done elt)))))))
+
+
 
 (provide 'qingeditor-funcs-common)
