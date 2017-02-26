@@ -149,4 +149,12 @@ See also `qingeditor/save-goal-column'."
          (apply @'qingeditor/set-command-properties func ',keys)
          func))))
 
+(defmacro qingeditor/called-interactively-p ()
+  "Wrapper for `called-interactiovely-p'.
+In order versions of Emacs, `called-interactively-p' takes no arguments.
+In Emacs 23.2 and newer, it takes one arguments."
+  (if (version< emacs-version "23.2")
+      '(called-interactively-p)
+    '(called-interactively-p 'any)))
+
 (provide 'qingeditor-macros)

@@ -65,6 +65,51 @@ may ocurr only once. Later values overwrite earlier values."
         (push elt result)))
     (nreverse result)))
 
+(defun qingeditor/concat-plist (&rest sequences)
+  "Concatenate property lists, removing duplicates.
+A property list is a list (:KEYWORD1 VALUE1 :KEYWORD2 VALUE2...)
+where each keyword may ocur only once. Later values overwrite
+earlier values."
+  (let (result)
+    (dolist (sequence sequences result)
+      (while sequence
+        (setq sequence
+              (plist-put result (pop sequence) (pop sequence)))))))
 
+(unless (fboundp 'region-active-p)
+  (defun region-active-p ()
+    "Returns t iff region and mark are active."
+    (and transient-mark-mode mark-active)))
+
+;; Emacs < 23 does not know `characterp'
+(unless (fboundp 'characterp)
+  (defalias 'characterp 'char-valid-p))
+
+;; `make-char-table' requires this property in Emacs 22
+(unless (get 'display-table 'char-table-extra-slot)
+  (put 'display-table 'char-table-extra-slot 0))
+
+(defun qingeditor/member-if (predicate list &optional pointer)
+  "Find the first item satisfies `predicate' in `list'.
+Stop when reaching `pointer', which should pointer at a link
+in the list."
+  (let (elt)
+    (catch 'done
+      (while (and (consp list) (not (eq list pointer)))
+        (setq elt (car list))
+        (if (funcall predicate elt)
+            (throw 'done elt)
+          (setq list (cdr list)))))))
+
+(defun qingeditor/member-recursive-if (predicate tree)
+  "Find the first item satisfying `predicate' in tree."
+  (cond
+   ((funcall predicate tree)
+    tree)
+   ((listp tree)
+    (catch 'done
+      (dolist (elt tree)
+        (when (setq elt (qingeditor/member-recursive-if predicate elt))
+          (throw 'done elt)))))))
 
 (provide 'qingeditor-funcs-common)
