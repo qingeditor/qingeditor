@@ -74,4 +74,23 @@ a one-sided restriction."
        (qingeditor/narrow ,beg ,end)
        ,@body)))
 
+(defmacro qingeditor/save-goal-column (&rest body)
+  "Restores the goal column after execution of `body'.
+See also `qingeditor/save-column'."
+  (declare (indent defun)
+           (debug t))
+  `(let ((goal-column goal-column)
+         (temporary-goal-column temporary-goal-column))
+     ,@body))
+
+(defmacro qingeditor/save-column (&rest body)
+  "Restores the column after execution of `body'.
+See also `qingeditor/save-goal-column'."
+  (declare (indent defun)
+           (debug t))
+  `(let ((col (current-column)))
+     (qingeditor/save-goal-column
+      ,@body
+      (move-to-column col))))
+
 (provide 'qingeditor-macros)
