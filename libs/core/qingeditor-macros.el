@@ -93,4 +93,60 @@ See also `qingeditor/save-goal-column'."
       ,@body
       (move-to-column col))))
 
+(defmacro qingeditor/define-command (command &rest body)
+  "Define a command `command'.
+
+\(fn COMMAND (ARGS...) DOC [[KEY VALUE]...] BODY...)"
+  (declare (indent defun)
+           (debug (&define name
+                           [&optional lambda-list]
+                           [&optional stringp]
+                           [&rest keywordp sexp]
+                           [&optional ("interactive" [&rest form])]
+                           def-body)))
+  (let ((interactive '(interactive))
+        arg args doc doc-form key keys)
+    ;; collect arguments
+    (when (listp (car-safe body))
+      (setq args (pop body)))
+    ;; collect docstring
+    (when (> (length body) 1)
+      (if (eq (car-safe (car-safe body)) 'format)
+          (setq doc-form (pop body))
+        (when (stringp (car-safe body))
+          (setq doc (pop body)))))
+    ;; collect keywords
+    (setq keys (plist-put keys :repeat t))
+    (while (keywordp (car-safe body))
+      (setq key (pop body))
+      (setq arg (pop body))
+      (unless nil ;; TODO add keyword check
+        (setq keys (plist-put keys key arg))))
+    ;; collect `interactive' form
+    (when (and body (consp (car body))
+               (eq (car (car body)) 'interactive))
+      (let* ((iform (pop body))
+             (result (apply #'qingeditor/interactive-form (cdr iform)))
+             (form (car result))
+             (attrs (cdr result)))
+        (setq interactive `(interactive ,form))
+        (setq keys (qingeditor/concat-plist keys attrs))))
+    `(progn
+       ;; the compiler does not recognize `defun' inside `let'
+       ,(when (and command body)
+          `(defun ,command ,args
+             ,@(when doc `(,doc))
+             ,interactive
+             ,@body))
+       ,(when (and command doc-form)
+          `(put ',command 'function-documentation ,doc-form))
+       ;; set command properties for symbol or lambda function
+       (let ((func ',(if (and (null command) body)
+                         `(lambda ,args
+                            ,interactive
+                            ,@body)
+                       command)))
+         (apply @'qingeditor/set-command-properties func ',keys)
+         func))))
+
 (provide 'qingeditor-macros)

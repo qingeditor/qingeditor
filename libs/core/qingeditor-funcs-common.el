@@ -45,4 +45,26 @@ and `end' are."
   (setq end (or (qinegditor/normalize-position end) (point-max)))
   (narrow-to-region beg end))
 
+(defun qingeditor/concat-lists (&rest sequences)
+  "Concatenate lists, removing duplicates.
+Elements are compared with `eq'."
+  (let (result)
+    (dolist (sequence sequences)
+      (dolist (elt sequence)
+        (add-to-list 'result elt nil #'eq)))
+    (nreverse result)))
+
+(defun qingeditor/concat-alists (&rest sequences)
+  "Concatenate association lists, removing duplicates.
+An alist is a list of cons cells (`key' . `value') where each key
+may ocurr only once. Later values overwrite earlier values."
+  (let (result)
+    (dolist (sequence sequences)
+      (dolist (elt sequence)
+        (setq result (assq-delete-all (car-safe elt) result))
+        (push elt result)))
+    (nreverse result)))
+
+
+
 (provide 'qingeditor-funcs-common)
