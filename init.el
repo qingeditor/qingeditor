@@ -12,7 +12,7 @@
     (message (concat "Your version of Emacs (%s) is to old. "
                      "qingeditor requires Emacs version %s or above.")
 	     emacs-version qingeditor/emacs-min-version)
-  ;; 将`qingeditor'核心库加入到`load-path'列表中
+  ;; `qingeditor'核心库加入到`load-path'列表中
   (qingeditor/register-target-dir-to-load-path qingeditor/libs-dir)
   (require 'qingeditor-init-bootstrap)
   ;;(qingeditor/initializer/init qingeditor/initializer-ref)

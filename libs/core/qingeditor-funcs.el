@@ -7,6 +7,7 @@
 ;; License: MIT
 ;;
 ;; define some untils functions
+(require 'qingeditor-funcs-common)
 
 (defun qingeditor/mplist-get (plist prop)
   "Get the values associated to `prop' in `plist', a modified plist.

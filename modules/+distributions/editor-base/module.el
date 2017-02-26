@@ -4,7 +4,7 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
 ;; The editor-base module class
 
@@ -17,3 +17,11 @@
   ((this qingeditor/module/editor-base))
   "Declare the require package specs of this module."
   '((abbrev :location built-in)))
+
+(defmethod qingeditor/cls/provide-extra-func-definitions
+  ((this qingeditor/module/editor-base))
+  t)
+
+(defmethod qingeditor/cls/provide-extra-module-config
+  ((this qingeditor/module/editor-base))
+  t)

@@ -55,5 +55,23 @@ If SYMBOL value is `display-graphic-p' then return the result of
  `(display-graphic-p)', otherwise return the value of the symbol."
   `(if (eq 'display-graphic-p ,symbol) (display-graphic-p) ,symbol))
 
-(provide 'qingeditor-macros)
+(defmacro qingeditor/narrow-to-field (&rest body)
+  "Narrow to the current field."
+  (declare (indent defun)
+           (debug t))
+  `(qingeditor/with-restriction (field-beginning) (field-end)
+                                ,@body))
 
+(defmacro qingeditor/with-restriction (beg end &rest body)
+  "Execute `body' with buffer narrowed to `beg' and `end'.
+`beg' or `end' may be `nil' as passed to `qingeditor/narrow'; this creates
+a one-sided restriction."
+  (declare (indent 2)
+           (debug t))
+  `(save-restriction
+     (let ((qingeditor/restriction-stack
+            (cons (cons (point-min) (point-max)) qingeditor/restriction-stack)))
+       (qingeditor/narrow ,beg ,end)
+       ,@body)))
+
+(provide 'qingeditor-macros)

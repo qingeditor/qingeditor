@@ -27,3 +27,7 @@
 (defmethod qingeditor/cls/provide-extra-func-definitions
   ((this qingeditor/module/editor-bootstrap))
   t)
+
+(defmethod qingeditor/cls/provide-extra-module-config
+  ((this qingeditor/module/editor-bootstrap))
+  t)
