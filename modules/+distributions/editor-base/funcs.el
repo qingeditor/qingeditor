@@ -191,3 +191,33 @@ projectile cache when it's possible and update recentf list."
              (message "File '%s' sucessfully renamed to '%s'" short-name
                       (file-name-nondirectory new-name)))))))
 
+;; from magnars
+(defun qingeditor/editor-base/rename-current-buffer-name ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let* ((name (buffer-name))
+         (filename (buffer-file-name))
+         (dir (file-name-directory filename))
+         (modulemgr (qingeditor/modulemgr)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " dir)))
+        (cond
+         ((get-buffer-name new-name)
+          (error "A buffer named '%s' already exists!" new-name))
+         (t
+          (let ((dir (file-name-directory new-name)))
+            (when (and (not (file-exists-p dir))
+                       (yes-or-no-p (format "Create directory '%s'?" dir)))
+              (make-directory dir t)))
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (when (fboundp 'recentf-add-file)
+            (recentf-add-file new-name)
+            (recentf-remove-if-non-kept filename))
+          (when (and (qingeditor/cls/package-usedp modulemgr 'projectile)
+                     (projectile-project-p))
+            (call-interactively #'projectile-invalidate-cache))
+          (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
