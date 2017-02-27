@@ -244,4 +244,18 @@ if `properties' is the empty list, all properties are removed."
         (setq plist (qingeditor/delete-plist-delete property plist))))
     (apply #'qingeditor/set-command-properties command plist)))
 
+(defun qingeditor/move-beginning-of-line (&optional arg)
+  "Move to the beginning of the line as displayed.
+Like `move-beginning-of-line', but retains the goal column."
+  (qingeditor/save-goal-column
+   (move-beginning-of-line arg)
+   (beginning-of-line)))
+
+(defun qingeditor/move-end-of-line (&optional arg)
+  "Move to the end of the line as displayed.
+Like `move-end-of-line', but retains the goal column."
+  (qingeditor/save-goal-column
+   (move-end-of-line arg)
+   (end-of-line)))
+
 (provide 'qingeditor-funcs-common)

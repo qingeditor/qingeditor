@@ -44,4 +44,7 @@ list to prevent listener handler memory leak.")
 (defvar qingeditor/initialized nil
   "`t' if the qingeditor finished init.")
 
+(defvar qingeditor/command-properties nil
+  "Specifications made by `qingeditor/define-command'.")
+
 (provide 'qingeditor-gvars)

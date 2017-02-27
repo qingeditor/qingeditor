@@ -97,4 +97,5 @@ and its values are removed."
   (setq qingeditor/init-redisplay-count-private
         (1+ qingeditor/init-redisplay-count-private)))
 
+
 (provide 'qingeditor-funcs)
