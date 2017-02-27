@@ -132,6 +132,21 @@ their `prop' values."
    (t
     (plist-get (cdr (assq key alist)) prop))))
 
+(defun qingeditor/put-property (alist key prop val &rest properties)
+  "Set `prop' to `val' for `key' in `alist'.
+`alist' points to an association list with entries of the form
+\(KEY . PLIST), where `plist' is a property list storing `prop' and `val'."
+  (set alist
+       (let* ((alist-ref (symbol-value alist))
+              (plist-ref (cdr (assq key alist-ref))))
+         (setq plist-ref (plist-put plist-ref prop val))
+         (when properties
+           (setq plist-ref (qingeditor/concat-plist plist-ref properties))
+           (setq val (car (last properties))))
+         (setq alist-ref (assq-delete-all key alist))
+         (push (cons key plist-ref) alist-ref)))
+  val)
+
 (unless (fboundp 'region-active-p)
   (defun region-active-p ()
     "Returns t iff region and mark are active."
@@ -168,6 +183,65 @@ in the list."
         (when (setq elt (qingeditor/member-recursive-if predicate elt))
           (throw 'done elt)))))))
 
+;; Command properties functions
+;; If no properties are defined for the command, serval parts of
+;; qingeditor apply certain default rules; e.g., the repeat system decides
+;; wether the command is repeatable by monitoring buffer changes.
+(defun qingeditor/has-command-property-p (command property)
+  "Wether `command' has qingeditor `property'.
+See also `qingeditor/has-command-properties-p'."
+  (plist-member (qingeditor/get-command-properties command) property))
 
+(defun qingeditor/has-command-properties-p (command)
+  "Wether qingeditor properties are defined for `command'.
+see also `qingeditor/has-command-property-p'."
+  (and (qingeditor/get-command-properties command) t))
+
+(defun qingeditor/get-command-property (command property &optional default)
+  "Return the value of `qingeditor' of `command'.
+If the command does not have the property, return `default'."
+  (if (qingeditor/has-command-property-p command property)
+      (qingeditor/get-property qingeditor/command-properties command property)
+    default))
+
+(defun qingeditor/get-command-properties (comand)
+  "Return all `qingeditor' properties of `command'.
+See also `qingeditor/get-command-property'."
+  (qingeditor/get-property qingeditor/command-properties command))
+
+(defun qingeditor/set-command-property (command property value)
+  "Set `property' to `value' for `command'.
+To set multiple properties at once, see
+`qingeditor/set-command-properties' and `qingeditor/add-command-properties'."
+  (qingeditor/put-property 'qingeditor-command-properties command property value))
+
+(defalias 'qingeditor/put-command-property 'qingeditor/set-command-property)
+
+(defun qingeditor/add-command-properties (command &rest properties)
+  "Add `properties' to `command'.
+`properties' should be a property list.
+To replace all properties at once, use `qingeditor/set-command-properties'."
+  (apply #'qingeditor/put-property 'qingeditor/command-properties command properties))
+
+(defun qingeditor/set-command-properties (command &rest properties)
+  "Replace all of `command' properties with `properties'.
+`properties' should be a property list.
+This erases all previous properties; to only add properties, use
+`qingeditor/set-command-property'."
+  (setq qingeditor/command-properties
+        (assq-delete-all command qingeditor/command-properties))
+  (when properties
+    (apply #'qingeditor/add-command-properties command properties)))
+
+(defun qingeditor/remove-command-properties (command &rest properties)
+  "Remove `properties' from `command'.
+`properties' should be a list of properties (:prop1 :prop2 ...).
+if `properties' is the empty list, all properties are removed."
+  (let (plist)
+    (when properties
+      (setq plist (qingeditor/get-command-properties command))
+      (dolist (property properties)
+        (setq plist (qingeditor/delete-plist-delete property plist))))
+    (apply #'qingeditor/set-command-properties command plist)))
 
 (provide 'qingeditor-funcs-common)
