@@ -63,6 +63,14 @@ a line."
   :type 'boolean
   :group 'qingeditor)
 
+(defcustom qingeditor/indent-convert-tabs t
+  "If non-nil `qingeditor/indent' converts between leading tabs and spaces.
+  Whether tabs are converted to spaces or vice versa depends on the
+  value of `indent-tabs-mode'."
+  :type 'boolean
+  :group 'qingeditor)
+
+
 (qingeditor/define-local-var qingeditor/this-type nil
   "current motion type.")
 

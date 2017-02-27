@@ -24,7 +24,7 @@
 (defvar qingeditor/editor-base/useless-buffers-regexp '("*\.\+")
   "Regexp used to determine if a buffer is not useful.")
 
-(defvar qingeditor/editor-base/useful-buffer '("\\*scratch\\*")
+(defvar qingeditor/editor-base/useful-buffers-regexp '("\\*scratch\\*")
   "Regexp used to define buffers thsta are usefull despite matching
  `qingeditor/editor-base/useless-buffers-regexp'.")
 

@@ -409,4 +409,44 @@ are joined, if possible."
        (t
         `(append ,@result))))))
 
+(defun qingeditor/insert-newline-above ()
+  "Insert a new line above point and places point in that line
+with regard to indentation."
+  (qingeditor/narrow-to-field
+    (qingeditor/move-beginning-of-line)
+    (insert "\n")
+    (forward-line -1)
+    (back-to-indentation)))
+
+(defun qingeditor/insert-newline-below ()
+  "Insert a new line below point and places point in that line
+with regard to indentation."
+  (qingeditor/move-end-of-line)
+  (insert "\n")
+  (back-to-indentation))
+
+(defun qingeditor/insert-lines-above (count)
+  "Insert one or several lines above the current point's line without
+changing the current state and point position."
+  (interactive "p")
+  (dotimes (_ count)
+    (save-excursion
+      (qingeditor/insert-newline-above))))
+
+(defun qingeditor/insert-lines-below (count)
+  "Insert one or several lines below the current point's line without
+changing the current state and point position."
+  (interactive "p")
+  (dotimes (_ count)
+    (save-excursion
+      (qingeditor/insert-newline-below))))
+
+(defun qingeditor/goto-next-line-and-indent (&optional count)
+  (interactive "p")
+  (let ((counter (or count 1)))
+    (while (> counter 0)
+      (join-line 1)
+      (newline-and-indent)
+      (setq counter (1- counter)))))
+
 (provide 'qingeditor-funcs-common)
