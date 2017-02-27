@@ -221,3 +221,121 @@ projectile cache when it's possible and update recentf list."
                      (projectile-project-p))
             (call-interactively #'projectile-invalidate-cache))
           (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
+
+(defun qingeditor/editor-base/delete-file (filename &optional ask-user)
+  "Remove specified file or directory.
+
+Also kill assocated buffer (if any exists) and invalidates
+projectile cache when it's possible.
+
+When `ask-user' is non-nil, user will be asked to confirm file
+removal."
+  (interactive "f")
+  (when (and filename (file-exists-p filename))
+    (let ((buffer (find-buffer-visiting filename)))
+      (when buffer
+        (kill-buffer buffer)))
+    (when (or (not ask-user)
+              (yes-or-no-p "Are you sure you want to delete this file? "))
+      (delete-file filename)
+      (let ((modulemgr (qingeditor/modulemgr)))
+        (when (and (qingeditor/cls/package-usedp modulemgr 'projectile)
+                   (projectile-project-p))
+          (call-interactively #'projectile-invalidate-cache))))))
+
+;; from magnars
+(defun qingeditor/editor-base/delete-current-buffer-file ()
+  "Removes file connected to the current buffer and kills buffer."
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure want to delete this file? ")
+        (delete-file filename t)
+        (kill-buffer buffer)
+        (let ((modulemgr (qingeditor/modulemgr)))
+          (when (and (qingeditor/cls/package-usedp modulemgr 'projectile)
+                     (projectile-project-p))
+            (call-interactively #'projectile-invalidate-cache))
+          (message "File '%s' successfully removed" filename))))))
+
+;; from magnars
+(defun qingeditor/editor-base/sudo-edit (&optional arg)
+  (interactive "p")
+  (let ((fname (if (or arg (not buffer-file-name))
+                   (read-file-name "File: ")
+                 buffer-file-name)))
+    (find-file
+     (cond
+      ((string-match-p "^/ssh:" fname)
+       (with-temp-buffer
+         (insert fname)
+         (search-backward ":")
+         (let ((last-match-end nil)
+               (last-ssh-hostname nil))
+           (while (string-match "@\\\([^:|]+\\\)" fname last-match-end)
+             (setq last-ssh-hostname (or (match-string 1 fname)
+                                         last-ssh-hostname))
+             (setq last-match-end (match-end 0)))
+           (insert (format "|sudo:%s" (or last-ssh-hostname "localhost"))))
+         (t (concat "/sudo:root@localhost:" fname))))))))
+
+(defun qingeditor/editor-base/delete-window (&optional arg)
+  "Delete the current window.
+
+If the universal prefix argument is used then kill the buffer too."
+  (interactive "P")
+  (if (equal '(4) arg)
+      (kill-buffer-and-window)
+    (delete-window)))
+
+(defun qingeditor/editor-base/ace-delete-window (&optional arg)
+  "Ace delete window.
+If the universal prefix argument is used then kill the buffer too."
+  (interactive "P")
+  (require 'ace-window)
+  (aw-select
+   "Ace - Delete Window"
+   (lambda (window)
+     (when (equal '(4) arg)
+       (with-selected-window window
+         (qingeditor/editor-base/kill-this-buffer arg)))
+     (aw-delete-window window))))
+
+;; our own implementation of kill-this-buffer from menu-bar.el
+(defun qingeditor/editor-base/kill-this-buffer (&optional arg)
+  "Kill the current buffer.
+If the universal prefix arguments is used then kill also the window."
+  (interactive "P")
+  (if (window-minibuffer-p)
+      (abort-recursive-edit)
+    (if (equal '(4) arg)
+        (kill-buffer-and-window)
+      (kill-buffer))))
+
+(defun qingeditor/editor-base/ace-kill-this-buffer (&optional arg)
+  "Ace kill visible buffer in a window.
+If the universal prefix argument is used then kill also the window."
+  (interactive "P")
+  (require 'ace-window)
+  (let (golden-ratio-mode)
+    (aw-select
+     "Ace - Kill buffer in window"
+     (lambda (window)
+       (with-selected-window window
+         (qingeditor/editor-base/kill-this-buffer arg))))))
+
+;; found at http://emacswiki.org/emacs/KillingBuffers
+(defun qingeditor/editor-base/kill-other-buffers (&optioanl arg)
+  "Kill all other buffers.
+If the universal prefix argument is used then will the windows too."
+  (interactive "P")
+  (when (yes-or-no-p (format "Killing all buffers except \"%s\"? "
+                             (buffer-name)))
+    (mapc 'kill-buffer (defq (current-buffer) (buffer-list)))
+    (when (equal '(4) arg) (delete-other-windows))
+    (message "Buffers deleted!")))
+
+
