@@ -157,4 +157,48 @@ In Emacs 23.2 and newer, it takes one arguments."
       '(called-interactively-p)
     '(called-interactively-p 'any)))
 
+(defmacro qingeditor/define-motion (motion args &rest body)
+  "Define an motion command `motion'.
+
+\(fn MOTION (COUNT ARGS...) DOC [[KEY VALUE]...] BODY...)"
+  (declare (indent defun)
+           (debug (&define name lambda-list
+                           [&optional stringp]
+                           [&rest keywordp sexp]
+                           [&optional ("interactive" [&rest form])]
+                           def-body)))
+  (let (arg doc interactive key keys type)
+    (when args
+      (setq args `(&optional ,@(delq '&optional args))
+            ;; the count is either numeric or nil
+            interactive '("<c>")))
+    ;; collect docstring
+    (when (and (> (length body) 1)
+               (or (eq (car-safe (car-safe body)) 'format)
+                   (stringp (car-safe body))))
+      (setq doc (pop body)))
+    ;; collect keywords
+    (setq keys (plist-put keys :repeat 'motion))
+    (while (keywordp (car-safe body))
+      (setq key (pop body))
+      (setq arg (pop body))
+      (setq keys (plist keys key arg)))
+    ;; collect `interactive' specification
+    (when (eq (car-safe (car-safe body)) 'interactive)
+      (setq interactive (cdr (pop body))))
+    ;; macro expansion
+    `(progn
+       ;; refresh echo area in Eldpc mode
+       (when ',motion
+         (eval-after-load 'eldoc
+           '(and (fboundp 'eldoc-add-command)
+                 (eldoc-add-command ',motion))))
+       (qingeditor/define-command
+        ',motion (,@args)
+        ,@(when doc `(,doc))
+        ,@keys
+        :keep-visual t
+        (interactive ,@interactive)
+        ,@body))))
+
 (provide 'qingeditor-macros)
