@@ -146,7 +146,7 @@ See also `qingeditor/save-goal-column'."
                             ,interactive
                             ,@body)
                        command)))
-         (apply @'qingeditor/set-command-properties func ',keys)
+         (apply #'qingeditor/set-command-properties func ',keys)
          func))))
 
 (defmacro qingeditor/called-interactively-p ()
@@ -193,13 +193,12 @@ In Emacs 23.2 and newer, it takes one arguments."
          (eval-after-load 'eldoc
            '(and (fboundp 'eldoc-add-command)
                  (eldoc-add-command ',motion))))
-       (qingeditor/define-command
-        ',motion (,@args)
-        ,@(when doc `(,doc))
-        ,@keys
-        :keep-visual t
-        (interactive ,@interactive)
-        ,@body))))
+       (qingeditor/define-command ,motion (,@args)
+         ,@(when doc `(,doc))
+         ,@keys
+         :keep-visual t
+         (interactive ,@interactive)
+         ,@body))))
 
 (defmacro qingeditor/signal-without-movement (&rest body)
   "Catches errors provided point moves within this scope."

@@ -73,3 +73,6 @@ automatically applied to.")
       (setq buffer-read-only t)
       (buffer-disable-undo)
       (fundamental-mode))))
+
+(defun qingeditor/editor-base/useful-buffer-p (buffer)
+  t)

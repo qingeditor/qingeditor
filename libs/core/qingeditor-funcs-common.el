@@ -73,7 +73,7 @@ earlier values."
   (let (result)
     (dolist (sequence sequences result)
       (while sequence
-        (setq sequence
+        (setq result
               (plist-put result (pop sequence) (pop sequence)))))))
 
 (defun qingeditor/concat-keymap-alists (&rest sequences)
@@ -143,7 +143,7 @@ their `prop' values."
          (when properties
            (setq plist-ref (qingeditor/concat-plist plist-ref properties))
            (setq val (car (last properties))))
-         (setq alist-ref (assq-delete-all key alist))
+         (setq alist-ref (assq-delete-all key plist-ref))
          (push (cons key plist-ref) alist-ref)))
   val)
 
@@ -221,7 +221,8 @@ To set multiple properties at once, see
   "Add `properties' to `command'.
 `properties' should be a property list.
 To replace all properties at once, use `qingeditor/set-command-properties'."
-  (apply #'qingeditor/put-property 'qingeditor/command-properties command properties))
+  (apply #'qingeditor/put-property
+         'qingeditor/command-properties command properties))
 
 (defun qingeditor/set-command-properties (command &rest properties)
   "Replace all of `command' properties with `properties'.
@@ -231,7 +232,8 @@ This erases all previous properties; to only add properties, use
   (setq qingeditor/command-properties
         (assq-delete-all command qingeditor/command-properties))
   (when properties
-    (apply #'qingeditor/add-command-properties command properties)))
+    (apply #'qingeditor/add-command-properties command properties))
+  )
 
 (defun qingeditor/remove-command-properties (command &rest properties)
   "Remove `properties' from `command'.
@@ -343,7 +345,7 @@ list of command properties as passed to `qingeditor/define-command'."
         (pos 0)
         code expr forms match plist prompt properties)
     (while (< pos length)
-      (if (eq (oref string pos) ?\n)
+      (if (eq (aref string pos) ?\n)
           (setq pos (1+ pos))
         (setq match (qingeditor/match-interactive-code string pos))
         (if (null match)
@@ -362,7 +364,7 @@ list of command properties as passed to `qingeditor/define-command'."
                   expr `(funcall ,expr ,prompt)))
           (setq forms (append forms (list expr))
                 properties (append properties plist)))))
-    (cons `(append .@forms) properties)))
+    (cons `(append ,@forms) properties)))
 
 (defun qingeditor/interactive-form (&rest args)
   "Evaluate interactive forms ARGS.
@@ -377,7 +379,34 @@ list of command properties as passed to `qingeditor/define-command'."
         (setq arg (qingeditor/interactive-string arg)
               forms (append forms (cdr (car arg)))
               properties (append properties (cdr arg)))))
-    (cons (apply #'qingeditor/concat-interactive-forms forms)
+    (cons (apply #'qingeditor/concatenate-interactive-forms forms)
           properties)))
+
+(defun qingeditor/concatenate-interactive-forms (&rest forms)
+  "Concatenate interactive list expressions `forms'.
+Returns a single expression where successive expressions
+are joined, if possible."
+  (let (result)
+    (when forms
+      (while (cdr forms)
+        (cond
+         ((null (car forms))
+          (pop forms))
+         ((and (eq (car (car forms)) 'list)
+               (eq (car (cadr forms)) 'list))
+          (setq forms (cons (append (car forms)
+                                    (cdr (cadr forms)))
+                            (cdr (cdr forms)))))
+         (t
+          (push (pop forms) result))))
+      (when (car forms)
+        (push (pop forms) result))
+      (setq result (nreverse result))
+      (cond
+       ((null result))
+       ((null (cdr result))
+        (car result))
+       (t
+        `(append ,@result))))))
 
 (provide 'qingeditor-funcs-common)
