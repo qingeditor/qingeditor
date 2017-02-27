@@ -149,3 +149,45 @@ Dedicated (locked) windows are left untouched."
                (set-window-start w1 s2)
                (set-window-start w2 s1)
                (setq i next-i)))))))
+
+(defun qingeditor/editor-base/rotate-windows-backward (count)
+  "Rotate each window backwards.
+Decicded (locked) windows are left untouched."
+  (interactive "p")
+  (qingeditor/editor-base/rotate-windows (* -1 count)))
+
+(defun qingeditor/editor-base/rename-file (filename &optional new-filename)
+  "Rename `filename' to `new-filename'.
+
+When `new-filename' is not specified, asked user for a new name.
+
+Also renames assocated buffer (if any exists), invalidates
+projectile cache when it's possible and update recentf list."
+  (interactive "f")
+  (when (and filename (file-exists-p filename))
+    (let* ((buffer (find-buffer-visiting filename))
+           (short-name (file-name-nondirectory filename))
+           (new-name (if new-filename new-filename
+                       (read-file-name
+                        (format "Rename %s to: " short-name))))
+           (modulemgr (qingeditor/modulemgr)))
+      (cond ((get-buffer new-name)
+             (error "A buffer named '%s' already exists!" new-name))
+            (t
+             (let ((dir (file-name-directory new-name)))
+               (when (and (not (file-exists-p dir))
+                          (yes-or-no-p (format "Create directory '%s' ?" dir)))
+                 (make-directory dir t)))
+             (rename-file filename new-name 1)
+             (when buffer
+               (kill-buffer buffer)
+               (find-file new-name))
+             (when (fboundp 'recentf-add-file)
+               (recentf-add-file new-filename)
+               (recentf-remove-if-non-kept filename))
+             (when (and (qingeditor/cls/package-usedp modulemgr 'projectile)
+                        (projectile-project-p))
+               (call-interactively #'projectile-invalidate-cache))
+             (message "File '%s' sucessfully renamed to '%s'" short-name
+                      (file-name-nondirectory new-name)))))))
+
