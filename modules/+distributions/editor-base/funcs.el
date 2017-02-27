@@ -24,13 +24,13 @@ auto-indent."
   "Push a mark at current location and go to the beginning of the line."
   (interactive)
   (push-mark (point))
-  (beginning-of-line))
+  (qingeditor/beginning-of-line))
 
 (defun qingeditor/push-mark-and-goto-end-of-line ()
   "Push a mark at current location and go to the end of the line."
   (interactive)
   (push-mark (point))
-  (end-of-line))
+  (qingeditor/end-of-line))
 
 (insert-before-markers)
 

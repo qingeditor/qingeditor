@@ -258,4 +258,126 @@ Like `move-end-of-line', but retains the goal column."
    (move-end-of-line arg)
    (end-of-line)))
 
+;; The purpose of this function is the provide line motions which
+;; preserve the column. This is how `previous-line' and `next-line'
+;; work, but unfortunately the behaviour is hard-coded: if and only if
+;; the last command was `previous-line' or `next-line', the column is
+;; preserved. Furthermore, in contrast to Vim, when we cannot go
+;; further, those motions move point to the beginning resp. the end of
+;; the line (we never want point to leave its column). The code here
+;; comes from simple.el, and I hope it will work in future.
+(defun qingeditor/line-move (count &optional noerror)
+  "A wrapper for line motions which conserves the column.
+Signal an error at buffer boundaries unless `noerror' is non-nil."
+  (cond
+   (noerror
+    (condition-case nil
+        (qingeditor/line-move count)
+      (error nil)))
+   (t
+    (qingeditor/signal-without-movement
+     (setq this-command (if (>= count 0)
+                            #'next-line
+                          #'previous-line))
+     (let ((opoint (point)))
+       (condition-case err
+           (with-no-warnings
+             (funcall this-command (abs count)))
+         ((beginning-of-buffer end-of-buffer)
+          (let ((col (or goal-column
+                         (if (consp temporary-goal-column)
+                             (car temporary-goal-column)
+                           temporary-goal-column))))
+            (if line-move-visual
+                (vertical-motion (cons col 0))
+              (line-move-finish col opoint (< count 0)))
+            ;; maybe we should just `ding'.
+            (signal (car err) (cdr err))))))))))
+
+(defun qingeditor/adjust-cursor ()
+  "Move point on character back if at the end if a non-empty line.
+This behavior is contingent on the variable `qingeditor/move-cursor-back'."
+  (when (and (eolp)
+             (not qingeditor/move-beyond-eol)
+             (not (bolp))
+             (= (point)
+                (save-excursion
+                  (qingeditor/move-end-of-line)
+                  (point))))
+    (qingeditor/move-cursor-back)))
+
+(defun qingeditor/move-cursor-back ()
+  "Move point on character back within the current line.
+ Honors field boundaries, i.e., constrains the movement
+to the current field as recognize by `line-beginning-position'."
+  (unless (or (= (point) (line-beginning-position))
+              (and (boundp 'visual-line-mode)
+                   visual-line-mode
+                   (= (point) (save-excursion
+                                (beginning-of-visual-line)
+                                (point)))))
+    (backward-char)))
+
+;; Interactive forms
+(defun qingeditor/match-interactive-code (interactive &optional pos)
+  "Match an interactive code at position `pos' in string `interactive'.
+Returns the first matching entry in `qingeditor/interactive-alist', or nil."
+  (let ((length (length interactive))
+        (pos (or pos 0)))
+    (catch 'done
+      (dolist (entry qingeditor/interactive-alist)
+        (let* ((string (car entry))
+               (end (+ (length string) pos)))
+          (when (and (<= end length)
+                     (string= string (substring interactive pos end)))
+            (throw 'done entry)))))))
+
+(defun qingeditor/interactive-string (string)
+  "Evaluate the interactive string `string'.
+The string may contain extended interactive syntax.
+The return value is a cons cell (FROM . PROPERTIES),
+where `form' is a single list-expression to be passed to a
+standard `interactive' statement, and `properties' is a
+list of command properties as passed to `qingeditor/define-command'."
+  (let ((length (length string))
+        (pos 0)
+        code expr forms match plist prompt properties)
+    (while (< pos length)
+      (if (eq (oref string pos) ?\n)
+          (setq pos (1+ pos))
+        (setq match (qingeditor/match-interactive-code string pos))
+        (if (null match)
+            (user-error "Unkonow interactive code: `%s'"
+                        (substring string pos))
+          (setq code (car match)
+                expr (car (cdr match))
+                plist (cdr (cdr match))
+                pos (+ pos (length code)))
+          (when (functionp expr)
+            (setq prompt
+                  (substring string pos
+                             (or (string-match "\n" string pos)
+                                 length))
+                  pos (+ pos (length prompt))
+                  expr `(funcall ,expr ,prompt)))
+          (setq forms (append forms (list expr))
+                properties (append properties plist)))))
+    (cons `(append .@forms) properties)))
+
+(defun qingeditor/interactive-form (&rest args)
+  "Evaluate interactive forms ARGS.
+The return value is a cons cell (FORM . PROPERTIES),
+where FORM is a single list-expression to be passed to
+a standard `interactive' statement, and PROPERTIES is a
+list of command properties as passed to `qingeditor/define-command'."
+  (let (forms properties)
+    (dolist (arg args)
+      (if (not (stringp arg))
+          (setq forms (append forms (list arg)))
+        (setq arg (qingeditor/interactive-string arg)
+              forms (append forms (cdr (car arg)))
+              properties (append properties (cdr arg)))))
+    (cons (apply #'qingeditor/concat-interactive-forms forms)
+          properties)))
+
 (provide 'qingeditor-funcs-common)

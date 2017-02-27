@@ -8,7 +8,7 @@
 ;;
 ;; define some global variables and consts
 
-(defgroup qingeditor nil "`QingEditor'自定义分组"
+(defgroup qingeditor nil "qingeditor variables group"
   :group 'starter-kit
   :prefix 'qingeditor-)
 
@@ -46,5 +46,24 @@ list to prevent listener handler memory leak.")
 
 (defvar qingeditor/command-properties nil
   "Specifications made by `qingeditor/define-command'.")
+
+(defvar qingeditor/interactive-alist nil
+  "Association list of qingeditor-specific interactive codes.")
+
+(defcustom qingeditor/track-eol t
+  "If non-nil line moves after a call to `qingeditor/end-of-line' stay at eol.
+This is analogous to `track-eol' but deals with the end-of-line
+interpretation of qingeditor."
+  :type 'boolean
+  :group 'qingeditor)
+
+(defcustom qingeditor/move-beyond-eol nil
+  "Whether the cursor is allowed to move past the last character of 
+a line."
+  :type 'boolean
+  :group 'qingeditor)
+
+(qingeditor/define-local-var qingeditor/this-type nil
+  "current motion type.")
 
 (provide 'qingeditor-gvars)

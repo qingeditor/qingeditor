@@ -182,7 +182,7 @@ In Emacs 23.2 and newer, it takes one arguments."
     (while (keywordp (car-safe body))
       (setq key (pop body))
       (setq arg (pop body))
-      (setq keys (plist keys key arg)))
+      (setq keys (plist-put keys key arg)))
     ;; collect `interactive' specification
     (when (eq (car-safe (car-safe body)) 'interactive)
       (setq interactive (cdr (pop body))))
@@ -200,5 +200,61 @@ In Emacs 23.2 and newer, it takes one arguments."
         :keep-visual t
         (interactive ,@interactive)
         ,@body))))
+
+(defmacro qingeditor/signal-without-movement (&rest body)
+  "Catches errors provided point moves within this scope."
+  (declare (indent defun)
+           (debug t))
+  `(let ((p (point)))
+     (condition-case err
+         (progn ,@body)
+       (error
+        (when (= p (point))
+          (signal (car err) (cdr err)))))))
+
+(defmacro qingeditor/define-local-var (symbol &optional initvalue docstring)
+  "Define `symbol' as permanent buffer local variable, and return `symbol'.
+The parameters are the same as for `defvar', but the variable
+`symbol' is made permanent buffer local."
+  (declare (indent defun)
+           (debug (symbolp &optional form stringp)))
+  `(progn
+     (defvar ,symbol ,initvalue ,docstring)
+     (make-variable-buffer-local ',symbol)
+     (put ',symbol 'permanent-local t)))
+
+(defmacro qingeditor/define-interactive-code (code &rest body)
+  "Define an interactive code.
+`prompt', if given, is the remainder of the interactive string
+up to the next newline. Command properities may be specified
+via `key-value' paires. `body' should evaluate to a list of values.
+
+\(fn CODE (PROMPT) [[KEY VALUE]...] BODY...)"
+  (declare (indent defun))
+  (let* ((args (when (and (> (length body) 1)
+                          (listp (car-safe body)))
+                 (pop body)))
+         (doc (when (stringp (car-safe body)) (pop body)))
+         func properties)
+    (while (keywordp (car-safe body))
+      (setq properties
+            (append properties (list (pop body) (pop body)))))
+    (cond
+     (args
+      (setq func `(lambda ,args
+                    ,@(when doc `(,doc))
+                    ,@body)))
+     ((> (length body) 1)
+      (setq func `(progn ,@body)))
+     (t
+      (setq func (car body))))
+    `(eval-and-compile
+       (let* ((code ,code)
+              (entry (assoc code qingeditor/interactive-alist))
+              (value (cons ',func ',properties)))
+         (if entry
+             (setcdr entry value)
+           (push (cons code value) qingeditor/interactive-alist))
+         code))))
 
 (provide 'qingeditor-macros)
