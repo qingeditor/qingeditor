@@ -1,16 +1,16 @@
-;; Copyright (c) 2016-2017 zzu_softboy & Contributors
-;;
-;; Author: zzu_softboy <zzu_softboy@163.com>
-;; Github: https://www.github.com/qingeditor/qingeditor
-;;
-;; This file is not part of GNU Emacs.
-;; License: GPLv3
-;;
-;; The editor base module extra config script
+;; ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;; ;;
+;; ;; Author: zzu_softboy <zzu_softboy@163.com>
+;; ;; Github: https://www.github.com/qingeditor/qingeditor
+;; ;;
+;; ;; This file is not part of GNU Emacs.
+;; ;; License: GPLv3
+;; ;;
+;; ;; The editor base module extra config script
 
-;; Navigation config begin
+;; ;; Navigation config begin
 
-;; Auto refresh
+;; ;; Auto refresh
 (global-auto-revert-mode 1)
 ;; Also auto refresh dired, but be quiet about it.
 (setq global-auto-revert-non-file-buffers t)
@@ -140,8 +140,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
       ;; `buffer-predicate' entry exists, modify it
       (setcdr buf-pred-entry #'qingeditor/editor-base/useful-buffer-p)
     ;; `buffer-predicate' entry doesn't exist, create it
-    (push '(buffer-predicate . qingeditor/editor-base/useful-buffer-p)
-          default-frame-alist)))
+    (push '(buffer-predicate . qingeditor/editor-base/useful-buffer-p) default-frame-alist)))
+
 ;; UI config end
 
 ;; Session config begin
