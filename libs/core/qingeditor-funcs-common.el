@@ -449,4 +449,19 @@ changing the current state and point position."
       (newline-and-indent)
       (setq counter (1- counter)))))
 
+;;; Undo
+
+(defun qingeditor/start-undo-step (&optional continue)
+  "Start a undo step.
+All following buffer modifications are grouped together as a
+single action. If `continue' is non-nil, preceding modifications
+are included. The step is terminated with `qingeditor/end-undo-step'."
+  (when (and (listp buffer-undo-list)
+             (not qingeditor/in-single-undo))
+    (if qingeditor/undo-list-pointer
+        (qingeditor/refresh-undo-step)
+      (unless (or continue (null (car-safe buffer-undo-list)))
+        (undo-boundary))
+      (setq qingeditor/undo-list-pointer (or buffer-undo-list t)))))
+
 (provide 'qingeditor-funcs-common)

@@ -534,3 +534,275 @@ toggling fullscreen."
              (if (eq (frame-parameter nil 'maximized) 'maximized)
                  'maximized)
            'fullboth)))))
+
+;; taken from Prelude: https://github.com/bbatsov/prelude
+(defmacro qingeditor/editor/advise-commands (advice-name commands class &rest body)
+  "Apply advice named `advice-name' to multiple `commands'.
+The body of the advice is in `body'."
+  `(progn
+     ,@(mapcar (lambda (command)
+                 `(defadvice ,command
+                      (,class ,(intern (format "%S-%s" command advice-name))
+                              activate)
+                    ,@body))
+               commands)))
+
+(defun qingeditor/editor-base/safe-revert-buffer ()
+  "Prompt before reverting the file."
+  (interactive)
+  (revert-buffer nil nil))
+
+
+(defun qingeditor/editor-base/safe-erase-buffer ()
+  "Prompt before erasing the content of the file."
+  (interactive)
+  (if (y-or-n-p (format "Erase content of buffer %s ? " (current-buffer)))
+      (erase-buffer)))
+
+(defun qingeditor/editor-base/find-ert-test-buffer (ert-test)
+  "Return the buffer where `ert-test' is defined."
+  (car (find-definition-noselect (ert-test-name ert-test) 'ert-deftest)))
+
+(defun qingeditor/editor-base/ert-run-tests-buffer ()
+  "Run all the tests in the current buffer."
+  (interactive)
+  (save-buffer)
+  (load-file (buffer-file-name))
+  (let ((cbuf (current-buffer)))
+    (ert '(satisfies
+           (lambda (test)
+             (eq cbuf (qingeditor/editor-base/find-ert-test-buffer test)))))))
+
+(defun qingeditor/editor-base/open-in-external-app (file-path)
+  "Open `file-path' in external application."
+  (cond
+   ((qingeditor/system-is-mswindows)
+    (w32-shell-execute "open" (replace-regexp-in-string "/" "\\\\" file-path)))
+   ((qingeditor/system-is-mac) (shell-command (format "open \"open \"" file-path)))
+   ((qingeditor/system-is-liunx)
+    (let ((process-connection-type nil))
+      (start-process "" nil "xdg-open" file-path)))))
+
+(defun qingeditor/editor-base/open-file-or-directory-in-external-app (arg)
+  "Open current file in external application.
+If the universal prefix argument is used open the folder
+containing the current file by the default explorer."
+  (interactive "P")
+  (if arg
+      (qingeditor/editor-base/open-in-external-app (expand-file-name default-directory))
+    (let ((file-path (if (derived-mode-p 'dired-mode)
+                         (dired-get-file-for-visit)
+                       buffer-file-name)))
+      (if file-path
+          (qingeditor/editor-base/open-in-external-app file-path)
+        (message "No file associated to this buffer.")))))
+
+(defun qingeditor/editor-base/switch-to-minibuffer-window ()
+  "Switch to minibuffer window (if active)."
+  (interactive)
+  (when (active-minibuffer-window)
+    (select-window (active-minibuffer-window))))
+
+;; http://stackoverflow.com/a/10216338/4869
+(defun qingeditor/editor-base/copy-whole-buffer-to-clipboard ()
+  "Copy entire buffer to clipboard."
+  (interactive)
+  (clipboard-kill-ring-save (point-min) (point-max)))
+
+(defun qingeditor/editor-base/copy-clipboard-to-whole-buffer ()
+  "Copy clipboard and replace buffer."
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (clipboard-yank)
+  (deactivate-mark))
+
+;; align functions
+;; modified function from http://emacswiki.org/emacs/AlignCommands
+(defun qingeditor/align-repeat (start end regexp &optional justify-right after)
+  "Repeat alignment with respect to the given regular expression.
+If `justify-right' is non nil justify to the right instead of the
+left. If `after' is non nil, add whitespace to the left instead of
+the right."
+  (interactive "r\nsAlign regexp: ")
+  (let* ((ws-regexp (if (string-empty-p regexp)
+                        "\\(\\s-+\\)"
+                      "\\(\\s-*\\)"))
+         (complete-regexp (if after
+                              (concat regexp ws-regexp)
+                            (concat ws-regexp regexp)))
+         (group (if justify-right -1 1)))
+    (message "%S" complete-regexp)
+    (align-regexp start end complete-regexp group 1 t)))
+
+;; Modified answer from http://emacs.stackexchange.com/questions/47/align-vertical-columns-of-numbers-on-the-decimal-point
+(defun qingeditor/editor-base/align-repeat-decimal (start end)
+  "Align a table of numbers on decimal points and dollar signs (both optional)"
+  (interactive "r")
+  (require 'align)
+  (align-region start end nil
+                '((nil (regexp . "\\([\t ]*\\)\\$?\\([\t ]+[0-9]+\\)\\.?")
+                       (repeat . t)
+                       (group 1 2)
+                       (spacing 1 1)
+                       (justify nil t)))
+                nil))
+
+(defmacro qingeditor/editor-base/create-align-repeat-x
+    (name regexp &optional justify-right default-after)
+  (let ((new-func (intern (concat "qingeditor/editor-base/aligin-repeat-" name))))
+    `(defun ,new-func (start end switch)
+       (interactive "r\nP")
+       (let ((after (not (eq (if switch t nil) (if ,default-after t nil)))))
+         (qingeditor/editor-base/align-repeat start end ,regexp ,justify-right after)))))
+
+(qingeditor/editor-base/create-align-repeat-x "comma" "," nil t)
+(qingeditor/editor-base/create-align-repeat-x "semicolon" ";" nil t)
+(qingeditor/editor-base/create-align-repeat-x "colon" ":" nil t)
+(qingeditor/editor-base/create-align-repeat-x "equal" "=")
+(qingeditor/editor-base/create-align-repeat-x "math-oper" "[+\\-*/]")
+(qingeditor/editor-base/create-align-repeat-x "ampersand" "&")
+(qingeditor/editor-base/create-align-repeat-x "bar" "|")
+(qingeditor/editor-base/create-align-repeat-x "left-paren" "(")
+(qingeditor/editor-base/create-align-repeat-x "right-paren" ")" t)
+(qingeditor/editor-base/create-align-repeat-x "backslash" "\\\\")
+
+(defun qingeditor/editor-base/dos2unix ()
+  "Convert the current buffer to unix file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
+
+(defun qingeditor/editor-base/unix2dos ()
+  "Convert the current buffer to dos file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
+
+(defun qingeditor/editor-base/copy-file ()
+  "Write the file under new name."
+  (interactive)
+  (call-interactively 'write-file))
+
+(defun qingeditor/editor-base/uniquify-lines ()
+  "Remove duplicate adjacent lines in region or current buffer."
+  (interactive)
+  (save-excursion
+    (save-restriction
+      (let ((beg (if (region-active-p) (region-beginning) (point-min)))
+            (end (if (region-active-p) (region-end) (point-max))))
+        (goto-char beg)
+        (while (re-search-forward "^\\(.*\n\\)\\1+" end t)
+          (replace-match "\\1"))))))
+
+(defun qingeditor/editor-base/sort-lines ()
+  "Sort lines in region or current buffer."
+  (interactive)
+  (let ((beg (if (region-active-p) (region-beginning) (point-min)))
+        (end (if (region-active-p) (region-end) (point-max))))
+    (sort-lines nil beg end)))
+
+;; linum mouse helpers
+(defvar qingeditor/editor-base/linum-mdown-line nil
+  "Define persistent variable for linum selection.")
+
+(defun qingeditor/editor-base/line-at-click ()
+  "Determine the visual line at click"
+  (save-excursion
+    (let ((click-y (cddr (mouse-position)))
+          (debug-on-error t)
+          (line-move-visual t))
+      (goto-char (window-start))
+      (next-line (1- click-y))
+      (1+ (line-number-at-pos)))))
+
+(defun qingeditor/editor-base/md-select-linum (event)
+  "Select code block between point and `qingeditor/editor-base/linum-mdown-line'."
+  (interactive "e")
+  (mouse-select-window event)
+  (goto-line (qingeditor/editor-base/line-at-click))
+  (set-mark (point))
+  (setq qingeditor/editor-base/linum-mdown-line
+        (line-number-at-pos)))
+
+(defun qingeditor/editor-base/mu-select-linum ()
+  "Select code block between point and `qingeditor/editor-base/linum-mdown-line'."
+  (interactive)
+  (when qingeditor/editor-base/linum-mdown-line
+    (let (mu-line)
+      (setq mu-line (qingeditor/editor-base/line-at-click))
+      (goto-line (max qingeditor/editor-base/linum-mdown-line mu-line))
+      (set-mark (line-end-position))
+      (goto-line (min qingeditor/editor-base/linum-mdown-line mu-line))
+      (setq qingeditor/editor-base/linum-mdown-line nil))))
+
+(defun qingeditor/editor-base/select-current-block ()
+  "Select the current block of the between blank lines."
+  (interactive)
+  (let (p1 p2)
+    (progn
+      (if (re-search-backward "\n[ \t]*\n" nil t)
+          (progn (re-search-forward "\n[ \t]*\n")
+                 (setq p1 (point)))
+        (setq p1 (point)))
+      (if (re-search-forward "\n[ \t]*\n" nil t)
+          (progn (re-search-backward "\n[ \t]*\n")
+                 (setq p2 (point)))
+        (setq p2 (point))))))
+
+;; From http://xugx2007.blogspot.ca/2007/06/benjamin-rutts-emacs-c-development-tips.html
+(setq compilation-finish-function
+      (lambda (buf str)
+        (if (or (string-match "exited abnormally" str)
+                (string-match "FAILED" (buffer-string)))
+            ;; there wer errors
+            (message "There were errors. SPC-e-n to visit.")
+          (unless (or (string-match "Grep finished" (buffer-string))
+                      (string-match "Ag finished" (buffer-string))
+                      (string-match "nosetests" (buffer-name)))
+            ;; no errors
+            (message "compilation ok.")))))
+
+;; from http://www.emacswiki.org/emacs/WordCount
+(defun qingeditor/editor-base/count-words-analysis (start end)
+  "Count how many times each word is used in the region. Punctuation
+is ignored."
+  (interactive "r")
+  (let (words alist-words-compare (formated ""))
+    (save-excursion
+      (goto-char start)
+      (while (re-search-forward "\\w+" end t)
+        (let* ((word (intern (match-string 0)))
+               (cell (assq word words)))
+          (if cell
+              (setcdr cell (1+ (cdr cell)))
+            (setq words (cons word 1) words)))))
+    (defun alist-words-compare (a b)
+      "Compare elements from an associative list of words count.
+Compare them on count first,and in case of tie sort them alphabetically."
+      (let ((a-key (car a))
+            (a-val (cdr a))
+            (b-key (car b))
+            (b-val (cdr b)))
+        (if (eq a-val b-val)
+            (string-lessp a-key b-key)
+          (> a-val b-val))))
+    (setq words (cl-sort words 'alist-words-compare))
+    (while words
+      (let* ((word (pop words))
+             (name (car word))
+             (count (cdr word)))
+        (setq formated (concat formated (format "[%s: %d], " name count)))))
+    (when (interactive-p)
+      (if (> (length formated) 2)
+          (message (substring 0 -2))
+        (message "No Words.")))))
+
+;; indent on paste
+;; from Prelude: https://github.com/bbatsov/prelude
+(defun qingeditor/editor-base/yank-advised-indent-function (beg end)
+  "Do indentation, as long as the region isn't too large."
+  (if (<= (- end beg) qingeditor/editor-base/yank-indent-threshold)
+      (indent-region beg end)))
+
+(qingeditor/editor-base/advise-commands
+ "indent" (yank yank-pop ) around
+ "If current mode is not one of `qingeditor/editor-base/indent-sensitive-modes'
+ indent yanked text (with universal arg don't indent).")

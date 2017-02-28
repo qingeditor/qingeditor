@@ -70,8 +70,13 @@ a line."
   :type 'boolean
   :group 'qingeditor)
 
-
 (qingeditor/define-local-var qingeditor/this-type nil
   "current motion type.")
+
+(qingeditor/define-local-var qingeditor/undo-list-pointer nil
+  "Everything up to this mark is united in the undo-list.")
+
+(defvar qingeditor/in-single-undo nil
+  "Set to non-nil if the current undo steps are connected.")
 
 (provide 'qingeditor-gvars)
