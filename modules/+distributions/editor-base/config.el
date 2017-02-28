@@ -120,7 +120,7 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; don't let the cursor go into minibuffer prompt
 ;; Tip taken from Xah Lee: http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html
 (setq minibuffer-prompt-properties
-      '(read-only t point-entered minibuffer-avoid-prompt face minibuffer-promp))
+      '(read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt))
 ;;  Fullscreen/maximize frame on startup
 (if qingeditor/config/fullscreen-at-startup
     ;; qingeditor/toggle-fullscreen-frame-on is not available during the startup

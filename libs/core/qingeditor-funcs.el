@@ -101,4 +101,8 @@ and its values are removed."
   "Return the global module manager object."
   qingeditor/modulemgr)
 
+(defun qingeditor/user-config-filename ()
+  "Get the user config filename."
+  qingeditor/config/target-cfg-filename)
+
 (provide 'qingeditor-funcs)

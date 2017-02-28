@@ -1,4 +1,12 @@
-;; 定义`qingeditor'标准的文件目录
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: GPLv3
+;;
+;; Define the qingeditor standard dir
 
 (defconst qingeditor/assets-dir
   (expand-file-name (concat qingeditor/start-dir "assets/"))

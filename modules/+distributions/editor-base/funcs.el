@@ -348,3 +348,139 @@ If the universal prefix argument is used then will the windows too."
     (message "Window %sdedicated to %s"
              (if dedicated "no longer " "")
              (buffer-name))))
+
+;; http://camdez.com/blog/2013/11/14/emacs-show-buffer-file-name/
+(defun qingeditor/editor-base/show-and-copy-buffer-filename ()
+  "Show and copy the full path to the current file in the minibuffer."
+  (interactive)
+  ;; list-buffers-directory is the variable set in dired buffers
+  (let ((filename (or (buffer-file-name)
+                      list-buffers-directory)))
+    (if filename
+        (message (kill-new filename))
+      (error "Buffer not visiting a file."))))
+
+;; adapted from bozhidar
+;; http://emacsredux.com/blog/2013/05/18/instant-access-to-init-dot-el/
+(defun qingeditor/editor-base/find-user-init-filename ()
+  "Edit the `user-init-file', in the current window."
+  (interactive)
+  (find-file-existing user-init-file))
+
+(defun qingeditor/editor-base/find-user-config-file ()
+  "Edit the user config file in the current window."
+  (interactive)
+  (find-file-existing (qingeditor/user-config-filename)))
+
+(defun qingeditor/editor-base/ediff-user-config-and-template ()
+  "ediff the current user config with the template."
+  (interactive)
+  (ediff (qingeditor/user-config-filename)
+         (concat qingeditor/template-dir ".qingeditor.template")))
+
+(defun qingeditor/editor-base/new-empty-buffer ()
+  "Create a new buffer called untitled(<n>)"
+  (interactive)
+  (let ((newbuf (generate-new-buffer-name "untitled")))
+    (switch-to-buffer newbuf)))
+
+;; from https://gist.github.com/timcharper/493269
+(defun qingeditor/editor-base/split-window-vertically-and-switch ()
+  (interactive)
+  (split-window-vertically)
+  (other-window 1))
+
+(defun qingeditor/editor-base/split-window-horizontally-and-switch ()
+  (interactive)
+  (split-window-horizontally)
+  (other-window 1))
+
+(defun qingeditor/editor-base/layout-tripe-columns ()
+  "Set the layout to tripe columns."
+  (interactive)
+  (delete-other-windows)
+  (dotimes (i 2) (split-window-right))
+  (balance-windows))
+
+(defun qingeditor/editor-base/layout-double-columns ()
+  "Set layout to double colmuns."
+  (interactive)
+  (delete-other-windows)
+  (split-window-right))
+
+(defun qingeditor/editor-base/insert-line-above-no-indent (count)
+  "Insert a new line above with no indentation."
+  (interactive "p")
+  (let ((p (+ (point) count)))
+    (save-excursion
+      (if (eq (line-number-at-pos) 1)
+          (qingeditor/move-beginning-of-line)
+        (progn
+          (qingeditor/previous-line)
+          (qingeditor/move-end-of-line)))
+      (while (> count 0)
+        (insert "\n")
+        (setq count (1- count))))
+    (goto-char p)))
+
+(defun qingeditor/editor-base/insert-line-below-no-indent (count)
+  "Insert a new line below with no indentation."
+  (interactive "p")
+  (save-excursion
+    (qingeditor/move-end-of-line)
+    (while (> count 0)
+      (insert "\n")
+      (setq count (1- count)))))
+
+;; from https://github.com/gempesaw/dotemacs/blob/emacs/dg-defun.el
+(defun qingeditor/editor-base/kill-matching-buffers-rudely (regexp &optional internal-too)
+  "kill buffers whose name matches the specified `refexp'. This function, unlike the build in
+`kill-matching-buffers' does so without asking. The optional second argument indicates whether to
+kill internal buffer too."
+  (interactive "sKill buffers matching this regular expression: \nP")
+  (dolist (buffer (buffer-list))
+    (let ((name (buffer-name buffer)))
+      (when (and name
+                 (not (string-equal name ""))
+                 (or internal-too (/= (aref name 0) ?\s))
+                 (string-match regexp name))
+        (kill-buffer buffer)))))
+
+;; advise to prevent server from closing
+(defvar qingeditor/editor-base/really-kill-emacs nil
+  "prevent window manager close from closing instance.")
+
+(defun qingeditor/editor-base/persistent-server-running-p ()
+  "Requires `qingeditor/editor-base/really-kill-emacs' to be toggled and
+`qingeditor/config/persistent-server' to be t."
+  (and (fboundp 'server-running-p)
+       (server-running-p)
+       qingeditor/config/persistent-server))
+
+(defadvice kill-emacs (around qingeditor/editor-base/really-exit activate)
+  "Only kill emacs if prefix is set."
+  (if (and (not qingeditor/editor-base/really-kill-emacs)
+           (qingeditor/editor-base/persistent-server-running-p))
+      (qingeditor/editor-base/frame-killer)
+    ad-do-it))
+
+(defadvice save-buffers-kill-emacs (around qingeditor/editor-base/really-exit activate)
+  "only kill emacs if a prefix is set."
+  (if (or qingeditor/editor-base/really-kill-emacs
+          (not qingeditor/config/persistent-server))
+      ad-do-it
+    (qingeditor/editor-base/frame-killer)))
+
+(defun qingeditor/editor-base/save-buffers-kill-emacs ()
+  "Save all changed buffers and exit qingeditor."
+  (interactive)
+  (setq qingeditor/editor-base/really-kill-emacs t)
+  (save-buffers-kill-emacs))
+
+(defun qingeditor/editor-base/kill-emacs ()
+  "Lose all changes and exit qingeditor."
+  (interactive)
+  (setq qingeditor/editor-base/really-kill-emacs t)
+  (kill-emacs))
+
+
