@@ -256,4 +256,57 @@ via `key-value' paires. `body' should evaluate to a list of values.
            (push (cons code value) qingeditor/interactive-alist))
          code))))
 
+;; toggleable version of `with-temp-message'
+(defmacro qingeditor/save-echo-area (&rest body)
+  "Save the echo area; execute BODY; restore the echo area.
+Intermittent messages are not logged in the *Messages* buffer."
+  (declare (indent defun)
+           (debug t))
+  `(let ((inhibit-quit t)
+         qingeditor/echo-area-message
+         qingeditor/write-echo-area)
+     (unwind-protect
+         (progn
+           (qingeditor/echo-area-save)
+           ,@body)
+       (qingeditor/echo-area-restore))))
+
+(defmacro qingeditor/with-undo (&rest body)
+  "Execute BODY with enabled undo.
+If undo is disabled in the current buffer, the undo information
+is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
+  (declare (indent defun)
+           (debug t))
+  `(unwind-protect
+       (let (buffer-undo-list)
+         (prog1
+             (progn ,@body)
+           (setq qingeditor/temporary-undo buffer-undo-list)
+           ;; ensure qingeditor/temporary-undo starts with exactly one undo
+           ;; boundary marker, i.e. nil
+           (unless (null (car-safe qingeditor/temporary-undo))
+             (push nil qingeditor/temporary-undo))
+           ))
+     (unless (eq buffer-undo-list t)
+       ;; undo is enabled, so update the global buffer undo list
+       (setq buffer-undo-list
+             ;; prepend new undos (if there are any)
+             (if (cdr qingeditor/temporary-undo)
+                 (nconc qingeditor/temporary-undo buffer-undo-list)
+               buffer-undo-list)
+             qingeditor/temporary-undo nil))))
+
+(defmacro qingeditor/with-single-undo (&rest body)
+  "Execute `body as a single undo step."
+  (declare (indent defun)
+           (debug t))
+  `(let (qingeditor/undo-list-pointer)
+     (qingeditor/with-undo
+      (unwind-protect
+          (progn
+            (qingeditor/start-undo-step)
+            (let ((qingeditor/in-single-undo t))
+              ,@body))
+        (qingeditor/end-undo-step)))))
+
 (provide 'qingeditor-macros)

@@ -536,7 +536,7 @@ toggling fullscreen."
            'fullboth)))))
 
 ;; taken from Prelude: https://github.com/bbatsov/prelude
-(defmacro qingeditor/editor/advise-commands (advice-name commands class &rest body)
+(defmacro qingeditor/editor-base/advise-commands (advice-name commands class &rest body)
   "Apply advice named `advice-name' to multiple `commands'.
 The body of the advice is in `body'."
   `(progn
@@ -802,7 +802,60 @@ Compare them on count first,and in case of tie sort them alphabetically."
   (if (<= (- end beg) qingeditor/editor-base/yank-indent-threshold)
       (indent-region beg end)))
 
+;; TODO
 (qingeditor/editor-base/advise-commands
  "indent" (yank yank-pop ) around
  "If current mode is not one of `qingeditor/editor-base/indent-sensitive-modes'
  indent yanked text (with universal arg don't indent).")
+
+;; find file functions in split
+(defun qingeditor/editor-base/display-in-split (buffer alist)
+  "Split selected window and display BUFFER in the new window.
+`buffer' and `alist' have the same form as in `display-buffer'. If ALIST contains
+a split-side entry, its value must be usable as the SIDE argument for
+`split-window'."
+  (let ((window (split-window nil nil (cdr (assq 'split-side alist)))))
+    (window--display-buffer buffer window 'window alist)
+    window))
+
+(defun qingeditor/editor-base/find-file-vsplit (file)
+  "find file in vertical split"
+  (interactive "FFind file (vsplit): ")
+  (let ((buffer (find-file-noselect file)))
+    (pop-to-buffer buffer '(qingeditor/editor-base/display-in-split (split-side . right)))))
+
+(defun qingeditor/editor-base/find-file-split (file)
+  "find file in horizontal split"
+  (interactive "FFind file (split): ")
+  (let ((buffer (find-file-noselect file)))
+    (pop-to-buffer buffer '(qingeditor/editor-base/display-in-split (split-side . below)))))
+
+(defun qingeditor/editor-base/switch-to-scratch-buffer ()
+  "Switch to the `*scratch*' buffer. Create it first if needed."
+  (interactive)
+  (let ((exists (get-buffer "*scratch*")))
+    (switch-to-buffer (get-buffer-create "*scratch*"))
+    (when (and (not exists)
+               (not (eq major-mode qingeditor/config/scratch-mode))
+               (fboundp qingeditor/config/scratch-mode))
+      (funcall qingeditor/config/scratch-mode))))
+
+(defun qingeditor/editor-base/close-compilation-window ()
+  "Close the window containing the '*compilation*' buffer."
+  (interactive)
+  (when compilation-last-buffer
+    (delete-windows-on compilation-last-buffer)))
+
+(defun qingeditor/editor-base/no-linum (&rest ignore)
+  "Disable linum if current buffer."
+  (when (or 'linum-mode global-linum-mode)
+    (linum-mode 0)))
+
+(defun qingeditor/editor-base/linum-update-window-scale-fix (win)
+  "Fix linum for scaled text in the window WIN."
+  (set-window-margins win
+                      (ceiling (* (if (boundp 'text-scale-mode-step)
+                                      (expt text-scale-mode-step
+                                            text-scale-mode-amount) 1)
+                                  (if (car (window-margins))
+                                      (car (window-margins)) 1)))))

@@ -79,4 +79,20 @@ a line."
 (defvar qingeditor/in-single-undo nil
   "Set to non-nil if the current undo steps are connected.")
 
+(defvar qingeditor/temporary-undo nil
+  "When undo is disabled in current buffer.
+Certain commands depending on undo use this variable
+instead of `buffer-undo-list'.")
+
+(qingeditor/define-local-var qingeditor/echo-area-message nil
+  "Previous value of `current-message'.")
+
+(defvar qingeditor/write-echo-area nil
+  "If set to t inside `qingeditor/save-echo-area', then the echo area
+is not restored.")
+
+(qingeditor/define-local-var qingeditor/no-display nil
+  "If non-nil, various Evil displays are inhibited.
+Use the macro `qingeditor/without-display' to set this variable.")
+
 (provide 'qingeditor-gvars)

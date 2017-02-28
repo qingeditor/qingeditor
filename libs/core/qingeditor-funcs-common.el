@@ -464,4 +464,68 @@ are included. The step is terminated with `qingeditor/end-undo-step'."
         (undo-boundary))
       (setq qingeditor/undo-list-pointer (or buffer-undo-list t)))))
 
+(defun qingeditor/end-undo-step (&optional continue)
+  "End a undo step started with `qingeditor/start-undo-step'.
+Adds an undo boundary unless `continue' is specified."
+  (when (and qingeditor/undo-list-pointer
+             (not qingeditor/in-single-undo))
+    (qingeditor/refresh-undo-step)
+    (unless (or continue (null (car-safe buffer-undo-list)))
+      (undo-boundary))
+    (setq qingeditor/undo-list-pointer nil)))
+
+(defun qingeditor/refresh-undo-step ()
+  "Refresh `buffer-undo-list' entries for current undo step.
+Undo boundaries until `qingeditor/undo-list-pointer' are removed to
+make the entries undoable as a single action. See
+`qingeditor/start-undo-step'."
+  (when qingeditor/undo-list-pointer
+    (setq buffer-undo-list
+          (evil-filter-list #'null buffer-undo-list qingeditor/undo-list-pointer))
+    (setq qingeditor/undo-list-pointer (or buffer-undo-list t))))
+
+(defun qingeditor/undo-pop ()
+  "Undo the last buffer change.
+Removes the last undo information from `buffer-undo-list'.
+If undo is disabled in the current buffer, use the information
+in `qingeditor/temporary-undo' instead."
+  (let ((paste-undo (list nil)))
+    (let ((undo-list (if (eq buffer-undo-list t)
+                         qingeditor/temporary-undo
+                       buffer-undo-list)))
+      (when (or (not undo-list) (car undo-list))
+        (user-error "Can't undo previous change."))
+      (while (and undo-list (null (car undo-list)))
+        (pop undo-list)) ;; remove nil
+      (while (and undo-list (car undo-list))
+        (push (pop undo-list) paste-undo))
+      (let ((buffer-undo-list (nreverse paste-undo)))
+        (qingeditor/save-echo-area
+         (undo)))
+      (if (eq buffer-undo-list t)
+          (setq qingeditor/temporary-undo nil)
+        (setq buffer-undo-list undo-list)))))
+
+(defun qingeditor/echo (string &rest args)
+  "Display an unlogged message in the echo area.
+  That is, the message is not logged in the *Messages* buffer.
+  \(To log the message, just use `message'.)"
+  (unless qingeditor/no-display
+    (let (message-log-max)
+      (apply #'message string args))))
+
+(defun qingeditor/echo-area-save ()
+  "save the current echo area in `qingeditor/echo-area-message'."
+  (setq qingeditor/echo-area-message (current-message)))
+
+(defun qingeditor/echo-area-restore ()
+  "Restore the echo area from `qingeditor/echo-area-message'.
+Does not restore if `evil-write-echo-area' is non-nil."
+  (unless qingeditor/write-echo-area
+    (if qingeditor/echo-area-message
+        (message "%s" qingeditor/echo-area-message)
+      (message nil)))
+  (setq qingeditor/echo-area-message nil
+        qingeditor/write-echo-area nil))
+
 (provide 'qingeditor-funcs-common)
