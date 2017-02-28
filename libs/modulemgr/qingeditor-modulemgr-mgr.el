@@ -214,8 +214,10 @@ that `qingeditor' support and all the packages that module require."
          (if min-version
              (progn
                (qingeditor/cls/set-property package :min-version (version-to-list min-version))
-               (setq package-installed (package-installed-p package-sym min-version)))
-           (setq package-installed (package-installed-p package-sym)))
+               (setq package-installed (if (package-installed-p package-sym min-version)
+                                           t nil)))
+           (setq package-installed (if (package-installed-p package-sym)
+                                       t nil)))
          (oset package :installed package-installed))))))
 
 (defmethod qingeditor/cls/process ((this qingeditor/modulemgr/mgr))

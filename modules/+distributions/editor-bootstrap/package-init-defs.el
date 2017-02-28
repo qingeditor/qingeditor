@@ -76,7 +76,6 @@
            ("universal-argument" . "universal arg")
            ("er/expand-region" . "expand region")
            ("helm-apropos" . "apropos")
-           ("qingeditor/toggle-holy-mode" . "emacs (holy-mode)")
            ("\\(.+\\)-transient-state/\\(.+\\)" . "\\2")
            ("\\(.+\\)-transient-state/body" . "\\1-transient-state"))))
     (dolist (nd new-descriptions)
@@ -110,4 +109,3 @@
 
   (which-key-mode)
   (qingeditor/font/diminish which-key-mode " Ⓚ" " K"))
-
