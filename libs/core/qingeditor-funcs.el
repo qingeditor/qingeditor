@@ -105,4 +105,9 @@ and its values are removed."
   "Get the user config filename."
   qingeditor/config/target-cfg-filename)
 
+(defun qingeditor/run-text-mode-hooks ()
+  "Runs `text-mode-hook'. usefull for modes that don't derive from
+`text-mode' but should."
+  (run-hooks 'text-mode-hook))
+
 (provide 'qingeditor-funcs)

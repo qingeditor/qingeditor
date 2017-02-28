@@ -42,3 +42,41 @@
       ;; autosave each change
       (setq bookmark-save-flag 1)
       (qingeditor/key-binder/set-leader-keys "fb" 'bookmark-jump))))
+
+(defmethod qingeditor/cls/init-conf-mode ((this qingeditor/module/editor-base))
+  ;; explicitly derive conf-mode from text-mode major-mode
+  (add-hook 'conf-mode-hook 'qingeditor/run-text-mode-hooks))
+
+(defmethod qingeditor/cls/init-dired ((this qingeditor/module/editor-base))
+  (qingeditor/key-binder/set-leader-keys
+   "ad" 'dired
+   "fj" 'dired-jump
+   "jd" 'dired-jump
+   "jD" 'dired-jump-other-window))
+
+(defmethod qingeditor/cls/init-dired-x ((this qingeditor/module/editor-base))
+  (use-package dired-x
+    :commands (dired-jump
+               dired-jump-other-window
+               dired-omit-mode)))
+
+(defmethod qingeditor/cls/init-electric-indent-mode ((this qingeditor/module/editor-base))
+  (electric-indent-mode))
+
+(defmethod qingeditor/cls/init-visual-line-mode ((this qingeditor/module/editor-base))
+  (qingeditor/font/diminish visual-line-mode " Ⓛ" " L"))
+
+(defmethod qingeditor/cls/init-ediff ((this qingeditor/module/editor-base))
+  (use-package ediff
+    :defer t
+    :init
+    (progn
+      ;; first we set some sane defaults
+      (setq-default ediff-window-setup-function 'ediff-setup-windows-plain)
+      (setq-default ediff-split-window-function 'split-window-horizontally)
+      (setq-default ediff-merge-split-window-function 'split-window-horizontally)
+      ;; show org ediffs ufolded
+      (require 'outline)
+      (add-hook 'ediff-prepare-buffer-hook #'show-all)
+      ;; restore window layout then done
+      (add-hook 'ediff-quit-hook #'winner-undo))))
