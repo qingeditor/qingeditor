@@ -4,7 +4,7 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
 ;; editor-base init method defs
 
@@ -80,3 +80,88 @@
       (add-hook 'ediff-prepare-buffer-hook #'show-all)
       ;; restore window layout then done
       (add-hook 'ediff-quit-hook #'winner-undo))))
+
+(defmethod qingeditor/cls/init-eldoc ((this qingeditor/module/editor-base))
+  (use-package eldoc
+    :defer t
+    :config
+    (progn
+      ;; enable eldoc in `eval-expression'
+      (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+      ;; enable eldoc in IELM
+      (add-hook 'ielm-mode-hook #'eldoc-mode)
+      ;; don't display eldoc on modeline
+      (qingeditor/font/hide-lighter eldoc-mode))))
+
+(defmethod qingeditor/cls/init-exec-path-from-shell ((this qingeditor/module/editor-base))
+  (use-package exec-path-from-shell
+    :init (when (or (qingeditor/system-is-mac)
+                    (qingeditor/system-is-linux))
+            (exec-path-from-shell-initialize))))
+
+(defmethod qingeditor/cls/init-help-fns+ ((this qingeditor/module/editor-base))
+  (use-package help-fns+
+    :commands (describe-keymap)
+    :init
+    (qingeditor/key-binder/set-leader-keys
+      "hdK" 'describe-keymap)))
+
+(defmethod qingeditor/cls/init-hi-lock ((this qingeditor/module/editor-base))
+  (with-eval-after-load 'hi-lock
+    (qingeditor/font/hide-lighter hi-lock-mode)))
+
+(defmethod qingeditor/cls/init-image-mode ((this qingeditor/module/editor-base))
+  (use-package image-mode
+    :defer t))
+
+(defmethod qingeditor/cls/init-imenu ((this qingeditor/module/editor-base))
+  (use-package imenu
+    :defer t
+    :init (qingeditor/key-binder/set-leader-keys
+            "ji" 'imenu)))
+
+(defmethod qingeditor/cls/init-linum ((this qingeditor/module/editor-base))
+  (when qingeditor/config/line-numbers
+    (add-hook 'prog-mode-hook 'linum-mode)
+    (add-hook 'text-mode-hook 'linum-mode))
+  (setq linum-format "%4d")
+  (qingeditor/toggle/add-toggle line-numbers
+    :mode linum-mode
+    :documentation "Show the line numbers."))
+
+(defmethod qingeditor/cls/init-occur-mode ((this qingeditor/module/editor-base))
+  (use-package occur-mode
+    :defer t))
+
+(defmethod qingeditor/cls/init-package-menu ((this qingeditor/module/editor-base))
+  (use-package package-menu-mode
+    :defer t))
+
+(defmethod qingeditor/cls/init-qingeditor/page-break-lines ((this qingeditor/module/editor-base))
+  (require 'qingeditor-page-break-lines)
+  (qingeditor/global-page-break-lines-mode t)
+  (qingeditor/font/hide-lighter qingeditor/page-break-lines-mode))
+
+(defmethod qingeditor/cls/init-pcre2el ((this qingeditor/module/editor-base))
+  (use-package pcre2el
+    :defer t
+    :init
+    (progn
+      (qingeditor/key-binder/declare-prefix "xr" "regular expressions")
+      (qingeditor/key-binder/declare-prefix "xre" "elisp")
+      (qingeditor/key-binder/declare-prefix "xrp" "pcre")
+      (qingeditor/key-binder/set-leader-keys
+        "xr/"    'rxt-explain
+        "xr'"    'rxt-convert-to-strings
+        "xrt"    'rxt-toggle-elisp-rx
+        "xrx"    'rxt-convert-to-rx
+        "xrc"    'rxt-convert-syntax
+        "xre/"   'rxt-explain-elisp
+        "xre'"   'rxt-elisp-to-strings
+        "xrep"   'rxt-elisp-to-pcre
+        "xret"   'rxt-toggle-elisp-rx
+        "xrex"   'rxt-elisp-to-rx
+        "xrp/"   'rxt-explain-pcre
+        "xrp'"   'rxt-pcre-to-strings
+        "xrpe"   'rxt-pcre-to-elisp
+        "xrpx"   'rxt-pcre-to-rx))))
