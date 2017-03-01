@@ -45,6 +45,7 @@ modules in repo is released with `qingeditor'.")
     :initarg :used-modules
     :initform (qingeditor/hash-table/init)
     :type qingeditor/hash-table
+    :reader qingeditor/cls/get-used-modules
     :documentation "`qingeditor' used modules, the modules defined in
 `~/.qingeditor' file.")
 

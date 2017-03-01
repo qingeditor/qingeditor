@@ -179,6 +179,16 @@
 
 (defmethod qingeditor/cls/after-configure-packages
   ((this qingeditor/modulemgr/configure-packages-listener) event)
-  (qingeditor/startup-buffer/message "> Configure finished"))
+  (let* ((modulemgr (qingeditor/cls/get-modulemgr event))
+         (used-modules (qingeditor/cls/get-used-modules modulemgr)))
+    ;; load used modules keymap-defs
+    (qingeditor/cls/iterate-items
+     used-modules
+     (progn
+       (let ((keymap-setter-filename (concat (qingeditor/cls/get-module-dir value) "keymap-defs.el")))
+         (when (and (qingeditor/cls/provide-keymap-defs value)
+                    (file-exists-p keymap-setter-filename))
+           (load keymap-setter-filename)))))
+    (qingeditor/startup-buffer/message "> Configure finished")))
 
 (provide 'qingeditor-modulemgr-configure-packages-listener)

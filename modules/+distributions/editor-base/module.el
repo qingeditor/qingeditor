@@ -60,4 +60,6 @@
   ((this qingeditor/module/editor-base))
   t)
 
-
+(defmethod qingeditor/cls/provide-keymap-defs
+  ((this qingeditor/module/editor-base))
+  t)

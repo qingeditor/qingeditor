@@ -17,14 +17,6 @@
                (file-exists-p func-filename))
       (load func-filename))))
 
-(defun qingeditor/modulemgr/keymap-provider-handler (event)
-  "Provide module keymap settings."
-  (let* ((module (qingeditor/cls/get-module event))
-         (keymap-setter-filename (concat (qingeditor/cls/get-module-dir module) "keymap-defs.el")))
-    (when (and (qingeditor/cls/provide-keymap-defs module)
-               (file-exists-p keymap-setter-filename))
-      (load keymap-setter-filename))))
-
 (defun qingeditor/modulemgr/extra-module-config-handler (event)
   "Provide some extra config settup."
   (let* ((module (qingeditor/cls/get-module event))
