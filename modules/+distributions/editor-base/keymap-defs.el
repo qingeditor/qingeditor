@@ -61,3 +61,46 @@
 (mapc (lambda (x) (apply #'qingeditor/key-binder/declare-prefix x))
       qingeditor/editor-base/key-binding-prefixes)
 
+(setq echo-keystrokes 0.02)
+;; auto-indent on RET
+(define-key global-map (kbd "RET") 'newline-and-indent)
+
+;; improve delete-other-windows
+(define-key global-map (kbd "C-x 1") 'qingeditor/editor-base/toggle-maximize-buffer)
+
+;; alternate binding to search next occurrence with isearch without
+;; exiting isearch
+(define-key isearch-mode-map (kbd "S-<return>") 'isearch-repeat-forward)
+(define-key isearch-mode-map (kbd "M-S-<return>") 'isearch-repeat-backward)
+;; Escape from isearch-mode("/" and "?" in evil-mode) like vim
+(define-key isearch-mode-map (kbd "<escape>") 'isearch-cancel)
+
+;; Make <escape> quit as much as possible
+(define-key minibuffer-local-map (kbd "<escape>") 'keyboard-escape-quit)
+(define-key minibuffer-local-ns-map (kbd "<escape>") 'keyboard-escape-quit)
+(define-key minibuffer-local-completion-map (kbd "<escape>") 'keyboard-escape-quit)
+(define-key minibuffer-local-must-match-map (kbd "<escape>") 'keyboard-escape-quit)
+(define-key minibuffer-local-isearch-map (kbd "<escape>") 'keyboard-escape-quit)
+
+;; linum margin bindings
+(global-set-key (kbd "<left-margin> <down-mouse-1>") 'qing-md-select-linum)
+(global-set-key (kbd "<left-margin> <mouse-1>") 'qing-mu-select-linum)
+(global-set-key (kbd "<left-margin <double-mouse-1>") 'qing-select-current-block)
+(global-set-key (kbd "<left-margin> <drag-mouse-1>") 'qing-mu-select-linum)
+
+;; qingeditor leader key bindings
+;; universal argument
+(qingeditor/key-binder/set-leader-keys "u" 'universal-argument)
+
+;; shell command
+(qingeditor/key-binder/set-leader-keys "!" 'shell-command)
+
+;; applications
+(qingeditor/key-binder/set-leader-keys
+  "ac"   'calc-dispatch
+  "ap"   'list-processes
+  "aP"   'proced
+  "au"   'undo-tree-visualize)
+
+;; buffers
+

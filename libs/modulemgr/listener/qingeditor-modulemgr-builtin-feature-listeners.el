@@ -17,6 +17,13 @@
                (file-exists-p func-filename))
       (load func-filename))))
 
+(defun qingeditor/modulemgr/alias-defs-handler (event)
+  "Give the command a short namespace."
+  (let* ((module (qingeditor/cls/get-module event))
+         (alias-filename (concat (qingeditor/cls/get-module-dir module) "alias-defs.el")))
+    (when (file-exists-p alias-filename)
+      (load alias-filename))))
+
 (defun qingeditor/modulemgr/extra-module-config-handler (event)
   "Provide some extra config settup."
   (let* ((module (qingeditor/cls/get-module event))
