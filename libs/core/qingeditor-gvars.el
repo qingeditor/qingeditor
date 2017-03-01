@@ -10,7 +10,7 @@
 
 (defgroup qingeditor nil "qingeditor variables group"
   :group 'starter-kit
-  :prefix 'qingeditor-)
+  :prefix 'qingeditor/)
 
 (defvar qingeditor/post-user-cfg-hook nil  "当用户配置函数调用之后执行的钩子函数。")
 (defvar qingeditor/post-user-cfg-hook-run nil
@@ -94,5 +94,55 @@ is not restored.")
 (qingeditor/define-local-var qingeditor/no-display nil
   "If non-nil, various Evil displays are inhibited.
 Use the macro `qingeditor/without-display' to set this variable.")
+
+(defgroup qingeditor/cjk nil
+  "CJK support"
+  :prefix "evilqingeditor/cjk/"
+  :group 'qingeditor)
+
+(defcustom qingeditor/cjk/emacs-word-boundary nil
+  "Determin word boundary exactly the same way as Emacs does."
+  :type 'boolean
+  :group 'qingeditor/cjk)
+
+(defcustom qingeditor/cjk/word-separating-categories
+  '(;; Kanji
+    (?C . ?H) (?C . ?K) (?C . ?k) (?C . ?A) (?C . ?G)
+    ;; Hiragana
+    (?H . ?C) (?H . ?K) (?H . ?k) (?H . ?A) (?H . ?G)
+    ;; Katakana
+    (?K . ?C) (?K . ?H) (?K . ?k) (?K . ?A) (?K . ?G)
+    ;; half-width Katakana
+    (?k . ?C) (?k . ?H) (?k . ?K) ; (?k . ?A) (?k . ?G)
+    ;; full-width alphanumeric
+    (?A . ?C) (?A . ?H) (?A . ?K) ; (?A . ?k) (?A . ?G)
+    ;; full-width Greek
+    (?G . ?C) (?G . ?H) (?G . ?K) ; (?G . ?k) (?G . ?A)
+    )
+  "List of pair (cons) of categories to determine word boundary
+used in `qingeditor/cjk/word-boundary-p'. See the documentation of
+`word-separating-categories'. Use `describe-categories' to see
+the list of categories."
+  :type '((character . character))
+  :group 'qingeditor/cjk)
+
+(defcustom qingeditor/cjk/word-combining-categories
+  '(;; default value in word-combining-categories
+    (nil . ?^) (?^ . nil)
+    ;; Roman
+    (?r . ?k) (?r . ?A) (?r . ?G)
+    ;; half-width Katakana
+    (?k . ?r) (?k . ?A) (?k . ?G)
+    ;; full-width alphanumeric
+    (?A . ?r) (?A . ?k) (?A . ?G)
+    ;; full-width Greek
+    (?G . ?r) (?G . ?k) (?G . ?A)
+    )
+  "List of pair (cons) of categories to determine word boundary
+used in `qingeditor/cjk/word-boundary-p'. See the documentation of
+`word-combining-categories'. Use `describe-categories' to see the
+list of categories."
+  :type '((character . character))
+  :group 'qingeditor/cjk)
 
 (provide 'qingeditor-gvars)
