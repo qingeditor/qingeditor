@@ -420,7 +420,7 @@ that `qingeditor' support and all the packages that module require."
                (not (package-installed-p pkg-name min-version))))))
     (dolist (pkg-name uninstalled-pkg-names)
       (if (qingeditor/cls/has-key (oref this :package-repo) pkg-name)
-          (add-to-list 'ret (qingeditor/cls/get-package pkg-name t))
+          (add-to-list 'ret (qingeditor/cls/get-package this pkg-name))
         (add-to-list 'ret (qingeditor/modulemgr/package (symbol-name pkg-name) :name pkg-name) t)))
     ret))
 
