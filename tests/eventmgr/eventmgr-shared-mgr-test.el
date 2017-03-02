@@ -38,7 +38,7 @@
        (should (equalp (qingeditor/cls/has-key event-table 1) t))
        (setq listener-list (qingeditor/cls/get event-table 1))
        (should (equalp (length listener-list) 1))
-       (qingeditor/cls/attach
+       (qingeditor/cls/attachs
 	mgr "identifier" "event" (lambda () (message "some string")))
        (setq listener-list (qingeditor/cls/get event-table 1))
        (should (equalp (length listener-list) 2))

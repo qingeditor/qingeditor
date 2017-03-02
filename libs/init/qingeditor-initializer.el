@@ -93,7 +93,7 @@ we finally process `qingeditor' modules."
          (funcall qingeditor/config/scratch-mode)))
      (setq-default qingeditor/initialized t)
      (run-hooks 'qingeditor/editor-ready-hooks)
-     (qingeditor/startup-buffer/message "editor ready"))))
+     (qingeditor/display-startup-echo-area-message))))
 
 (defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))

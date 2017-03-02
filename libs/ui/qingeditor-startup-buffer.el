@@ -273,7 +273,6 @@ Cate special text banner can be reachable via `998', `cat' or `random*'.
         (buffer-read-only nil))
     (progn
       (when banner
-        (qingeditor/startup-buffer/message (format "Banner: %s" banner))
         (if (image-type-available-p (intern (file-name-extension banner)))
             (qingeditor/startup-buffer/insert-image-banner banner)
           (qingeditor/startup-buffer/insert-ascii-banner-centered banner))

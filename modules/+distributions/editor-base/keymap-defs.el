@@ -129,7 +129,6 @@
   "eN" 'qing-previous-error
   "ep" 'qing-previous-error)
 
-
 (qingeditor/define-transient-state error
   :title "Error transient state"
   :hint-is-doc t
@@ -156,3 +155,41 @@
   ("n" qing-next-error "next")
   ("p" qing-next-error "previous")
   ("q" nil "quit" :exit t))
+
+;; file
+(qingeditor/key-binder/set-leader-keys
+ "fc"    'qing-copy-file
+ "fD"    'qing-delete-current-buffer-file
+ "fei"   'qing-find-user-init-filename
+ "fed"   'qing-find-user-config-file
+ "feD"   'qing-ediff-user-config-and-template
+ "fev"   'qing-display-and-copy-version
+ "fCd"   'qing-unix2dos
+ "fCu"   'qing-dos2unix
+ "fg"    'rgrep
+ "fl"    'find-file-literally
+ "fE"    'qing-sudo-edit
+ "fo"    'qing-open-file-or-directory-in-external-app
+ "fR"    'qing-rename-current-buffer-file
+ "fS"    'qing-write-all
+ "fs"    'save-buffer
+ "fvd"   'add-dir-local-variable
+ "fvf"   'add-file-local-variable
+ "fvp"   'add-file-local-variable-prop-line
+ "fy"    'qing-show-and-copy-buffer-filename)
+
+;; help
+(qingeditor/key-binder/set-leader-keys
+ "hdb"   'describe-bindings
+ "hdc"   'describe-char
+ "hdf"   'describe-function
+ "hdk"   'describe-key
+ "hdl"   'qing-describe-last-keys
+ "hdp"   'describe-package
+ "hdP"   'qing-describe-package
+ "hds"   'qing-describe-system-info
+ "hdt"   'describe-theme
+ "hdv"   'describe-variable
+ "hI"    'qing-report-issue
+ "hn"    'view-emacs-news)
+

@@ -173,4 +173,14 @@ and `qingeditor/line-func' must be set."
   (funcall qingeditor/gne-line-func
            (buffer-substring (point-at-bol) (point-at-eol))))
 
+(defun qingeditor/display-and-copy-version ()
+  "Echo the current qingeditor version and copy it."
+  (let ((msg (format "qingeditor v.%s" qingeditor/version)))
+    (message msg)
+    (kill-new msg)))
+
+(defun qingeditor/display-startup-echo-area-message ()
+  "Change the default welcome message of minibuffer to another one."
+  (message "qingeditor is ready."))
+
 (provide 'qingeditor-funcs)

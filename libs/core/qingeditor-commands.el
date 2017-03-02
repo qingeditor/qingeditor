@@ -115,5 +115,18 @@ Useful for making the home buffer the only visible buffer in the frame."
   (interactive "P")
   (qingeditor/next-error n reset))
 
+(defun qing-display-and-copy-version ()
+  "command wrapper of `qingeditor/display-and-copy-version'."
+  (interactive)
+  (qingeditor/display-and-copy-version))
+
+(qingeditor/define-command qing-write-all ()
+  "Save all buffers visiting a file."
+  (interactive)
+  (save-some-buffers
+   t
+   #'(lambda ()
+       (and (not buffer-read-only)
+            (buffer-file-name)))))
 
 (provide 'qingeditor-commands)

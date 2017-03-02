@@ -4,7 +4,7 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
 ;; The module manager class
 
@@ -113,6 +113,7 @@ a direcotry with a name starting with `+'.")
     :initarg :target-modules
     :intiform nil
     :type list
+    :reader qingeditor/cls/get-target-modules
     :documentation "The target loaded modules specifics, commonly specified in
 `~/.qingeditor' file.")
 
@@ -350,7 +351,8 @@ that `qingeditor' support and all the packages that module require."
       (let ((require-modules (qingeditor/cls/get-require-modules module)))
         ;; TODO we just leave this function, when finished first version, we
         ;; devel this function.
-        ))
+        (dolist (spec require-modules)
+          (qingeditor/cls/load-module this spec))))
     (qingeditor/cls/set-module-info
      event
      (list module-sym (qingeditor/cls/get (oref this :detected-modules) module-sym)))
