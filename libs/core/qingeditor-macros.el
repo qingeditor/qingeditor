@@ -309,4 +309,29 @@ is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
               ,@body))
         (qingeditor/end-undo-step)))))
 
+(defmacro qingeditor/define-module (module-name &reset defs)
+  "Define a module named `module-name'.
+
+\(fn MODULE_NAME  DOC [[KEY VALUE]...])"
+  (let ((doc-string (when (stringp (car-safe defs)) (pop defs)))
+        (require-modules (plist-get defs :require-modules))
+        (require-packages (plist-get defs :require-packages))
+        (has-extra-funcs-defs (plist-get defs :has-extra-funcs-defs))
+        (has-extra-config (plist-get defs :has-extra-config))
+        (has-loadpath-provider (plist-get defs :has-loadpath-provider))
+        (module-name (intern (format "qingeditor/module/%S" module-name))))
+    `(progn
+       (unless (qingeditor/module-registered ,module-name)
+         (defvar ,(intern (format "%S-require-modules" module-name))
+           ,require-modules)
+         (defvar ,(intern (format "%S-require-packages" module-name))
+           ,require-packages)
+         (defvar ,(intern (format "%S-has-extra-funcs-defs" module-name))
+           ,has-extra-funcs-defs)
+         (defvar ,(intern (format "%S-has-extra-config" module-name))
+           ,has-extra-config)
+         (defvar ,(intern (format "%S-has-loadpath-provider" module-name))
+           ,has-loadpath-provider)
+         (qingeditor/register-module ,module-name)))))
+
 (provide 'qingeditor-macros)

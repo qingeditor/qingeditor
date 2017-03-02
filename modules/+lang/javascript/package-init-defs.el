@@ -7,7 +7,19 @@
 ;; License: GPLv3
 (defmethod qingeditor/cls/init-coffee-mode
   ((this qingeditor/module/javascript))
-  )
+  (use-package coffee-mode
+    :defer t
+    :init
+    (progn
+      (defun qingeditor/javascript/coffee-indent ()
+        (if (coffee-line-wants-indent)
+            ;; We need to insert an additional tab because the last line was special.
+            (coffee-insert-spaces (_ (coffee-previous-indent) coffee-tab-width))
+          ;; otherwise keep at the same indentation level
+          (coffee-insert-spaces (coffee-previous-indent))))
+      (add-hook 'coffee-mode-hook
+                '(lambda ()
+                   (setq indent-line-function 'qingeditor/javascript/coffee-indent))))))
 
 (defmethod qingeditor/cls/init-flycheck
   ((this qingeditor/module/javascript))
