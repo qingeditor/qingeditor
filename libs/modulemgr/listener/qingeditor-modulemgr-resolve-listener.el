@@ -37,6 +37,7 @@
              (pkg-name-str (symbol-name pkg-name))
              (pkg (qingeditor/cls/get (oref modulemgr :package-repo) pkg-name))
              (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
+             (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
              (location (when (listp spec) (plist-get (cdr spec) :location)))
              (has-init (memq pkg-name init-list))
              (has-pre-init (memq pkg-name pre-init-list))
@@ -45,6 +46,8 @@
                               (null (qingeditor/cls/get-owners pkg)))
                          has-init)))
         (qingeditor/cls/set-property pkg :excluded excluded)
+        (when toggle
+          (qingeditor/cls/set-property pkg :toggle toggle))
         ;; setup package location
         (when location
           (let* ((pkg-from-source (qingeditor/cls/get-from-source pkg)))

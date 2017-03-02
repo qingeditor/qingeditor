@@ -79,4 +79,5 @@ initialized."
   (qingeditor/cls/bootstrap initializer)
   (qingeditor/cls/notify-finished-init initializer))
 
+
 (provide 'qingeditor-init-bootstrap)

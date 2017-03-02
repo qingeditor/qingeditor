@@ -43,6 +43,7 @@
    (toggle
     :initarg :toggle
     :initform t
+    :reader qingeditor/cls/get-toggle
     :type (satisfies (lambda (x) (or (symbolp x) (listp x))))
     :documentation "Packge is enable/installed if toggle evaluates to non-nil.")
 

@@ -379,7 +379,8 @@ that `qingeditor' support and all the packages that module require."
      (progn
        (when (and (not (oref value :lazy-install))
                   (not (memq (qingeditor/cls/get-location value) '(built-in site local)))
-                  (not (stringp (qingeditor/cls/get-location value))))
+                  (not (stringp (qingeditor/cls/get-location value)))
+                  (qingeditor/cls/enabledp value))
          (push value packages))))
     (setq packages (qingeditor/cls/get-uninstalled-packages this packages))
     (qingeditor/cls/set-param event 'target-packages packages)
@@ -448,7 +449,9 @@ that `qingeditor' support and all the packages that module require."
     (qingeditor/cls/iterate-items
      (oref this :used-packages)
      (progn
-       (when (eq stage (qingeditor/cls/get-stage value))
+       (when (and (qingeditor/cls/enabledp value)
+                  (eq stage (qingeditor/cls/get-stage value))
+                  (qingeditor/cls/enabledp value))
          (qingeditor/cls/set-param event 'target-package value)
          (qingeditor/cls/set-param event 'configure-stage stage)
          ;; before install cycle

@@ -8,3 +8,11 @@
 ;;
 ;; editor completion module extra function defs
 
+(defun qing-helm-face ()
+  "Describe face."
+  (interactive)
+  (require 'helm-elisp)
+  (let ((default (or (face-at-point) (thing-at-point 'symbol))))
+    (helm :sources (helm-def-source--emacs-faces
+                    (format "%s" (or default "default")))
+          :buffer "*helm faces*")))
