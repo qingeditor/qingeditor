@@ -15,9 +15,8 @@
   ((this qingeditor/module/javascript))
   "Declare the require package specs of this module."
   '(coffee-mode
-    company
+    (company :has-init nil)
     (company-tern :toggle (qingeditor/cls/package-usedp (qingeditor/gmodulemgr) 'company))
-    evil-matchit
     flycheck
     ggtags
     helm-gtags

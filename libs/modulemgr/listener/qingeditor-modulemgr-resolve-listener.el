@@ -25,16 +25,17 @@
     (oset module :enable-for enabled)
     (oset module :variables variables)
     (qingeditor/modulemgr/resolve-package
-     module (qingeditor/gmodulemgr)
+     module
      package-init-list package-pre-init-list package-post-init-list)))
 
 (defun qingeditor/modulemgr/resolve-package
-    (module modulemgr init-list pre-init-list post-init-list)
+    (module init-list pre-init-list post-init-list)
   "Resolve the packages of `module'."
   (let ((module-package-specs (qingeditor/cls/get-require-package-specs module)))
     (dolist (spec module-package-specs)
       (let* ((pkg-name (if (listp spec) (car spec) spec))
              (pkg-name-str (symbol-name pkg-name))
+             (modulemgr (qingeditor/gmodulemgr))
              (pkg (qingeditor/cls/get (oref modulemgr :package-repo) pkg-name))
              (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
              (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
@@ -75,7 +76,7 @@
              (format (concat "More than one init function found for "
                              "package %S. previous owner was %S, "
                              "replacing it with module %S.")
-                     pkg-name (car (qingeditor/cls/get-owners pkg))
+                     pkg-name (qingeditor/cls/get-name (car (qingeditor/cls/get-owners pkg)))
                      (qingeditor/cls/get-name module))))
           ;; last owner wins over the previous one
           (object-add-to-list pkg :owners module))
@@ -87,10 +88,11 @@
                     (oref pkg :excluded))
           (qingeditor/cls/warning
            modulemgr
-           (format (concat "package %s not initialized in module %s"
-                           "package %S. previous owner was %S, "
-                           "replacing it with module %S.")
-                   pkg-name (car (qingeditor/cls/get-owners pkg))
+           (format (concat "package %s not initialized in module %s, "
+                           "you may consider removing this package from "
+                           "the package list or use the :toggle keyword "
+                           "instead of a `when' form.")
+                   pkg-name (qingeditor/cls/get-name module)
                    (qingeditor/cls/get-name module))))
         ;; check if toggle can be applied
         (when (and (not ownerp)

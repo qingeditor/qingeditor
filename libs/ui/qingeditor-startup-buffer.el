@@ -72,7 +72,6 @@ home buffer buttons. Do not set this variable.")
 (defvar qingeditor/startup-buffer/loading-counter 0)
 (defvar qingeditor/startup-buffer/loading-value 0)
 (defvar qingeditor/startup-buffer/loading-dots-count (window-total-size nil 'width))
-(defvar qingeditor/startup-buffer/loading-dots-chunk-size)
 (defvar qingeditor/startup-buffer/loading-dots-chunk-threshold 3)
 
 (defun qingeditor/startup-buffer/message (msg &rest args)
@@ -477,9 +476,10 @@ buffer, right justified."
         (setq qingeditor/startup-buffer/loading-string
               (make-string
                (max 0
-                    (- (* qingeditor/startup-buffer/loading-dots-chunk-size
-                          qingeditor/startup-buffer/loading-value)
-                       (length suffix)))
+                    (floor (- (* qingeditor/startup-buffer/loading-dots-count
+                                 (/ (float qingeditor/startup-buffer/loading-value)
+                                    qingeditor/startup-buffer/loading-total-count))
+                              (length suffix))))
                qingeditor/startup-buffer/loading-char))
         (qingeditor/startup-buffer/set-mode-line (concat qingeditor/startup-buffer/loading-string
                                                          suffix)))

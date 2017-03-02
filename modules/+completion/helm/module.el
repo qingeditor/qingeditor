@@ -18,7 +18,7 @@
   "Declare the require package specs of this module."
   '(ace-jump-helm-line
     auto-highlight-symbol
-    bookmark
+    (bookmark :has-init)
     helm
     helm-ag
     helm-descbinds
@@ -29,6 +29,10 @@
     helm-swoop
     helm-themes
     (qingeditor/helm-help-mode :location local)
-    imenu
+    (imenu :has-init nil)
     popwin
-    projectile))
+    (projectile :has-init nil)))
+
+(defmethod qingeditor/cls/get-package-post-init-list
+  ((this qingeditor/module/helm))
+  '(bookmark imenu projectile))

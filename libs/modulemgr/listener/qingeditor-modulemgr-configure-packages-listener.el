@@ -55,10 +55,7 @@
   "prepare configure packages."
   (let ((modulemgr (qingeditor/gmodulemgr)))
     (setq qingeditor/startup-buffer/loading-total-count
-          (qingeditor/cls/count (oref modulemgr :used-packages)))
-    (setq qingeditor/startup-buffer/loading-dots-chunk-size
-          (/ qingeditor/startup-buffer/loading-dots-count
-             qingeditor/startup-buffer/loading-total-count))))
+          (qingeditor/cls/count (oref modulemgr :used-packages)))))
 
 (defmethod qingeditor/cls/before-configure-package
   ((this qingeditor/modulemgr/configure-packages-listener) event)
