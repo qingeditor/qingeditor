@@ -71,7 +71,7 @@
           (when (and (qingeditor/cls/get-owners pkg)
                      (not (memq pkg-name (qingeditor/cls/get-owners pkg))))
             (qingeditor/cls/warning
-             module
+             modulemgr
              (format (concat "More than one init function found for "
                              "package %S. previous owner was %S, "
                              "replacing it with module %S.")
@@ -86,7 +86,7 @@
                     has-post-init
                     (oref pkg :excluded))
           (qingeditor/cls/warning
-           module
+           modulemgr
            (format (concat "package %s not initialized in module %s"
                            "package %S. previous owner was %S, "
                            "replacing it with module %S.")
@@ -97,7 +97,7 @@
                    (and (not (eq 'unspecified toggle))
                         toggle))
           (qingeditor/cls/warning
-           module
+           modulemgr
            (format (concat "Ignoring :toggle for package %s because "
                            "module %S does not own it."
                            pkg-name

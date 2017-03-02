@@ -4,7 +4,7 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 
 (require 'qingeditor-eventmgr-listener-aggregate)
 
@@ -58,7 +58,7 @@
   ((this qingeditor/modulemgr/install-packages-listener) event)
   (let* ((installed-count (qingeditor/cls/get-param event 'installed-count))
          (total-install-count (qingeditor/cls/get-param event 'total-install-count))
-         (modulemgr (qingeditor/cls/get-modulemgr event))
+         (modulemgr (qingeditor/gmodulemgr))
          (package (qingeditor/cls/get-param event 'target-package))
          (module (car (qingeditor/cls/get-owners package)))
          (package-name (qingeditor/cls/get-name package)))

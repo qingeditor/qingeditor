@@ -131,11 +131,11 @@ changed."
   ;; Note: for packages in `used-packages' the owner is
   ;; always the car of the `:owners' slot.
   (let ((modules (oref this :owners))
-        (modulemgr (oref this :modulemgr)))
+        (modulemgr (qingeditor/gmodulemgr)))
     (while (and (consp modules)
                 (not (qingeditor/cls/module-usedp modulemgr (car modules))))
       (pop modules))
-    (when (qingeditor/cls/module-usedp modulemgr (car layers))
+    (when (qingeditor/cls/module-usedp modulemgr (car modules))
       (car modules))))
 
 (provide 'qingeditor-modulemgr-package)
