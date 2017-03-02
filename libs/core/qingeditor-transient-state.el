@@ -1,4 +1,3 @@
-;;; -*- lexical-binding: t -*-
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
@@ -7,7 +6,6 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 ;;
-
 (defun qingeditor/transient-state-func-name (name)
   "Return the name of the transient state function."
   (intern (format "qingeditor/%S-transient-state" name)))
@@ -18,7 +16,7 @@
 
 (defun qingeditor/transient-state-body-func-name (name)
   "Return the name of the transient state function."
-  (intern (format "qingeditor/%S-transient-state/body")))
+  (intern (format "qingeditor/%S-transient-state/body" name)))
 
 (defun qingeditor/transient-state-heads-name (name)
   "Return the name of the transient state heads variable which
@@ -50,8 +48,9 @@ holds the key bindings."
   (declare (indent 1))
   `(qingeditor/cls/attach
     qingeditor/geventmgr
+    qingeditor/user-config-setup-finished-event
     (qingeditor/eventmgr/event-handler/init
-     (lambda ()
+     (lambda (event)
        (let* ((props-var ,(qingeditor/transient-state-props-var-name
                            name))
               (prop-hint (cadr (assq 'hint props-var)))
@@ -156,8 +155,9 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
        (add-to-list ',props-var '(exit-sexp ,exit-sexp))
        (qingeditor/cls/attach
         qingeditor/geventmgr
+        qingeditor/user-config-setup-finished-event
         (qingeditor/eventmgr/event-handler/init
-         (lambda ()
+         (lambda (event)
            (eval
             (append
              '(defhydra ,func
@@ -192,3 +192,5 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
                               (when qingeditor/config/show-transient-state-color-guide
                                 (concat "\n" guide))))))
            ,@bindkeys))))))
+
+(provide 'qingeditor-transient-state)

@@ -14,7 +14,7 @@
 (defmethod event-handler-cls/get-name ((this event-handler-cls) name age)
   (list (car (oref this :data)) name age))
 
-(ert-deftest qingeditor/test/eventmgr/event-collection-test ()
+(ert-deftest qingeditor/test/eventmgr/event-handler-test ()
   (let (handler
         (l (lambda (name) (message "i am %s" name)))
         handler-ret
@@ -23,6 +23,9 @@
     		   l))
     (should (= 1 (oref handler :type)))
     (should (eq l (car (oref handler :callable-data))))
+    (setq handler (qingeditor/eventmgr/event-handler/init
+                   (lambda (name) (message "i am %s" name))))
+    (should (= 1 (oref handler :type)))
     (setq handler (qingeditor/eventmgr/event-handler/init
     		   (lambda (name)
     		     `("hello" ,name))))

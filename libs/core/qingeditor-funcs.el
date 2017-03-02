@@ -156,4 +156,21 @@ is not visible. Otherwise delegates to regular Emacs next-error."
      ((eq 'emacs sys)
       (call-interactively 'next-error)))))
 
+(defun qingeditor/gne-next (num reset)
+  "A generalized next-error function. This function can be used
+as `next-error-function' in any buffer that conforms ti the
+qingeditor generalized next-error API.
+
+The variables `qingeditor/gne-min-line', `qingeditor/gne-max-line',
+and `qingeditor/line-func' must be set."
+  (when reset
+    (setq qingeditor/gne-cur-line qingeditor/gne-min-line))
+  (setq qingeditor/gne-cur-line
+        (min qingeditor/gne-max-line
+             (max qingeditor/gne-min-line
+                  (+ num qingeditor/gne-cur-line))))
+  (goto-line qingeditor/gne-cur-line)
+  (funcall qingeditor/gne-line-func
+           (buffer-substring (point-at-bol) (point-at-eol))))
+
 (provide 'qingeditor-funcs)

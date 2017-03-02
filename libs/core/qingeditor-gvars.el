@@ -150,4 +150,14 @@ list of categories."
   :type '((character . character))
   :group 'qingeditor/cjk)
 
+(defvar-local qingeditor/gne-min-line nil
+  "The first line in the buffer that is a valid result.")
+(defvar-local qingeditor/gne-max-line nil
+  "The last line in the buffer that is a valid result.")
+(defvar-local qingeditor/gne-cur-line 0
+  "The current line in the buffer. (It is problematic to use
+point for this.)")
+(defvar-local qingeditor/gne-line-func nil
+  "The function to call to visit the result on a line.")
+
 (provide 'qingeditor-gvars)

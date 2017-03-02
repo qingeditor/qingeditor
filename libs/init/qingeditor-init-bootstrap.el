@@ -5,6 +5,7 @@
 (require 'qingeditor-macros)
 (require 'qingeditor-gvars)
 (require 'qingeditor-funcs)
+(require 'qingeditor-transient-state)
 (require 'qingeditor-types)
 (require 'qingeditor-commands)
 (require 'qingeditor-key-binder)

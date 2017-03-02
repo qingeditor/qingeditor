@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
@@ -127,3 +128,31 @@
   "en" 'qing-next-error
   "eN" 'qing-previous-error
   "ep" 'qing-previous-error)
+
+
+(qingeditor/define-transient-state error
+  :title "Error transient state"
+  :hint-is-doc t
+  :dynamic-hint
+  (let ((sys (qingeditor/error-delegate)))
+    (cond
+     ((eq 'flycheck sys)
+      "\nBrowsing flycheck errors from this buffer.")
+     ((eq 'emacs sys)
+      (let ((buf (next-error-find-buffer)))
+        (if buf
+            (concat "\nBrowsing entries from \""
+                    (buffer-name buf)
+                    "\""
+                    (with-current-buffer buf
+                      (when qingeditor/gne-line-func
+                        (format " (%d of %d)"
+                                (max 1 (1+ (- qingeditor/gne-cur-line
+                                              qingeditor/gne-min-line)))
+                                (1+ (- qingeditor/gne-max-line
+                                       qingeditor/gne-min-line))))))
+          "\nNo next-error capable buffer found.")))))
+  :bindings
+  ("n" qing-next-error "next")
+  ("p" qing-next-error "previous")
+  ("q" nil "quit" :exit t))
