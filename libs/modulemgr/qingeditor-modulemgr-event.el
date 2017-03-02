@@ -118,17 +118,7 @@ dispatch this event.")
    :type list
    :reader qingeditor/cls/get-module-spec
    :writer qingeditor/cls/set-module-spec
-   :documentation "The module spec for current module.")
-
-  (modulemgr
-   :initarg :modulemgr
-   :initform nil
-   :type (satisfies (lambda (x)
-                      (or (null x)
-                          (object-of-class-p x qingeditor/modulemgr/mgr))))
-   :reader qingeditor/cls/get-modulemgr
-   :writer qingeditor/cls/set-modulemgr
-   :documentation "The module manager reference."))
+   :documentation "The module spec for current module."))
 
   :documentation "The module manager event class.")
 

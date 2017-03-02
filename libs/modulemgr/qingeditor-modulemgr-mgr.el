@@ -184,7 +184,6 @@ that `qingeditor' support and all the packages that module require."
      (setq module (make-instance module-sym))
      ;; invoke the `qingeditor/cls/init' method of module object.
      (qingeditor/cls/set-name module key)
-     (qingeditor/cls/set-modulemgr module this)
      (qingeditor/cls/init module)
      (qingeditor/cls/set-module-dir module module-dir)
      (qingeditor/cls/set (oref this :module-repo) key module)
@@ -203,7 +202,6 @@ that `qingeditor' support and all the packages that module require."
          (unless package
            (setq package (qingeditor/modulemgr/package package-name :name package-sym))
            (qingeditor/cls/set (oref this :package-repo) package-sym package)
-           (qingeditor/cls/set-modulemgr package this)
            ;; a bootstrap package is protected
            (qingeditor/cls/set-property package :protected (or protected
                                                                (eq 'bootstrap stage)))
@@ -305,7 +303,6 @@ that `qingeditor' support and all the packages that module require."
         (setq event (qingeditor/cls/get-event this)))
       (qingeditor/cls/set-module-name event (symbol-name module-name))
       (qingeditor/cls/set-module event module)
-      (qingeditor/cls/set-modulemgr event this)
       (qingeditor/cls/set-module-spec
        event (qingeditor/cls/get-module-spec-by-name this module-name))
       (oset this :load-finished (1+ (oref this :load-finished)))

@@ -97,7 +97,7 @@ and its values are removed."
   (setq qingeditor/init-redisplay-count-private
         (1+ qingeditor/init-redisplay-count-private)))
 
-(defun qingeditor/modulemgr ()
+(defun qingeditor/gmodulemgr ()
   "Return the global module manager object."
   qingeditor/modulemgr)
 

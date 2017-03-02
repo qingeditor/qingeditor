@@ -23,7 +23,7 @@
 
 (defmethod qingeditor/cls/init-diminish ((this qingeditor/module/editor-bootstrap))
   "init diminish."
-  (let ((modulemgr (oref this :modulemgr)))
+  (let ((modulemgr (qingeditor/gmodulemgr)))
     (when (not (qingeditor/cls/package-usedp modulemgr 'spaceline))
       (add-hook
        'qingeditor/editor-ready-hooks

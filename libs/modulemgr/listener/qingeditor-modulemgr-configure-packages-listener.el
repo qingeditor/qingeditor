@@ -53,7 +53,7 @@
 (defmethod qingeditor/cls/prepare-configure-packages
   ((this qingeditor/modulemgr/configure-packages-listener) event)
   "prepare configure packages."
-  (let ((modulemgr (qingeditor/cls/get-modulemgr event)))
+  (let ((modulemgr (qingeditor/gmodulemgr)))
     (setq qingeditor/startup-buffer/loading-total-count
           (qingeditor/cls/count (oref modulemgr :used-packages)))
     (setq qingeditor/startup-buffer/loading-dots-chunk-size
@@ -77,7 +77,7 @@
   "Configure package."
   (let* ((package (qingeditor/cls/get-param event 'target-package))
          (package-name (qingeditor/cls/get-name package))
-         (modulemgr (qingeditor/cls/get-modulemgr event)))
+         (modulemgr (qingeditor/gmodulemgr)))
     (cond
      ((oref package :lazy-install)
       (qingeditor/startup-buffer/message
@@ -119,13 +119,14 @@
         (qingeditor/startup-buffer/message
          (format "%S is configured in the config file." package-name)))
        (t
-        (qingeditor/cls/do-configure-package this package modulemgr)))))))
+        (qingeditor/cls/do-configure-package this package)))))))
 
 (defmethod qingeditor/cls/do-configure-package
-  ((this qingeditor/modulemgr/configure-packages-listener) package modulemgr)
+  ((this qingeditor/modulemgr/configure-packages-listener) package)
   "Do actually configure `package'."
   (let* ((package-name (qingeditor/cls/get-name package))
-         (owner (car (qingeditor/cls/get-owners package))))
+         (owner (car (qingeditor/cls/get-owners package)))
+         (modulemgr (qingeditor/gmodulemgr)))
     (qingeditor/startup-buffer/message
      (format "> Configuring %S..." package-name))
     ;; pre-init
@@ -179,7 +180,7 @@
 
 (defmethod qingeditor/cls/after-configure-packages
   ((this qingeditor/modulemgr/configure-packages-listener) event)
-  (let* ((modulemgr (qingeditor/cls/get-modulemgr event))
+  (let* ((modulemgr (qingeditor/gmodulemgr))
          (used-modules (qingeditor/cls/get-used-modules modulemgr)))
     ;; load used modules keymap-defs
     (qingeditor/cls/iterate-items

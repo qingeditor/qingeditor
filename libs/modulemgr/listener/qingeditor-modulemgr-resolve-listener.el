@@ -25,7 +25,7 @@
     (oset module :enable-for enabled)
     (oset module :variables variables)
     (qingeditor/modulemgr/resolve-package
-     module (qingeditor/cls/get-modulemgr event)
+     module (qingeditor/gmodulemgr)
      package-init-list package-pre-init-list package-post-init-list)))
 
 (defun qingeditor/modulemgr/resolve-package

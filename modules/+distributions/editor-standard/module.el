@@ -18,7 +18,7 @@
   ((this qingeditor/module/editor-standard))
   "If this module dependent on some other modules, you can return
 a list of dependent modules symbol."
-  (let* ((modulemgr (qingeditor/cls/get-modulemgr this))
+  (let* ((modulemgr (qingeditor/gmodulemgr))
         (target-modules (qingeditor/cls/get-target-modules modulemgr))
         modules
         completion-found)

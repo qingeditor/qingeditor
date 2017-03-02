@@ -55,4 +55,4 @@
   )
 
 (defmethod qingeditor/cls/init-ws-butler ((this qingeditor/module/editor-editing))
-  (debug))
+  )

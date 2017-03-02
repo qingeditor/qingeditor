@@ -106,18 +106,7 @@ cannot being changed.")
     :initform '()
     :type list
     :reader qingeditor/cls/get-post-init-modules
-    :documentation "The list of modules with a post init method.")
-
-   (modulemgr
-    :initarg :modulemgr
-    :initform nil
-    :type (satisfies (lambda (x)
-                       (or (null x)
-                           (object-of-class-p x qingeditor/modulemgr/mgr))))
-    :reader qingeditor/cls/get-modulemgr
-    :writer qingeditor/cls/set-modulemgr
-    :documentation "The module manager reference.")
-   )
+    :documentation "The list of modules with a post init method."))
   :documentation "The `qingeditor' package description class.")
 
 (defmethod qingeditor/cls/enabledp
