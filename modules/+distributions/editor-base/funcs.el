@@ -542,14 +542,15 @@ kill internal buffer too."
 (defalias 'qing-frame-killer 'qingeditor/editor-base/frame-killer)
 
 (defun qingeditor/editor-base/toggle-frame-fullscreen ()
-  "Respect the `qingeditor/config/fullscreen-use-non-native' variable when
-toggling fullscreen."
   (interactive)
+  ;; fuck i don't know why, delete this statement
+  ;; fullscreen will very slow, who can tell me why
+  (message "(qingeditor) fullscreen frame action...")
   (if qingeditor/config/fullscreen-use-non-native
       (qingeditor/editor-base/toggle-frame-fullscreen-non-native)
     (toggle-frame-fullscreen)))
-(defalias 'qing-toggle-frame-fullscreen 'qingeditor/editor-base/toggle-frame-fullscreen)
 
+(defalias 'qing-toggle-frame-fullscreen 'qingeditor/editor-base/toggle-frame-fullscreen)
 ;; have no effect
 (defun qingeditor/editor-base/toggle-fullscreen ()
   "toggle full screen on X11 and Carbon."

@@ -514,6 +514,11 @@ in `qingeditor/temporary-undo' instead."
     (let (message-log-max)
       (apply #'message string args))))
 
+(defun qing-echo (string &rest args)
+  "command wrapper for `qingeditor/echo'."
+  (interactive)
+  (apply #'qingeditor/echo string args))
+
 (defun qingeditor/echo-area-save ()
   "save the current echo area in `qingeditor/echo-area-message'."
   (setq qingeditor/echo-area-message (current-message)))

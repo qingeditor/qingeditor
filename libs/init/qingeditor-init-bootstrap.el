@@ -70,7 +70,8 @@ initialized."
  qingeditor/initializer-ref "startup-renderer" (make-instance 'qingeditor/init/startup-buffer-render-listener))
 
 (let ((eventmgr (qingeditor/eventmgr/mgr/init qingeditor/shared-eventmgr))
-     (initializer qingeditor/initializer-ref))
+      (initializer qingeditor/initializer-ref))
+
   (qingeditor/cls/set-eventmgr initializer eventmgr)
   (qingeditor/cls/set-modulemgr initializer qingeditor/modulemgr)
   (qingeditor/cls/init initializer)

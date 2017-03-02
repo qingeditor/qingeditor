@@ -110,4 +110,50 @@ and its values are removed."
 `text-mode' but should."
   (run-hooks 'text-mode-hook))
 
+(defun qingeditor/alternate-buffer (&optional window)
+  "Switch back and forth between current and last buffer in the
+current window."
+  (let ((current-buffer (window-buffer window))
+        (buffer-predicate
+         (frame-parameter (window-frame window) 'buffer-predicate)))
+    ;; switch to first buffer previously shown in this window that matches
+    ;; frame-parameter `buffer-predicate'
+    (switch-to-buffer
+     (or (cl-find-if (lambda (buffer)
+                       (and (not (eq buffer current-buffer))
+                            (or (null buffer-predicate)
+                                (funcall buffer-predicate buffer))))
+                     (mapcar #'car (window-prev-buffers window)))
+         ;; `other-buffer' honors `buffer-predicate' so no need to filter
+         (other-buffer current-buffer t)))))
+
+(defun qingeditor/error-delegate ()
+  "Decide which error API to delegate to.
+
+Delegates to flycheck if it is enabled and the next-error buffer
+is not visible. Otherwise delegates to regular Emacs next-error."
+  (if (and (bound-and-true-p flyspell-mode)
+           (let ((buf (ignore-errors (next-error-find-buffer))))
+             (not (and buf (get-buffer-window buf)))))
+      'flycheck
+    'emacs))
+
+(defun qingeditor/next-error (&optional n reset)
+  "Dispatch to flycheck or standard emacs error."
+  (let ((sys (qingeditor/error-delegate)))
+    (cond
+     ((eq 'flycheck sys)
+      (call-interactively 'flycheck-next-error))
+     ((eq 'emacs sys)
+      (call-interactively 'next-error)))))
+
+(defun qingeditor/previous-error (&optional n reset)
+  "Dispatch to flycheck or standard emacs error."
+  (let ((sys (qingeditor/error-delegate)))
+    (cond
+     ((eq 'flycheck sys)
+      (call-interactively 'flycheck-previous-error))
+     ((eq 'emacs sys)
+      (call-interactively 'next-error)))))
+
 (provide 'qingeditor-funcs)

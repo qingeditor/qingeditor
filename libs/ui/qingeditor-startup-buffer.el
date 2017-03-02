@@ -180,7 +180,12 @@ already exist, and switch to it."
       (switch-to-buffer qingeditor/startup-buffer/name)
       (qingeditor/redisplay))))
 
-(defmethod qingeditor/startup-buffer/startup-hook ()
+(defun qingeditor/startup-buffer/refresh ()
+  "Force recreation of the qingeditor buffer."
+  (setq qingeditor/startup-buffer/last-width nil)
+  (qingeditor/startup-buffer/render t))
+
+(defun qingeditor/startup-buffer/startup-hook ()
   "Code executed when Emacs has finished loading."
   (with-current-buffer (get-buffer qingeditor/startup-buffer/name)
     (qingeditor/startup-buffer/insert-footer)
@@ -199,7 +204,7 @@ already exist, and switch to it."
     (force-mode-line-update)
     (qingeditor/startup-buffer/goto-link-line)))
 
-(defmethod qingeditor/startup-buffer/insert-footer ()
+(defun qingeditor/startup-buffer/insert-footer ()
   (save-excursion
     (let* ((maxcol qingeditor/startup-buffer/banner-length)
            (heart-path qingeditor/startup-buffer/purple-heart-png)

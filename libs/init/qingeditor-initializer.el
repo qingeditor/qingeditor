@@ -85,11 +85,15 @@ we finally process `qingeditor' modules."
      ;; nil earlier in the startup process to properly handle command line
      ;; arguments.
      (setq initial-buffer-choice (lambda () (get-buffer qingeditor/startup-buffer/name)))
+     (qingeditor/call-func qingeditor/config/user-config-setup "Call user configuration setup func...")
+     (qingeditor/cls/trigger qingeditor/geventmgr qingeditor/user-config-setup-finished-event)
+     (setq qingeditor/user-config-setup-event-dispatched t)
      (when (fboundp qingeditor/config/scratch-mode)
        (with-current-buffer "*scratch*"
          (funcall qingeditor/config/scratch-mode)))
      (setq-default qingeditor/initialized t)
-     (run-hooks 'qingeditor/editor-ready-hooks))))
+     (run-hooks 'qingeditor/editor-ready-hooks)
+     (qingeditor/startup-buffer/message "editor ready"))))
 
 (defmethod qingeditor/cls/load-editor-cfg-file
   ((this qingeditor/initializer))

@@ -81,4 +81,38 @@ If `count' is given, move `count - 1' lines downward first."
           (setq ln (1+ ln)))))
     (back-to-indentation)))
 
+(defun qing-home ()
+  "the command wrapper of `qingeditor/startup-buffer/refresh'."
+  (interactive)
+  (qingeditor/startup-buffer/refresh))
+
+(defun qing-home-delete-other-windows ()
+  "Open home qingeditor buffer and delete other windows.
+Useful for making the home buffer the only visible buffer in the frame."
+  (interactive)
+  (qing-home)
+  (delete-other-windows))
+
+(defun qing-cycle-qingeditor-theme ()
+  "command wrapper of `qingeditor/theme/cycle-qingeditor-theme'."
+  (interactive)
+  (qingeditor/theme/cycle-qingeditor-theme))
+
+(defun qing-alternate-buffer (&optional window)
+  "command wrapper of `qingeditor/alternate-buffer'."
+  (interactive)
+  (qingeditor/alternate-buffer window))
+
+;; error commands
+
+(defun qing-previous-error (&optional n reset)
+  "command wrapper of `qingeditor/previous-error'"
+  (interactive "P")
+  (qingeditor/previous-error n reset))
+
+(defun qing-next-error (&optional n reset)
+  "command wrapper of `qingeditor/next-error'."
+  (interactive "P")
+  (qingeditor/next-error n reset))
+
 (provide 'qingeditor-commands)

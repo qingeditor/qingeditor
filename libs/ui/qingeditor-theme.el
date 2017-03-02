@@ -1,4 +1,10 @@
-;; 编辑器相关的主题设置
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: GPLv3
 
 (defconst qingeditor/theme/emacs-build-in-themes
   (cons 'default (custom-available-themes))
@@ -137,7 +143,6 @@ package name does not match name plus `-theme' suffix.")
 
 (defun qingeditor/theme/cycle-qingeditor-theme ()
   "Cycle through themes defined in `qingeditor/config/themes'."
-  (interactive)
   (when qingeditor/theme/cur-theme
     (disable-theme qingeditor/theme/cur-theme)
     ;; if current theme isn't in cycleable themes, start over

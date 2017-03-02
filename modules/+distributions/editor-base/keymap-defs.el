@@ -103,4 +103,27 @@
   "au"   'undo-tree-visualize)
 
 ;; buffers
+(qingeditor/key-binder/set-leader-keys
+ "TAB"      'qing-alternate-buffer
+ "bd"       'qing-kill-this-buffer
+ "be"       'qing-safe-erase-buffer
+ "bh"       'qing-home
+ "b C-d"    'qing-kill-matching-buffers-rudely
+ "bn"       'next-buffer
+ "bm"       'qing-kill-other-buffers
+ "bN"       'qing-new-empty-buffer
+ "bP"       'qing-copy-clipboard-to-whole-buffer
+ "bp"       'previous-buffer
+ "bR"       'qing-safe-revert-buffer
+ "bs"       'qing-switch-to-scratch-buffer
+ "bY"       'qing-copy-whole-buffer-to-clipboard
+ "bw"       'read-only-mode)
 
+;; Cycling settings
+(qingeditor/key-binder/set-leader-keys "Tn" 'qing-cycle-qingeditor-theme)
+
+;; errors
+(qingeditor/key-binder/set-leader-keys
+  "en" 'qing-next-error
+  "eN" 'qing-previous-error
+  "ep" 'qing-previous-error)

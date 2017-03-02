@@ -41,6 +41,11 @@ list to prevent listener handler memory leak.")
 (defconst qingeditor/editor-ready-event "editor-ready-event"
   "After qingeditor finish all the setup procedure, dispatch this event.")
 
+(defconst qingeditor/user-config-setup-finished-event "user-config-setup-finished-event"
+  "After invoke user config setup function, dispatch this event.")
+(defvar qingeditor/user-config-setup-event-dispatched nil
+  "`t' if config setup had been dispatched.")
+
 (defvar qingeditor/initialized nil
   "`t' if the qingeditor finished init.")
 
