@@ -4,15 +4,11 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
-;; define global initializer class
-(require 'eieio-base)
+;; Define global initializer class
+
 (require 'qingeditor-stddir)
-(require 'qingeditor-init-event)
-(require 'qingeditor-eventmgr-mgr)
-(require 'qingeditor-hash-table)
-(require 'qingeditor-modulemgr-mgr)
 
 (defvar qingeditor/initializer/error-count nil
   "The number of error during the `qingeditor' startup.")
@@ -33,45 +29,6 @@
   "before loaded target modules, `qingeditor' render starup screen. but
 if you invoke `qingeditor' from terminal with a file path, this hook will not
 been run.")
-
-(defclass qingeditor/initializer ()
-  ((default-listeners
-     :initarg :default-listeners
-     :initform (qingeditor/hash-table/init)
-     :type qingeditor/hash-table
-     :documentation "default event listeners")
-
-   (eventmgr
-     :initarg :eventmgr
-     :initform nil
-     :type (satisfies (lambda (obj)
-                        (or (null obj)
-                            (object-of-class-p obj qingeditor/eventmgr/mgr))))
-     :documentation "The event manager of `qingeditor/initializer' object")
-
-   (modulemgr
-    :initarg :modulemgr
-    :initform nil
-    :type (satisfies (lambda (obj)
-                       (or (null obj)
-                           (object-of-class-p obj qingeditor/modulemgr/mgr))))
-    :documentation "The modulemgr of `qingeditor/initializer' object")
-
-   (error-count
-    :initarg :error-count
-    :initform 0
-    :type number
-    :documentation "The number of error during the `qingeditor' startup.")
-
-   (event
-    :initarg :event
-    :initform nil
-    :type (satisfies (lambda (event)
-                       (or (null event)
-                           (object-of-class-p event qingeditor/init/event))))
-    :documentation "Init event reference.")
-   )
-  :documentation "global initializer class")
 
 (defun qingeditor/initializer/init ()
   "init `qingeditor' in this method, we first find the configuration
@@ -151,7 +108,7 @@ we finally process `qingeditor' modules."
   ;; )
   )
 
-(defmethod qingeditor/initializer/removes-gui-elements ()
+(defun qingeditor/initializer/removes-gui-elements ()
   "Remove the menu bar, tool bar and scroll bars."
   ;; removes the GUI elements
   (unless (qingeditor/window-system-is-mac)
@@ -187,7 +144,8 @@ we finally process `qingeditor' modules."
     (run-hooks 'qingeditor/initializer/editor-config-ready-hook)))
 
 (defun qingeditor/initializer/render-startup-screen ()
-  )
+  (qingeditor/startup-buffer/render)
+  (run-hooks 'qingeditor/initializer/render-hook))
 
 (defun qingeditor/initializer/generate-new-cfg-filename-from-tpl (&optional arg)
   "Generate a new configuration file for `qingeditor'."
@@ -239,7 +197,7 @@ a display string and the value is the actual to return."
   (let ((ido-max-window-height (1+ (length candidates))))
     (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates)) candidates))))
 
-(defmethod qingeditor/cls/increase-error-count ()
+(defun qingeditor/initializer/increase-error-count ()
   "Increase start up error count."
   (setq qingeditor/initializer/error-count
         (1+ qingeditor/initializer/error-count)))
