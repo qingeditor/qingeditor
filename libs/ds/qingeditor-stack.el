@@ -5,54 +5,50 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
 ;; Define a simple stack class
 
-(defclass qingeditor/stack ()
-  ((data
-    :initarg :data
-    :initform nil
-    :type list
-    :documetation "The data repo that store stack item."))
-  :documentation "Define a simple stack class
-
-Provide a simple interface that support stack operation.")
-
-(defmethod qingeditor/cls/push ((this qingeditor/stack) data)
+(defun qingeditor/stack/push (stack item)
   "push a item into stack."
-  (push data (oref this :data))
-  this)
+  (push item stack))
 
-(defmethod qingeditor/cls/pop ((this qingeditor/stack))
+(defun qingeditor/stack/pop (stack)
   "Pop a item from stack."
-  (pop (oref this :data)))
+  (pop stack))
 
 (defmethod qingeditor/cls/bottom ((this qingeditor/stack))
   "Get the bottom item of the stack."
   (car (last (oref this :data))))
 
-(defmethod qingeditor/cls/top ((this qingeditor/stack))
+(defun qingeditor/stack/bottom (stack)
+  "Get the bottom item of the stack."
+  (car (last stack)))
+
+(defun qingeditor/stack/top (stack)
   "Get the top item of the stack."
-  (car (oref this :data)))
+  (car stack))
 
 (defmethod qingeditor/cls/clear ((this qingeditor/stack))
   "Clear the stack."
   (oset this :data nil))
 
-(defmethod qingeditor/cls/count ((this qingeditor/stack))
+(defun qingeditor/stack/clear (stack)
+  "Clear the stack."
+  (setq stack nil))
+
+(defun qingeditor/stack/count (stack)
   "Get the count of the stack."
-  (length (oref this :data)))
+  (length stack))
 
-(defmethod qingeditor/cls/empty ((this qingeditor/stack))
+(defun qingeditor/stack/empty (stack)
   "If current stack if empty return `t' otherwise return `nil'."
-  (eq 0 (length (oref this :data))))
+  (eq 0 (length stack)))
 
-(defmethod qingeditor/cls/iterate ((this qingeditor/stack) func)
+(defun qingeditor/stack/iterate (stack func)
   "Iterate the stack from top tp bottom, apply the function `func',
 `func' receive the current item as argument."
-  (dolist (item (oref this :data))
-    (funcall func item))
-  this)
+  (dolist (item stack)
+    (funcall func item)))
 
 (provide 'qingeditor-stack)
