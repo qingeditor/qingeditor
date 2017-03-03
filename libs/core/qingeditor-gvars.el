@@ -12,11 +12,7 @@
   :group 'starter-kit
   :prefix 'qingeditor/)
 
-(defvar qingeditor/post-user-cfg-hook nil  "当用户配置函数调用之后执行的钩子函数。")
-(defvar qingeditor/post-user-cfg-hook-run nil
-  "标志变量，判断`qingeditor/post-user-config-hook'是否已经运行。")
-
-(defvar qingeditor/editor-ready-hooks nil
+(defvar qingeditor/editor-ready-hook nil
   "when qineditor load finished, run hook in this list.")
 
 (defvar qingeditor/insecure nil
@@ -25,29 +21,16 @@
 (defvar qingeditor/post-theme-change-hook nil
   "theme change hooks.")
 
-(defvar qingeditor/global-listeners-pool nil
-  "Collect the listeners of shared eventmgr, we can use this
-list to prevent listener handler memory leak.")
-
-(defconst qingeditor/window-resize-event "window-resize-event"
-  "When `emacs' frame changed it's size, `qingeditor' will dispatch this event.")
-
-(defconst qingeditor/display-system-ready-event "display-system-ready-event"
-  "When display system initialized, dispatch this event.")
+(defvar qingeditor/window-resize-hook nil
+  "When `emacs' frame changed it's size, run this hook.")
 
 (defvar qingeditor/display-system-ready-hook nil
   "When display system initialized, run this hook.")
 
-(defconst qinegditor/theme-changed-event "theme-changed-event"
-  "After a new theme loaded, dispatch this event.")
-
-(defconst qingeditor/editor-ready-event "editor-ready-event"
-  "After qingeditor finish all the setup procedure, dispatch this event.")
-
-(defconst qingeditor/user-config-setup-finished-event "user-config-setup-finished-event"
-  "After invoke user config setup function, dispatch this event.")
-(defvar qingeditor/user-config-setup-event-dispatched nil
-  "`t' if config setup had been dispatched.")
+(defvar qingeditor/user-config-setup-finished-hook nil
+  "After invoke user config setup function, run this hook.")
+(defvar qingeditor/user-config-setup-hook-invoked nil
+  "`t' if config setup had been runned.")
 
 (defvar qingeditor/initialized nil
   "`t' if the qingeditor finished init.")

@@ -81,8 +81,7 @@
               "settings may not be correct.")
       (if (listp (car qingeditor/config/default-font))
           (mapconcat 'car qingeditor/config/default-font ", ")
-        (car qingeditor/config/default-font))))
-   )
+        (car qingeditor/config/default-font)))))
   ;; set this for new version detect.
   ;; (if qingeditor/config/show-mode-line-unicode-symbols
   ;; (set-default qingeditor/upgrade/version-check-lighter "[⇪]")

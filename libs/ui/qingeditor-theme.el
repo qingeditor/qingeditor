@@ -213,9 +213,7 @@ package name does not match name plus `-theme' suffix.")
   "Some processing that needs to be done when the current theme
 has been changed to `theme'."
   (interactive)
-  (run-hooks 'qingeditor/post-theme-change-hook)
-  (qingeditor/cls/trigger qingeditor/geventmgr qinegditor/theme-changed-event "qingeditor/theme"
-                          `((theme-name ,theme))))
+  (run-hooks 'qingeditor/post-theme-change-hook))
 
 (defun qingeditor/theme/get-theme-package (theme)
   "Return the package theme for the given `theme' name."
