@@ -121,7 +121,7 @@ a direcotry with a name starting with `+'.")
   "If `non-nil' module manager will recheck dependency modules wether
 or not loaded.")
 
-(defvar qingeditor/modulemgr/error-count nil
+(defvar qingeditor/modulemgr/error-count 0
   "Non nil indicates the number of errors occurred during the
     installation of initialization.")
 
@@ -148,5 +148,9 @@ or not loaded.")
 
 (defun qingeditor/modulemgr/init-module-and-package-repo ()
   )
+
+(defun qingeditor/modulemgr/get-error-count ()
+  "Get this error count during startup."
+  qingeditor/modulemgr/error-count)
 
 (provide 'qingeditor-modulemgr)

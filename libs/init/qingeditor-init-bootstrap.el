@@ -13,19 +13,14 @@
 (require 'qingeditor-hash-table)
 (require 'qingeditor-hidden-mode-line)
 (require 'qingeditor-page-break-lines)
-(require 'qingeditor-eventmgr-shared-mgr)
-(require 'qingeditor-eventmgr-mgr)
 (require 'qingeditor-stddir)
 (require 'qingeditor-config)
 (require 'qingeditor-initializer)
 (require 'qingeditor-startup-buffer)
-(require 'qingeditor-emacs-setup-listener)
-(require 'qingeditor-startup-buffer-render-listener)
 (require 'qingeditor-modulemgr-installer)
 (require 'qingeditor-modulemgr)
 (require 'qingeditor-theme)
 (require 'qingeditor-font)
-(require 'qingeditor-modulemgr-default-listener-aggregate)
 
 ;; setup shared eventmgr
 ;; we attach some important global event listeners

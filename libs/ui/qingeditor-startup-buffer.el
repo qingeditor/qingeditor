@@ -188,20 +188,21 @@ already exist, and switch to it."
   "Code executed when Emacs has finished loading."
   (with-current-buffer (get-buffer qingeditor/startup-buffer/name)
     (qingeditor/startup-buffer/insert-footer)
-    (if (> (qingeditor/cls/get-error-count qingeditor/modulemgr) 0)
+    (if (> (qingeditor/modulemgr/get-error-count) 0)
         (progn
           (qingeditor/startup-buffer-mode)
           (qingeditor/startup-buffer/set-mode-line
            (format
             (concat "%s error(s) at startup!"
                     "qingeditor may not be able to operate properly.")
-            (qingeditor/cls/get-error-count qingeditor/modulemgr)))
+            (qingeditor/modulemgr/get-error-count)))
           (face-remap-add-relative 'mode-line
                                     '((:background "red") mode-line)))
       (qingeditor/startup-buffer/set-mode-line qingeditor/startup-buffer/default-mode-line)
       (qingeditor/startup-buffer-mode))
     (force-mode-line-update)
-    (qingeditor/startup-buffer/goto-link-line)))
+    (qingeditor/startup-buffer/goto-link-line)
+    ))
 
 (defun qingeditor/startup-buffer/insert-footer ()
   (save-excursion
