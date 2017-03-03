@@ -309,7 +309,7 @@ is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
               ,@body))
         (qingeditor/end-undo-step)))))
 
-(defmacro qingeditor/define-module (module-name &reset defs)
+(defmacro qingeditor/define-module (module-name &rest defs)
   "Define a module named `module-name'.
 
 \(fn MODULE_NAME  DOC [[KEY VALUE]...])"
@@ -321,7 +321,7 @@ is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
         (has-loadpath-provider (plist-get defs :has-loadpath-provider))
         (module-name (intern (format "qingeditor/module/%S" module-name))))
     `(progn
-       (unless (qingeditor/module-registered ,module-name)
+       (unless (qingeditor/modulemgr/module-registered ,module-name)
          (defvar ,(intern (format "%S-require-modules" module-name))
            ,require-modules)
          (defvar ,(intern (format "%S-require-packages" module-name))
@@ -332,6 +332,6 @@ is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
            ,has-extra-config)
          (defvar ,(intern (format "%S-has-loadpath-provider" module-name))
            ,has-loadpath-provider)
-         (qingeditor/register-module ,module-name)))))
+         (qingeditor/modulemgr/register-module ,module-name)))))
 
 (provide 'qingeditor-macros)

@@ -22,6 +22,7 @@
 (require 'qingeditor-emacs-setup-listener)
 (require 'qingeditor-startup-buffer-render-listener)
 (require 'qingeditor-modulemgr-installer)
+(require 'qingeditor-modulemgr)
 (require 'qingeditor-theme)
 (require 'qingeditor-font)
 (require 'qingeditor-modulemgr-default-listener-aggregate)
