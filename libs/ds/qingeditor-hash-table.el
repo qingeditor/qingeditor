@@ -150,7 +150,6 @@ arguments, the function collect the return value from `func' and return."
        (push (funcall func key value) results))
      table)
     results))
-(map)
 
 (defun qingeditor/hash-table/mapc (table func)
   "Iterate hash table and apply function `func', pass the `key' and `value'

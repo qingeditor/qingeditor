@@ -14,6 +14,26 @@
 (require 'qingeditor-hash-table)
 (require 'qingeditor-modulemgr-mgr)
 
+(defvar qingeditor/initializer/error-count nil
+  "The number of error during the `qingeditor' startup.")
+
+(defvar qingeditor/initializer/editor-config-ready-hook nil
+  "when `qingeditor' load configuration file, run this hook.")
+
+(defvar qingeditor/initializer/bootstrap-hook nil
+  "after load configuration, run this hook.")
+
+(defvar qingeditor/initializer/before-load-modules-hook nil
+  "before `qingeditor' load modules, run this hook.")
+
+(defvar qingeditor/initializer/adter-load-modules-hook nil
+  "when all configured modules loaded, run this hook.")
+
+(defvar qingeditor/initializer/render-hook nil
+  "before loaded target modules, `qingeditor' render starup screen. but
+if you invoke `qingeditor' from terminal with a file path, this hook will not
+been run.")
+
 (defclass qingeditor/initializer ()
   ((default-listeners
      :initarg :default-listeners
@@ -64,15 +84,33 @@ we finally process `qingeditor' modules."
      (qingeditor/cls/attach value (oref this :eventmgr))))
   (qingeditor/cls/load-editor-cfg-file this))
 
+(defun qingeditor/initializer/init ()
+  "init `qingeditor' in this method, we first find the configuration
+file in load-path, if the configuration not exist, `qingeditor' will
+first generate it, then load it normally. after load the configuration file,
+we finally process `qingeditor' modules."
+  (qingeditor/initializer/load-editor-cfg-file))
+
 (defmethod qingeditor/cls/bootstrap ((this qingeditor/initializer))
   "bootstrap `qingeditor', dispatch event."
   (let ((event (oref this :event)))
     (qingeditor/cls/set-name event qingeditor/init/event/bootstrap-event)
     (qingeditor/cls/trigger-event (oref this :eventmgr) event)
     (qingeditor/cls/set-name event qingeditor/init/event/render-event-event)
+    (qingeditor/initializer/render-startup-screen)
     (qingeditor/cls/trigger-event (oref this :eventmgr) event)
     (qingeditor/cls/init (oref this :modulemgr))
     (qingeditor/cls/process (oref this :modulemgr))))
+
+(defun qingeditor/initializer/bootstrap ()
+  "bootstrap `qingeditor', run some hooks."
+  (qingeditor/initializer/render-startup-screen)
+  (qingeditor/modulemgr/initialize)
+  (qingeditor/modulemgr/process))
+
+(defun qingeditor/initializer/notify-init-finished ()
+  "Do something to notify the qingeditor finish init."
+  )
 
 (defmethod qingeditor/cls/notify-finished-init ((this qingeditor/initializer))
   "Do something to notify the qingeditor finish init."
@@ -108,6 +146,16 @@ we finally process `qingeditor' modules."
       (oset this :event event)
       (qingeditor/cls/set-initializer event this)
       (qingeditor/cls/trigger-event (oref this :eventmgr) event))))
+
+(defun qingeditor/initializer/load-editor-cfg-file ()
+  "load `qingeditor' configuration file."
+  (unless (file-exists-p qingeditor/config/target-cfg-filename)
+    (qingeditor/initializer/generate-new-cfg-filename-from-tpl 'with-wizard))
+  (when (load-file qingeditor/config/target-cfg-filename)
+    (run-hooks 'qingeditor/initializer/editor-config-ready-hook)))
+
+(defun qingeditor/initializer/render-startup-screen ()
+  )
 
 (defmethod qingeditor/cls/generate-new-cfg-filename-from-tpl
   ((this qingeditor/initializer) &optional arg)
@@ -156,8 +204,58 @@ we finally process `qingeditor' modules."
                    qingeditor/config/target-cfg-filename)
           t)))))
 
+(defun qingeditor/initializer/generate-new-cfg-filename-from-tpl (&optional arg)
+  "Generate a new configuration file for `qingeditor'."
+  ;; preferences is alist where the key is the text to replace
+  ;; the value in the configuration template file
+  (let ((preferences
+         (when arg
+           `(("distribution 'editor-standard"
+              ,(format
+                "distribution '%S"
+                (qingeditor/initializer/ido-completing-read
+                 "What distribution of qingeditor would you like to start with?"
+                 `(("The standard distribution, recommended (editor-standard)"
+                    editor-standard)
+                   (,(concat "A minimalist distribution that you can build on"
+                             " (editor-base)")
+                    editor-base)))))
+             ("helm"
+              ,(qingeditor/initializer/ido-completing-read
+                "What type of completion framework di you want? "
+                '(("A heavy one but full featured (helm)"
+                   "helm")
+                  ("A lighter one but still powerfull (ivy)"
+                   "ivy")
+                  ;; for now, None works only if the user selected
+                  ;; the `editor-base' distribution
+                  ("None (not recommended)" ""))))))))
+    (with-current-buffer (find-file-noselect
+                          (concat qingeditor/template-dir ".qingeditor.template"))
+      (dolist (p preferences)
+        (goto-char (point-min))
+        (re-search-forward (car p))
+        (replace-match (cadr p)))
+      (let ((install
+             (if (file-exists-p qingeditor/config/target-cfg-filename)
+                 (y-or-n-p
+                  (format "%s already exists. Do you want to overwrite it ? "
+                          qingeditor/config/target-cfg-filename))
+               t)))
+        (when install
+          (write-file qingeditor/config/target-cfg-filename)
+          (message "%s has been generate success."
+                   qingeditor/config/target-cfg-filename)
+          t)))))
+
 (defmethod qingeditor/cls/ido-completing-read
   ((this qingeditor/initializer) prompt candidates)
+  "Call `ido-completing-read' with a CANDIDATES alist where the key is
+a display string and the value is the actual to return."
+  (let ((ido-max-window-height (1+ (length candidates))))
+    (cadr (assoc (ido-completing-read prompt (mapcar 'car candidates)) candidates))))
+
+(defun qingeditor/initializer/ido-completing-read (prompt candidates)
   "Call `ido-completing-read' with a CANDIDATES alist where the key is
 a display string and the value is the actual to return."
   (let ((ido-max-window-height (1+ (length candidates))))
@@ -180,5 +278,10 @@ a display string and the value is the actual to return."
 (defmethod qingeditor/cls/increase-error-count ((this qingeditor/initializer))
   "Increase start up error count."
   (oset this :error-count (1+ (oref this :error-count))))
+
+(defmethod qingeditor/cls/increase-error-count ()
+  "Increase start up error count."
+  (setq qingeditor/initializer/error-count
+        (1+ qingeditor/initializer/error-count)))
 
 (provide 'qingeditor-initializer)

@@ -35,6 +35,9 @@ list to prevent listener handler memory leak.")
 (defconst qingeditor/display-system-ready-event "display-system-ready-event"
   "When display system initialized, dispatch this event.")
 
+(defvar qingeditor/display-system-ready-hook nil
+  "When display system initialized, run this hook.")
+
 (defconst qinegditor/theme-changed-event "theme-changed-event"
   "After a new theme loaded, dispatch this event.")
 
