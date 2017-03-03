@@ -8,8 +8,6 @@
 ;;
 ;; Define global initializer class
 
-(require 'qingeditor-stddir)
-
 (defvar qingeditor/initializer/error-count nil
   "The number of error during the `qingeditor' startup.")
 

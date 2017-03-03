@@ -8,6 +8,8 @@
 ;; License: GPLv3
 ;;; Code:
 
+(require 'qingeditor-modulemgr-module)
+
 (defvar qingeditor/modulemgr/mdoule-detect-hook nil
   "When module manager init, it will detect all the modules under
 direcotry `qingeditor/modulemgr/module-directory'. when this stage finished,
@@ -19,13 +21,15 @@ run this hook.")
 (defvar qingeditor/modulemgr/load-modules-hook nil
   "When module manager load modules, run this hook.")
 
-(defvar qingeditor/modulemgr/load-module-resolve-hook nil
-  "Before start load module cycle begin, we must get a module object,
-run this hook.")
-
 (defvar qingeditor/modulemgr/before-load-module-hook nil
-  "Before module manager load target module,
-run this hook.")
+  "Before module manager load target module, run this hook.
+the function in this hook receive `module-name'
+and `module-spec' arguments.")
+
+(defvar qingeditor/modulemgr/load-module-hook nil
+  "When module manager load target module, run this hook
+the function in this hook receive `module-name'
+and `module-spec' arguments.")
 
 (defvar qingeditor/modulemgr/after-load-module-hook nil
   "After module manager finished load target module,
@@ -110,7 +114,7 @@ a direcotry with a name starting with `+'.")
   "The target loaded modules specifics, commonly specified in
 `~/.qingeditor' file.")
 
-(defvar qingeditor/modulemgr/load-finished 0
+(defvar qingeditor/modulemgr/load-recursive-level 0
   "The guard variable during recursively load module.")
 
 (defvar qingeditor/modulemgr/force-distribution nil
@@ -141,12 +145,177 @@ or not loaded.")
   (run-hooks 'qingeditor/modulemgr/mdoule-detect-hook))
 
 (defun qingeditor/modulemgr/process ()
-  )
+  "Do actually module process."
+  (qingeditor/modulemgr/load-modules))
+
+(defun qingeditor/modulemgr/load-modules ()
+  "This method do loaded the target modules."
+  (catch 'qingeditor-modulemgr-register-module-return
+    (when qingeditor/modulemgr/modules-are-loaded
+      (throw 'qingeditor-modulemgr-register-module-return this))
+    ;; run before load modules hook
+    (run-hooks 'qingeditor/modulemgr/before-load-modules-hook)
+    (dolist (module-spec qingeditor/modulemgr/target-modules)
+      (qingeditor/modulemgr/load-module module-spec))
+    ;; run after load modules hook
+    (run-hooks 'qingeditor/modulemgr/after-load-modules-hook)
+    (setq qingeditor/modulemgr/modules-are-loaded t)))
+
+(defun qingeditor/modulemgr/load-module (module-spec)
+  "Do load the module specified by `module-spec'."
+  (catch 'qingeditor-modulemgr-load-module-return
+    (let* ((module-name (if (listp module-spec) (car module-spec) module-spec))
+           (module (qingeditor/hash-table/get
+                    qingeditor/modulemgr/module-repo module-name)))
+      ;; we must first check wether `qingeditor' support the module named `module-name'
+      (unless module
+        (error "qingeditor doesn't support module: %S" module-name))
+      (when (memq module-name qingeditor/modulemgr/used-modules)
+        (throw 'qingeditor-modulemgr-load-module-return
+               (qingeditor/hash-table/get
+                qingeditor/modulemgr/module-repo module-name)))
+      (run-hook-with-args
+       'qingeditor/modulemgr/before-load-module-hook
+       module-name module-spec)
+      (setq qingeditor/modulemgr/load-recursive-level
+            (1+ qingeditor/modulemgr/load-recursive-level))
+      (run-hook-with-args
+       'qingeditor/modulemgr/load-module-hook
+       module-name module-spec)
+      ;; we need check dependencies of current module
+      (let ((module-requires (intern (format "%S-require-modules" module-name))))
+        (when (and (boundp module-requires)
+                   (listp module-requires)
+                   (> (length module-requires) 0))
+          ;; we load module recursively
+          ;; TODO we just leave this function, when finished first version, we
+          ;; devel this function.
+          (dolist (spec require-modules)
+            (qingeditor/modulemgr/load-module spec))))
+      (setq qingeditor/modulemgr/load-recursive-level
+            (1- qingeditor/modulemgr/load-recursive-level))
+      (run-hook-with-args
+       'qingeditor/modulemgr/after-load-module-hook
+       module-name)
+      (add-to-list 'qingeditor/modulemgr/used-modules module-name)
+      module)))
 
 (defun qingeditor/modulemgr/detect-modules ()
-  )
+  "Gather `qingeditor' modules."
+  (let ((search-paths (append (list qingeditor/modulemgr/module-directory)
+                              qingeditor/config/cfg-module-dir
+                              (list qingeditor/modulemgr/private-module-directory)
+                              (when qingeditor/config/target-cfg-dir
+                                (list qingeditor/config/target-cfg-dir)))))
+    ;; depth-first search of subdirectories
+    (while search-paths
+      (let ((current-path (car search-paths)))
+        (setq search-paths (cdr search-paths))
+        (dolist (sub (directory-files current-path t nil 'nosort))
+          ;; ignore ".", ".." and non-directories
+          (unless (or (string-equal ".." (substring sub -2))
+                      (string-equal "." (substring sub -1))
+                      (not (file-directory-p sub)))
+            (let ((type (qingeditor/modulemgr/get-directory-type sub)))
+              (cond
+               ((eq 'category type)
+                (let ((category (qingeditor/modulemgr/get-category-from-path sub)))
+                  (qingeditor/startup-buffer/message "-> Discovered category: %S"
+                                                     category)
+                  (add-to-list 'qingeditor/modulemgr/module-categories category)
+                  (setq search-paths (cons sub search-paths))))
+               ((eq 'module type)
+                (add-to-list 'qingeditor/modulemgr/detected-modules
+                             (cons (qingeditor/modulemgr/get-module-sym-from-path sub)  sub)))
+               (t
+                ;; module not found, add it to search path, recursively to search
+                (setq search-paths (cons sub search-paths)))))))))))
+
+(defun qingeditor/modulemgr/get-directory-type (path)
+  "Get the type of directory pointed by `path'
+Possible return values:
+module    - the direcotry is module
+category  - the direcotry is category
+nil       - the directory is a regular direcotry"
+  (when (file-directory-p path)
+    (if (string-match
+         "^+" (file-name-nondirectory
+               (directory-file-name path)))
+        'category
+      (let ((files (directory-files path)))
+        ;; moest frequent encounter in a module are tested first
+        (when (member "module.el" files)
+          'module)))))
+
+(defun qingeditor/modulemgr/get-category-from-path (dirpath)
+  "Return a ctaegory symbol from the given `dirpath' The directory name must start
+with `+'.Return `nil' if the direcotry is not a category."
+  (when (file-directory-p dirpath)
+    (let ((dirname (file-name-nondirectory
+                    (directory-file-name dirpath))))
+      (when (string-match "^+" dirname)
+        (intern (substring dirname 1))))))
+
+(defun qingeditor/modulemgr/get-module-sym-from-path (dirpath)
+  "Get module symbol from `dirpath'."
+  (intern (file-name-nondirectory (directory-file-name dirpath))))
 
 (defun qingeditor/modulemgr/init-module-and-package-repo ()
+  "Before we do module init, configure module, we must init all module object
+that `qingeditor' support and all the packages that module require."
+  (dolist (item qingeditor/modulemgr/detected-modules)
+    (let* ((module-name (car item))
+           (module-dir (file-name-as-directory (cdr item)))
+           (module-filename (concat module-dir "module.el"))
+           module
+           package-sepcs)
+     ;; first phase, we just load module define file and instance
+     ;; module class
+     (unless (file-exists-p module-filename)
+       (error "The module.el file of %S is not exist." key))
+     (load module-filename)
+     (setq module (make-instance 'qingeditor/modulemgr/module))
+     ;; invoke the `qingeditor/cls/init' method of module object.
+     (qingeditor/cls/set-name module module-name)
+     (qingeditor/cls/init module)
+     (qingeditor/cls/set-module-dir module module-dir)
+     (qingeditor/hash-table/set qingeditor/modulemgr/module-repo module-name module)
+   ;;   (setq package-sepcs (qingeditor/cls/get-require-package-specs module))
+  ;;    (dolist (spec package-sepcs)
+  ;;      ;; we just simple instance the package class
+  ;;      ;; and set the name of package object.
+  ;;      (let* ((package-sym (if (listp spec) (car spec) spec))
+  ;;             (package-name (symbol-name package-sym))
+  ;;             (package (qingeditor/cls/get (oref this :package-repo) package-sym nil))
+  ;;             (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
+  ;;             (stage (when (listp spec) (plist-get (cdr spec) :stage)))
+  ;;             (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
+  ;;             (protected (when (listp spec) (plist-get (cdr spec) :protected)))
+  ;;             (package-installed nil))
+  ;;        (unless package
+  ;;          (setq package (qingeditor/modulemgr/package package-name :name package-sym))
+  ;;          (qingeditor/cls/set (oref this :package-repo) package-sym package)
+  ;;          ;; a bootstrap package is protected
+  ;;          (qingeditor/cls/set-property package :protected (or protected
+  ;;                                                              (eq 'bootstrap stage)))
+  ;;          (when protected
+  ;;            (qingeditor/cls/set (oref this :protected-packages) package-sym package)))
+  ;;        (when toggle
+  ;;          (qingeditor/cls/set-property package :toggle toggle))
+  ;;        (when stage
+  ;;          (qingeditor/cls/set-property package :stage stage))
+  ;;        (if min-version
+  ;;            (progn
+  ;;              (qingeditor/cls/set-property package :min-version (version-to-list min-version))
+  ;;              (setq package-installed (if (package-installed-p package-sym min-version)
+  ;;                                          t nil)))
+  ;;          (setq package-installed (if (package-installed-p package-sym)
+  ;;                                      t nil)))
+  ;;        (oset package :installed package-installed)))))
+  ;; (qingeditor/cls/iterate-items
+  ;;  (oref this :detected-modules)
+    )
+    )
   )
 
 (defun qingeditor/modulemgr/get-error-count ()

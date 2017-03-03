@@ -4,9 +4,9 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: MITGPLv3
 ;;
-;; define module class
+;; Define module class
 ;; we use `qingeditor/modulemgr/module' to describe the `emacs' package module
 
 (defclass qingeditor/modulemgr/module ()

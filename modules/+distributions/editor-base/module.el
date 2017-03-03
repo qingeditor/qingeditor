@@ -1,3 +1,4 @@
+;;; qingeditor --- a distribution of Emacs editor
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
@@ -7,16 +8,15 @@
 ;; License: GPLv3
 ;;
 ;; The editor-base module class
+;;; Code:
 
-(defclass qingeditor/module/editor-base
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-base module class")
-
-(defmethod qingeditor/cls/define-package-specs
-  ((this qingeditor/module/editor-base))
-  "Declare the require package specs of this module."
-  '((abbrev :location built-in)
+(qingeditor/define-module
+ editor-bootstrap
+ "The editor-bootstrap config  module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ :require-packages
+ '((abbrev :location built-in)
     ace-window
     (archive-mode :location built-in)
     (bookmark :location built-in)
@@ -50,16 +50,5 @@
     (url :location built-in)
     (visual-line-mode :location built-in)
     (whitespace :location built-in)
-    (winner :location built-in)))
-
-(defmethod qingeditor/cls/provide-extra-func-definitions
-  ((this qingeditor/module/editor-base))
-  t)
-
-(defmethod qingeditor/cls/provide-extra-module-config
-  ((this qingeditor/module/editor-base))
-  t)
-
-(defmethod qingeditor/cls/provide-keymap-defs
-  ((this qingeditor/module/editor-base))
-  t)
+    (winner :location built-in))
+ )

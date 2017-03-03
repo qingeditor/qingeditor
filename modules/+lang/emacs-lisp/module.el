@@ -1,13 +1,18 @@
+;;; qingeditor --- a distribution of Emacs editor
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
+;; License: GPLv3
 ;;
-;; The emacs-lisp module class
+;; The editor-base module class
+;;; Code:
 
-(defclass qingeditor/module/emacs-lisp (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The emacs-lisp module class")
+(qingeditor/define-module
+ emacs-lisp
+ "The emacs-lisp config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ )
