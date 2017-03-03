@@ -1,5 +1,12 @@
-;; second stage init script
-;; in this stage we instance initializer class, setup listeners and load global functions.
+;;; qingeditor --- a distribution of Emacs editor
+;; Copyright (c) 2016-2017 zzu_softboy & Contributors
+;;
+;; Author: zzu_softboy <zzu_softboy@163.com>
+;; Github: https://www.github.com/qingeditor/qingeditor
+;;
+;; This file is not part of GNU Emacs.
+;; License: GPLv3
+
 (require 'eieio)
 (require 'package)
 (require 'qingeditor-macros)
