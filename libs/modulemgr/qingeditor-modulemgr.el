@@ -192,6 +192,8 @@ or not loaded.")
           ;; devel this function.
           (dolist (spec require-modules)
             (qingeditor/modulemgr/load-module spec))))
+      ;; setup self
+      (qingeditor/modulemgr/setup-module module-name module-spec)
       (setq qingeditor/modulemgr/load-recursive-level
             (1- qingeditor/modulemgr/load-recursive-level))
       (run-hook-with-args
@@ -199,6 +201,55 @@ or not loaded.")
        module-name)
       (add-to-list 'qingeditor/modulemgr/used-modules module-name)
       module)))
+
+(defun qingeditor/modulemgr/setup-module (module-name module-spec)
+  "This function handle the module resolve, it setup infomation for
+`qingeditor/modulemgr/module' object using module `specific'. you must
+ensure module object exist."
+  (let ((module (qingeditor/hash-table/get
+                 qingeditor/modulemgr/module-repo module-name))
+        (disabled (when (listp module-spec)
+                    (qingeditor/mplist-get module-spec :disabled-for)))
+        (enabled (when (listp module-spec)
+                   (if (memq :enable-for module-spec)
+                       (qingeditor/mplist-get module-spec :enable-for)
+                     'unspecified)))
+        (variables (when (listp module-spec)
+                     (qingeditor/mplist-get module-spec :variables))))
+    (oset module :disabled-for disabled)
+    (oset module :enable-for enabled)
+    (oset module :variables variables)
+    (qingeditor/modulemgr/setup-module-packages module-name)))
+
+(defun qingeditor/modulemgr/setup-module-packages (module-name)
+  "This function setup the packages of module, using infomation
+defined in `module.el' of target module."
+  (let* ((module (qingeditor/hash-table/get
+                  qingeditor/modulemgr/module-repo module-name))
+         (module-require-packages
+          (intern (format "%S-require-packages" module-name))))
+    (when (and (boundp module-require-packages)
+               (listp module-require-packages)
+               (> (length module-require-packages) 0))
+      (dolist (spec module-require-packages)
+        (let* ((pkg-name (if (listp spec) (car spec) spec))
+               (pkg-name-str (symbol-name pkg-name))
+               (pkg (qingeditor/hash-table/get
+                     qingeditor/modulemgr/package-repo) pkg-name)
+               (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
+               (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
+               (location (when (listp spec) (plist-get (cdr spec) :location)))
+               (init-func (intern (format "qingeditor/%S/init-%S"
+                                          module-name pkg-name)))
+               (pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name
+                                              pkg-name)))
+               (post-init-func (intern (format "qingeditor/%S/post-init-%S" module-name
+                                               pkg-name)))
+               (ownerp (or (and (eq 'config (qingeditor/cls/get-from-source pkg))
+                                (null (qingeditor/cls/get-owners pkg)))
+                           (boundp init-func))))
+          (when )
+          )))))
 
 (defun qingeditor/modulemgr/detect-modules ()
   "Gather `qingeditor' modules."
@@ -280,43 +331,43 @@ that `qingeditor' support and all the packages that module require."
      (qingeditor/cls/init module)
      (qingeditor/cls/set-module-dir module module-dir)
      (qingeditor/hash-table/set qingeditor/modulemgr/module-repo module-name module)
-   ;;   (setq package-sepcs (qingeditor/cls/get-require-package-specs module))
-  ;;    (dolist (spec package-sepcs)
-  ;;      ;; we just simple instance the package class
-  ;;      ;; and set the name of package object.
-  ;;      (let* ((package-sym (if (listp spec) (car spec) spec))
-  ;;             (package-name (symbol-name package-sym))
-  ;;             (package (qingeditor/cls/get (oref this :package-repo) package-sym nil))
-  ;;             (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
-  ;;             (stage (when (listp spec) (plist-get (cdr spec) :stage)))
-  ;;             (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
-  ;;             (protected (when (listp spec) (plist-get (cdr spec) :protected)))
-  ;;             (package-installed nil))
-  ;;        (unless package
-  ;;          (setq package (qingeditor/modulemgr/package package-name :name package-sym))
-  ;;          (qingeditor/cls/set (oref this :package-repo) package-sym package)
-  ;;          ;; a bootstrap package is protected
-  ;;          (qingeditor/cls/set-property package :protected (or protected
-  ;;                                                              (eq 'bootstrap stage)))
-  ;;          (when protected
-  ;;            (qingeditor/cls/set (oref this :protected-packages) package-sym package)))
-  ;;        (when toggle
-  ;;          (qingeditor/cls/set-property package :toggle toggle))
-  ;;        (when stage
-  ;;          (qingeditor/cls/set-property package :stage stage))
-  ;;        (if min-version
-  ;;            (progn
-  ;;              (qingeditor/cls/set-property package :min-version (version-to-list min-version))
-  ;;              (setq package-installed (if (package-installed-p package-sym min-version)
-  ;;                                          t nil)))
-  ;;          (setq package-installed (if (package-installed-p package-sym)
-  ;;                                      t nil)))
-  ;;        (oset package :installed package-installed)))))
-  ;; (qingeditor/cls/iterate-items
-  ;;  (oref this :detected-modules)
-    )
-    )
-  )
+     ;; we setup basic infomation for package 
+     (let ((module-require-packages
+            (intern (format "%S-require-packages" module-name))))
+       (when (and (boundp module-require-packages)
+                  (> (length module-require-packages) 0))
+         (dolist (spec module-require-packages)
+         ;; we just simple instance the package class
+         ;; and set the name of package object.
+         (let* ((package-sym (if (listp spec) (car spec) spec))
+                (package-name (symbol-name package-sym))
+                (package (qingeditor/hash-table/get
+                          qingeditor/modulemgr/package-repo package-sym nil))
+                (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
+                (stage (when (listp spec) (plist-get (cdr spec) :stage)))
+                (protected (when (listp spec) (plist-get (cdr spec) :protected)))
+                package-installed)
+           (unless package
+             (setq package (qingeditor/modulemgr/package package-name :name package-sym))
+             (qingeditor/hash-table/set package-sym )
+             ;; a bootstrap package is protected
+             (qingeditor/cls/set-property package :protected
+                                          (or protected
+                                              (eq 'bootstrap stage)))
+             (when protected
+               (add-to-list 'qingeditor/modulemgr/protected-packages
+                            package-sym)))
+           (when toggle
+             (qingeditor/cls/set-property package :toggle toggle))
+           (when stage
+             (qingeditor/cls/set-property package :stage stage))
+           (if min-version
+               (progn
+                 (qingeditor/cls/set-property package :min-version (version-to-list min-version))
+                 (setq package-installed (if (package-installed-p package-sym min-version) t nil)))
+             (setq package-installed (if (package-installed-p package-sys)
+                                         t nil)))
+           (oset package :installed package-installed))))))))
 
 (defun qingeditor/modulemgr/get-error-count ()
   "Get this error count during startup."
