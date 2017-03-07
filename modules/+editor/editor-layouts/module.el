@@ -6,7 +6,9 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(defclass qingeditor/module/editor-layouts
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-layouts module class")
+(qingeditor/define-module
+ editor-layouts
+ "The editor-layouts config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ )

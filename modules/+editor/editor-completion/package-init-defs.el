@@ -8,7 +8,7 @@
 ;;
 ;; editor-completion init method defs
 
-(defmethod qingeditor/cls/init-default-helm-config ((this qingeditor/module/editor-completion))
+(defun qingeditor/editor-completion/init-default-helm-config ()
   (setq helm-prevent-escaping-from-minibuffer t)
   (setq helm-bookmark-show-location t)
   (setq helm-display-header-line nil)
@@ -19,11 +19,11 @@
   (setq helm-org-format-outline-path t)
   (setq helm-display-function 'qingeditor/editor-completion/display-helm-window))
 
-(defmethod qingeditor/cls/init-default-ivy-config ((this qingeditor/module/editor-completion))
+(defun qingeditor/editor-completion/init-default-ivy-config ()
   )
 
-(defmethod qingeditor/cls/init-ido ((this qingeditor/module/editor-completion))
+(defun qingeditor/editor-completion/init-ido ()
   )
 
-(defmethod qingeditor/cls/init-ido-vertical-mode ((this qingeditor/module/editor-completion))
+(defun qingeditor/editor-completion/init-ido-vertical-mode ()
   )

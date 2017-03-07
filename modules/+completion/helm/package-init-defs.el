@@ -8,50 +8,50 @@
 ;;
 ;; helm init method defs
 
-(defmethod qingeditor/cls/init-ace-jump-helm-line ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-ace-jump-helm-line ()
   )
 
-(defmethod qingeditor/cls/init-auto-highlight-symbol ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-auto-highlight-symbol ()
   )
 
-(defmethod qingeditor/cls/init-bookmark ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-bookmark ()
   )
 
-(defmethod qingeditor/cls/init-helm ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm ()
   )
 
-(defmethod qingeditor/cls/init-helm-ag ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-ag ()
   )
 
-(defmethod qingeditor/cls/init-helm-descbinds ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-descbinds ()
   )
 
-(defmethod qingeditor/cls/init-helm-flx ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-flx ()
   )
 
-(defmethod qingeditor/cls/init-helm-make ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-make ()
   )
 
-(defmethod qingeditor/cls/init-helm-mode-manager ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-mode-manager ()
   )
 
-(defmethod qingeditor/cls/init-helm-projectile ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-projectile ()
   )
 
-(defmethod qingeditor/cls/init-helm-swoop ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-swoop ()
   )
 
-(defmethod qingeditor/cls/init-helm-themes ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-helm-themes ()
   )
 
-(defmethod qingeditor/cls/init-qingeditor/helm-help-mode ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-qingeditor/helm-help-mode ()
   )
 
-(defmethod qingeditor/cls/init-imenu ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-imenu ()
   )
 
-(defmethod qingeditor/cls/init-popwin ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-popwin ()
   )
 
-(defmethod qingeditor/cls/init-projectile ((this qingeditor/module/helm))
+(defun qingeditor/helm/init-projectile ()
   )

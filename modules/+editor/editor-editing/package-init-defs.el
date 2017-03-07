@@ -6,53 +6,53 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(defmethod qingeditor/cls/init-aggressive-indent ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-aggressive-indent ()
   )
 
-(defmethod qingeditor/cls/init-avy ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-avy ()
   )
 
-(defmethod qingeditor/cls/init-bracketed-paste ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-bracketed-paste ()
   )
 
-(defmethod qingeditor/cls/init-clean-aindent-mode ((this qingeditor/module/editor-editing))
+(defmethod qingeditor/editor-editing/init-clean-aindent-mode ()
   )
 
-(defmethod qingeditor/cls/init-eval-sexp-fu ((this qingeditor/module/editor-editing))
+(defmethod qingeditor/editor-editing/init-eval-sexp-fu ()
   )
 
-(defmethod qingeditor/cls/init-expand-region ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-expand-region ()
   )
 
-(defmethod qingeditor/cls/init-hexl ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-hexl ()
   )
 
-(defmethod qingeditor/cls/init-hungry-delete ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-hungry-delete ()
   )
 
-(defmethod qingeditor/cls/init-link-hint ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-link-hint ()
   )
 
-(defmethod qingeditor/cls/init-lorem-ipsum ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-lorem-ipsum ()
   )
 
-(defmethod qingeditor/cls/init-move-text ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-move-text ()
   )
 
-(defmethod qingeditor/cls/init-origami ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-origami ()
   )
 
-(defmethod qingeditor/cls/init-smartparens ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-smartparens ()
   )
 
-(defmethod qingeditor/cls/init-qingeditor/whitespace-cleanup ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-qingeditor/whitespace-cleanup ()
   )
 
-(defmethod qingeditor/cls/init-undo-tree ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-undo-tree ()
   )
 
-(defmethod qingeditor/cls/init-uuidgen ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-uuidgen ()
   )
 
-(defmethod qingeditor/cls/init-ws-butler ((this qingeditor/module/editor-editing))
+(defun qingeditor/editor-editing/init-ws-butler ()
   )

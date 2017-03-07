@@ -24,27 +24,3 @@
    (use-package :stage bootstrap)
    (which-key :stage bootstrap))
  )
-
-(defclass qingeditor/module/editor-bootstrap
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-bootstrap module class")
-
-(defmethod qingeditor/cls/define-package-specs
-  ((this qingeditor/module/editor-bootstrap))
-  "Declare the require package specs of this module."
-  '((async :stage bootstrap)
-    (bind-map :stage bootstrap)
-    (bind-key :stage bootstrap)
-    (diminish :stage bootstrap)
-    (hydra :stage bootstrap)
-    (use-package :stage bootstrap)
-    (which-key :stage bootstrap)))
-
-(defmethod qingeditor/cls/provide-extra-func-definitions
-  ((this qingeditor/module/editor-bootstrap))
-  t)
-
-(defmethod qingeditor/cls/provide-extra-module-config
-  ((this qingeditor/module/editor-bootstrap))
-  t)

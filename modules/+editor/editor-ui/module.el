@@ -6,8 +6,9 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-
-(defclass qingeditor/module/editor-ui
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-ui module class")
+(qingeditor/define-module
+ editor-ui
+ "The editor-completion config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ )

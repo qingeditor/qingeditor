@@ -11,7 +11,7 @@
 ;;; Code:
 
 (qingeditor/define-module
- editor-bootstrap
+ editor-base
  "The editor-bootstrap config  module"
  :has-extra-funcs-defs t
  :has-extra-config t

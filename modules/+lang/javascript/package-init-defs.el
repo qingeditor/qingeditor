@@ -5,8 +5,7 @@
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
-(defmethod qingeditor/cls/init-coffee-mode
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-coffee-mode ()
   (use-package coffee-mode
     :defer t
     :init
@@ -21,54 +20,41 @@
                 '(lambda ()
                    (setq indent-line-function 'qingeditor/javascript/coffee-indent))))))
 
-(defmethod qingeditor/cls/init-flycheck
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-flycheck ()
   )
 
-(defmethod qingeditor/cls/init-flycheck
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-flycheck ()
   )
 
-(defmethod qingeditor/cls/init-ggtags
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-ggtags ()
   )
 
-(defmethod qingeditor/cls/init-helm-gtags
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-helm-gtags ()
   )
 
-(defmethod qingeditor/cls/init-js-doc
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-js-doc ()
   )
 
-(defmethod qingeditor/cls/init-js2-mode
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-js2-mode ()
   )
 
-(defmethod qingeditor/cls/init-js2-refactor
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-js2-refactor ()
   )
 
-(defmethod qingeditor/cls/init-json-mode
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-json-mode ()
   )
 
-(defmethod qingeditor/cls/init-json-snatcher
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-json-snatcher ()
   )
 
-(defmethod qingeditor/cls/init-tern
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-tern ()
   )
 
-(defmethod qingeditor/cls/init-web-beautify
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-web-beautify ()
   )
 
-(defmethod qingeditor/cls/init-skewer-mode
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-skewer-mode ()
   )
 
-(defmethod qingeditor/cls/init-livid-mode
-  ((this qingeditor/module/javascript))
+(defun qingeditor/javascript/init-livid-mode ()
   )

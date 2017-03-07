@@ -8,11 +8,11 @@
 ;;
 ;; editor-base init method defs
 
-(defmethod qingeditor/cls/init-abbrev ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-abbrev ()
   "init abbrev."
   (qingeditor/font/hide-lighter abbrev-mode))
 
-(defmethod qingeditor/cls/init-ace-window ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-ace-window ()
   "init ace window."
   (use-package ace-window
     :defer t
@@ -28,12 +28,12 @@
       ;; set ace-window keys to home-row
       (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))))
 
-(defmethod qingeditor/cls/init-archive-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-archive-mode ()
   "init archive mode."
   (use-package archive-mode
     :commands archive-mode))
 
-(defmethod qingeditor/cls/init-bookmark ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-bookmark ()
   (use-package bookmark
     :defer t
     :init
@@ -43,30 +43,30 @@
       (setq bookmark-save-flag 1)
       (qingeditor/key-binder/set-leader-keys "fb" 'bookmark-jump))))
 
-(defmethod qingeditor/cls/init-conf-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/cls/init-conf-mode ((this qingeditor/module/editor-base))
   ;; explicitly derive conf-mode from text-mode major-mode
   (add-hook 'conf-mode-hook 'qingeditor/run-text-mode-hooks))
 
-(defmethod qingeditor/cls/init-dired ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-dired ()
   (qingeditor/key-binder/set-leader-keys
    "ad" 'dired
    "fj" 'dired-jump
    "jd" 'dired-jump
    "jD" 'dired-jump-other-window))
 
-(defmethod qingeditor/cls/init-dired-x ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-dired-x ()
   (use-package dired-x
     :commands (dired-jump
                dired-jump-other-window
                dired-omit-mode)))
 
-(defmethod qingeditor/cls/init-electric-indent-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-electric-indent-mode ()
   (electric-indent-mode))
 
-(defmethod qingeditor/cls/init-visual-line-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-visual-line-mode ()
   (qingeditor/font/diminish visual-line-mode " Ⓛ" " L"))
 
-(defmethod qingeditor/cls/init-ediff ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-ediff ()
   (use-package ediff
     :defer t
     :init
@@ -81,7 +81,7 @@
       ;; restore window layout then done
       (add-hook 'ediff-quit-hook #'winner-undo))))
 
-(defmethod qingeditor/cls/init-eldoc ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-eldoc ()
   (use-package eldoc
     :defer t
     :config
@@ -93,34 +93,34 @@
       ;; don't display eldoc on modeline
       (qingeditor/font/hide-lighter eldoc-mode))))
 
-(defmethod qingeditor/cls/init-exec-path-from-shell ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-exec-path-from-shell ()
   (use-package exec-path-from-shell
     :init (when (or (qingeditor/system-is-mac)
                     (qingeditor/system-is-linux))
             (exec-path-from-shell-initialize))))
 
-(defmethod qingeditor/cls/init-help-fns+ ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-help-fns+ ()
   (use-package help-fns+
     :commands (describe-keymap)
     :init
     (qingeditor/key-binder/set-leader-keys
       "hdK" 'describe-keymap)))
 
-(defmethod qingeditor/cls/init-hi-lock ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-hi-lock ()
   (with-eval-after-load 'hi-lock
     (qingeditor/font/hide-lighter hi-lock-mode)))
 
-(defmethod qingeditor/cls/init-image-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-image-mode ()
   (use-package image-mode
     :defer t))
 
-(defmethod qingeditor/cls/init-imenu ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-imenu ()
   (use-package imenu
     :defer t
     :init (qingeditor/key-binder/set-leader-keys
             "ji" 'imenu)))
 
-(defmethod qingeditor/cls/init-linum ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-linum ()
   (when qingeditor/config/line-numbers
     (add-hook 'prog-mode-hook 'linum-mode)
     (add-hook 'text-mode-hook 'linum-mode))
@@ -129,20 +129,20 @@
     :mode linum-mode
     :documentation "Show the line numbers."))
 
-(defmethod qingeditor/cls/init-occur-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-occur-mode ()
   (use-package occur-mode
     :defer t))
 
-(defmethod qingeditor/cls/init-package-menu ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-package-menu ()
   (use-package package-menu-mode
     :defer t))
 
-(defmethod qingeditor/cls/init-qingeditor/page-break-lines ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-qingeditor/page-break-lines ()
   (require 'qingeditor-page-break-lines)
   (qingeditor/global-page-break-lines-mode t)
   (qingeditor/font/hide-lighter qingeditor/page-break-lines-mode))
 
-(defmethod qingeditor/cls/init-pcre2el ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-pcre2el ()
   (use-package pcre2el
     :defer t
     :init
@@ -166,11 +166,11 @@
         "xrpe"   'rxt-pcre-to-elisp
         "xrpx"   'rxt-pcre-to-rx))))
 
-(defmethod qingeditor/cls/init-process-menu ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-process-menu ()
   (use-package process-menu-mode
     :defer t))
 
-(defmethod qingeditor/cls/init-projectile ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-projectile ()
   (use-package projectile
     :commands (projectile-ack
                projectile-ag
@@ -234,7 +234,7 @@
       (projectile-global-mode)
       (qingeditor/font/hide-lighter projectile-mode))))
 
-(defmethod qingeditor/cls/init-recentf ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-recentf ()
   (use-package recentf
     :defer t
     :init
@@ -256,7 +256,7 @@
       (add-to-list 'recentf-exclude (expand-file-name package-user-dir))
       (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'"))))
 
-(defmethod qingeditor/cls/init-savehist ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-savehist ()
   (use-package savehist
     :init
     (progn
@@ -272,7 +272,7 @@
       (setq savehist-autosave-interval 60)
       (savehist-mode t))))
 
-(defmethod qingeditor/cls/init-saveplace ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-saveplace ()
   (use-package saveplace
     :init
     (progn
@@ -283,7 +283,7 @@
       ;; Save point position between sessions
       (setq save-place-file (concat qingeditor/cache-dir "places")))))
 
-(defmethod qingeditor/cls/init-spacemacs-theme ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-spacemacs-theme ()
   (use-package spacemacs-theme
     :defer t
     :init
@@ -291,7 +291,7 @@
       (setq spacemacs-theme-comment-bg t)
       (setq spacemacs-theme-org-height t))))
 
-(defmethod qingeditor/cls/init-subword ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-subword ()
   (use-package subword
     :defer t
     :init
@@ -318,11 +318,11 @@
     :config
     (qingeditor/font/diminish subword-mode " ⓒ" " c")))
 
-(defmethod qingeditor/cls/init-tar-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-tar-mode ()
   (use-package tar-mode
     :defer t))
 
-(defmethod qingeditor/cls/init-uniquify ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-uniquify ()
   (require 'uniquify)
   ;; When having windows with repeated filenames, uniquify them
   ;; by the folder they are in rather those annoying <2>,<3>,.. etc
@@ -330,11 +330,11 @@
   ;; don't screw special buffers
   (setq uniquify-ignore-buffers-re "^\\*"))
 
-(defmethod qingeditor/cls/init-url ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-url ()
   ;; gravatars from magit use this to store their cache
   (setq url-configuration-directory (concat qingeditor/cache-dir "url/")))
 
-(defmethod qingeditor/cls/init-whitespace ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-whitespace ()
   (use-package whitespace
     :defer t
     :init
@@ -383,7 +383,7 @@
       (qingeditor/font/diminish whitespace-mode " ⓦ" " w")
       (qingeditor/font/diminish global-whitespace-mode " ⓦ" " w"))))
 
-(defmethod qingeditor/cls/init-winner ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-winner ()
   (use-package winner
     :init
     (progn

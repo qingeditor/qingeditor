@@ -6,7 +6,9 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(defclass qingeditor/module/editor-editing-visual
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-editing-visual module class")
+(qingeditor/define-module
+ editor-editing-visual
+ "The editor-editing-visual config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ )

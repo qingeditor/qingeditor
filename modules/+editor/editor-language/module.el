@@ -6,7 +6,9 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(defclass qingeditor/module/editor-language
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-language module class")
+(qingeditor/define-module
+ editor-language
+ "The editor-language config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ )

@@ -8,9 +8,10 @@
 ;;
 ;; editor-base module packages init methods defs
 
-(defmethod qingeditor/cls/init-async ((this qingeditor/module/editor-bootstrap)))
+(defun qingeditor/editor-bootstrap/init-async ()
+  )
 
-(defmethod qingeditor/cls/init-bind-map ((this qingeditor/module/editor-bootstrap))
+(defun qingeditor/editor-bootstrap/init-bind-map ()
   "init bind map."
   (require 'bind-map)
   (bind-map qingeditor/default-map
@@ -19,9 +20,10 @@
     :override-minor-modes t
     :override-mode-name qingeditor/leader-override-mode))
 
-(defmethod qingeditor/cls/init-bind-key ((this qingeditor/module/editor-bootstrap)))
+(defun qingeditor/editor-bootstrap/init-bind-key ()
+  )
 
-(defmethod qingeditor/cls/init-diminish ((this qingeditor/module/editor-bootstrap))
+(defun qingeditor/editor-bootstrap/init-diminish ()
   "init diminish."
   (let ((modulemgr (qingeditor/gmodulemgr)))
     (when (not (qingeditor/cls/package-usedp modulemgr 'spaceline))
@@ -32,13 +34,13 @@
          (add-hook 'after-load-functions
                    'qingeditor/editor-bootstrap/diminish-hook))))))
 
-(defmethod qingeditor/cls/init-hydra ((this qingeditor/module/editor-bootstrap))
+(defun qingeditor/editor-bootstrap/init-hydra ()
   "init hydra."
   (require 'hydra)
   (setq hydra-key-doc-function 'qingeditor/editor-bootstrap/hydra-key-doc-function)
   (setq hydra-head-format "[%s] "))
 
-(defmethod qingeditor/cls/init-use-package ((this qingeditor/module/editor-bootstrap))
+(defun qingeditor/editor-bootstrap/init-use-package ()
   "init use package."
   (require 'use-package)
   (setq use-package-verbose init-file-debug)
@@ -46,7 +48,7 @@
   ;; configuration
   (setq use-package-inject-hooks t))
 
-(defmethod qingeditor/cls/init-which-key ((this qingeditor/module/editor-bootstrap))
+(defun qingeditor/editor-bootstrap/init-which-key ()
   "init which key."
   (require 'which-key)
   (qingeditor/toggle/add-toggle

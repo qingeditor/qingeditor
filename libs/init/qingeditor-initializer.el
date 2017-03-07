@@ -33,8 +33,8 @@ been run.")
 file in load-path, if the configuration not exist, `qingeditor' will
 first generate it, then load it normally. after load the configuration file,
 we finally process `qingeditor' modules."
-  (qingeditor/initializer/load-editor-cfg-file)
   (qingeditor/initializer/setup-emacs-ui)
+  (qingeditor/initializer/load-editor-cfg-file)
   (qingeditor/modulemgr/installer/initialize)
   (prefer-coding-system 'utf-8))
 

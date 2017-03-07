@@ -6,15 +6,14 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(defclass qingeditor/module/editor-completion
-  (qingeditor/modulemgr/module)
-  ()
-  :documentaion "The editor-completion module class")
-
-(defmethod qingeditor/cls/define-package-specs
-  ((this qingeditor/module/editor-completion))
-  "Declare the require package specs of this module."
-  '((default-helm-config :location built-in)
-    (default-ivy-config :location built-in)
-    (ido :location built-in)
-    ido-vertical-mode))
+(qingeditor/define-module
+ editor-completion
+ "The editor-completion config module"
+ :has-extra-funcs-defs t
+ :has-extra-config t
+ :require-packages
+ '((default-helm-config :location built-in)
+   (default-ivy-config :location built-in)
+   (ido :location built-in)
+   ido-vertical-mode)
+ )
