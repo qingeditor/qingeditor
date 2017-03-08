@@ -11,6 +11,7 @@
 (defun qingeditor/editor-bootstrap/diminish-hook (_)
   "Display diminished lighter in vanilla Emacs mode-line."
   ;; TODO only when qingeditor initialize complete
+  (prin1 "xxxxxxxxxxxxxxxxxxxxxxxxx")
   (let ((unicodep (qingeditor/symbol-value
                    qingeditor/config/show-mode-line-unicode-symbols)))
     (cl-loop for (mode uni nouni) in qingeditor/font/diminished-minor-modes

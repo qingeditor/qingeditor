@@ -27,7 +27,7 @@
   "init diminish."
   (when (not (qingeditor/modulemgr/package-usedp 'spaceline))
     (add-hook
-     'qingeditor/editor-ready-hooks
+     'qingeditor/editor-ready-hook
      (lambda ()
        (qingeditor/editor-bootstrap/diminish-hook t)
        (add-hook 'after-load-functions
