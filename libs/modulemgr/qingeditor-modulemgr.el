@@ -585,9 +585,9 @@ defined in `module.el' of target module."
          (let ((pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name package-name))))
            (if (not (qingeditor/cls/package-enabled-p package module-name))
                (qingeditor/startup-buffer/message
-                (format " -> ignore pre-init (%S)..." module-name))
+                (format " -> ignore pre-init (%S/%S)..." module-name package-name))
              (qingeditor/startup-buffer/message
-              (format " -> pre-init (%S)..." module-name))
+              (format " -> pre-init (%S/%S)..." module-name package-name))
              (condition-case-unless-debug err
                  (funcall pre-init-func)
                ('error
@@ -603,7 +603,7 @@ defined in `module.el' of target module."
     (let* ((module-name (qingeditor/cls/get-name owner))
           (init-func (intern (format "qingeditor/%S/init-%S" module-name package-name))))
       (when (fboundp init-func)
-        (qingeditor/startup-buffer/message (format " -> init (%S)..." module-name))
+        (qingeditor/startup-buffer/message (format " -> init (%S/%S)..." module-name package-name))
         (funcall init-func)))
 
     ;; post init
@@ -613,9 +613,9 @@ defined in `module.el' of target module."
          (let ((post-init-func (intern (format "qingeditor/modulemgr/post-init-%S" module-name package-name))))
            (if (not (qingeditor/cls/package-enabled-p package module-name))
                (qingeditor/startup-buffer/message
-                (format " -> ignore post-init (%S)..." module-name))
+                (format " -> ignore post-init (%S/%S)..." module-name package-name))
              (qingeditor/startup-buffer/message
-              (format " -> post-init (%S)..." module-name))
+              (format " -> post-init (%S/%S)..." module-name package-name))
              (condition-case-unless-debug err
                  (funcall post-init-func)
                ('error

@@ -14,7 +14,7 @@
 (defun qingeditor/helm/init-auto-highlight-symbol ()
   )
 
-(defun qingeditor/helm/init-bookmark ()
+(defun qingeditor/helm/post-init-bookmark ()
   )
 
 (defun qingeditor/helm/init-helm ()
@@ -47,11 +47,11 @@
 (defun qingeditor/helm/init-qingeditor/helm-help-mode ()
   )
 
-(defun qingeditor/helm/init-imenu ()
+(defun qingeditor/helm/post-init-imenu ()
   )
 
 (defun qingeditor/helm/init-popwin ()
   )
 
-(defun qingeditor/helm/init-projectile ()
+(defun qingeditor/helm/post-init-projectile ()
   )
