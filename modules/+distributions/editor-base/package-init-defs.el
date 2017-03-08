@@ -43,7 +43,7 @@
       (setq bookmark-save-flag 1)
       (qingeditor/key-binder/set-leader-keys "fb" 'bookmark-jump))))
 
-(defun qingeditor/cls/init-conf-mode ((this qingeditor/module/editor-base))
+(defun qingeditor/editor-base/init-conf-mode ()
   ;; explicitly derive conf-mode from text-mode major-mode
   (add-hook 'conf-mode-hook 'qingeditor/run-text-mode-hooks))
 

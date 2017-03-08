@@ -25,14 +25,13 @@
 
 (defun qingeditor/editor-bootstrap/init-diminish ()
   "init diminish."
-  (let ((modulemgr (qingeditor/gmodulemgr)))
-    (when (not (qingeditor/cls/package-usedp modulemgr 'spaceline))
-      (add-hook
-       'qingeditor/editor-ready-hooks
-       (lambda ()
-         (qingeditor/editor-bootstrap/diminish-hook t)
-         (add-hook 'after-load-functions
-                   'qingeditor/editor-bootstrap/diminish-hook))))))
+  (when (not (qingeditor/modulemgr/package-usedp 'spaceline))
+    (add-hook
+     'qingeditor/editor-ready-hooks
+     (lambda ()
+       (qingeditor/editor-bootstrap/diminish-hook t)
+       (add-hook 'after-load-functions
+                 'qingeditor/editor-bootstrap/diminish-hook)))))
 
 (defun qingeditor/editor-bootstrap/init-hydra ()
   "init hydra."
@@ -108,6 +107,5 @@
         which-key-sort-order 'which-key-key-order-alpha
         which-key-idle-delay qingeditor/config/which-key-delay
         which-key-allow-evil-operators nil)
-
   (which-key-mode)
   (qingeditor/font/diminish which-key-mode " Ⓚ" " K"))

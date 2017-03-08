@@ -183,4 +183,11 @@ and `qingeditor/line-func' must be set."
   "Change the default welcome message of minibuffer to another one."
   (message "qingeditor is ready."))
 
+(defun qingeditor/invoke-after-user-config-ready (func)
+  "Call `func' if `qingeditor/config/user-config-setup' has been called. Otherwise,
+defer call using `qingeditor/user-config-setup-finished-hook'."
+  (if qingeditor/user-config-setup-hook-invoked
+      (funcall func)
+    (add-hook 'qingeditor/user-config-setup-finished-hook func)))
+
 (provide 'qingeditor-funcs)

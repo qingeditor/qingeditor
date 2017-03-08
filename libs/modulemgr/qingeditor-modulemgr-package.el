@@ -130,12 +130,11 @@ changed."
   ;; The owner of a package is the first *used* module in `:owners' slot.
   ;; Note: for packages in `used-packages' the owner is
   ;; always the car of the `:owners' slot.
-  (let ((modules (oref this :owners))
-        (modulemgr (qingeditor/gmodulemgr)))
+  (let ((modules (oref this :owners)))
     (while (and (consp modules)
-                (not (qingeditor/cls/module-usedp modulemgr (car modules))))
+                (not (qingeditor/modulemgr/module-usedp (car modules))))
       (pop modules))
-    (when (qingeditor/cls/module-usedp modulemgr (car modules))
+    (when (qingeditor/modulemgr/module-usedp (car modules))
       (car modules))))
 
 (provide 'qingeditor-modulemgr-package)

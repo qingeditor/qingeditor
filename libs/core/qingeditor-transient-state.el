@@ -46,29 +46,26 @@ holds the key bindings."
 (defmacro qingeditor/transient-state-format-hint (name var hint)
   "Format `hint' and store the result in `var' for transient state `name'."
   (declare (indent 1))
-  `(qingeditor/cls/attach
-    qingeditor/geventmgr
-    qingeditor/user-config-setup-finished-event
-    (qingeditor/eventmgr/event-handler/init
-     (lambda (event)
-       (let* ((props-var ,(qingeditor/transient-state-props-var-name
-                           name))
-              (prop-hint (cadr (assq 'hint props-var)))
-              (prop-columns (cadr (assq 'columns props-var)))
-              (prop-foreign-keys (cadr (assq 'foreign-keys props-var)))
-              (prop-entry-sexp (cadr (assq 'entry-sexp props-var)))
-              (prop-exit-sexp (cadr (assq 'exit-sexp prop-vars))))
-         (setq ,var (qingeditor/transient-state-make-doc
-                     ',name
-                     ,hint
-                     `(nil
-                       nil
-                       :hint ,prop-hint
-                       :columns ,prop-columns
-                       :foreign-keys ,prop-foreign-keys
-                       :body-pre ,prop-entry-sexp
-                       :before-exit ,prop-exit-sexp)))
-         'append)))))
+  `(add-hook 'qingeditor/user-config-setup-finished-hook
+            (lambda ()
+              (let* ((props-var ,(qingeditor/transient-state-props-var-name
+                                  name))
+                     (prop-hint (cadr (assq 'hint props-var)))
+                     (prop-columns (cadr (assq 'columns props-var)))
+                     (prop-foreign-keys (cadr (assq 'foreign-keys props-var)))
+                     (prop-entry-sexp (cadr (assq 'entry-sexp props-var)))
+                     (prop-exit-sexp (cadr (assq 'exit-sexp prop-vars))))
+                (setq ,var (qingeditor/transient-state-make-doc
+                            ',name
+                            ,hint
+                            `(nil
+                              nil
+                              :hint ,prop-hint
+                              :columns ,prop-columns
+                              :foreign-keys ,prop-foreign-keys
+                              :body-pre ,prop-entry-sexp
+                              :before-exit ,prop-exit-sexp)))
+                'append))))
 
 (defface qingeditor/transient-state-title-face
   `((t :inherit mode-line))
@@ -153,11 +150,8 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
        (add-to-list ',props-var '(foreign-keys ,foreign-keys))
        (add-to-list ',props-var '(entry-sexp ,entry-sexp))
        (add-to-list ',props-var '(exit-sexp ,exit-sexp))
-       (qingeditor/cls/attach
-        qingeditor/geventmgr
-        qingeditor/user-config-setup-finished-event
-        (qingeditor/eventmgr/event-handler/init
-         (lambda (event)
+       (qingeditor/invoke-after-user-config-ready
+        #'(lambda ()
            (eval
             (append
              '(defhydra ,func
@@ -191,6 +185,6 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
                               ',dyn-hint
                               (when qingeditor/config/show-transient-state-color-guide
                                 (concat "\n" guide))))))
-           ,@bindkeys))))))
+           ,@bindkeys)))))
 
 (provide 'qingeditor-transient-state)

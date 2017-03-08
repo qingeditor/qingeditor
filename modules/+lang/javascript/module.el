@@ -18,7 +18,7 @@
  :require-packages
  '(coffee-mode
    (company :has-init nil)
-   (company-tern :toggle (qingeditor/cls/package-usedp (qingeditor/gmodulemgr) 'company))
+   (company-tern :toggle (qingeditor/modulemgr/package-usedp 'company))
    flycheck
    ggtags
    helm-gtags

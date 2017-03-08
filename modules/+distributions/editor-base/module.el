@@ -15,6 +15,7 @@
  "The editor-bootstrap config  module"
  :has-extra-funcs-defs t
  :has-extra-config t
+ :has-keymap-defs t
  :require-packages
  '((abbrev :location built-in)
     ace-window
@@ -28,7 +29,7 @@
     (eldoc :location built-in)
     ;; some packages need to look for binaries,
     ;; which means the path must be ready by then
-    (exec-path-from-shell :step pre)
+    (exec-path-from-shell :stage pre)
     help-fns+
     (hi-lock :location built-in)
     (image-mode :location built-in)

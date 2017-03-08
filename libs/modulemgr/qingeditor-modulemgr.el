@@ -32,36 +32,45 @@ and `module-spec' arguments.")
 the function in this hook receive `module-name'
 and `module-spec' arguments.")
 
-(defvar qingeditor/modulemgr/after-load-module-hook nil
+(defvar qingeditor/modulemgr/after-load-module-functions nil
   "After module manager finished load target module,
-run this hook.")
+run this hook. the function in this hook receive `module-name'
+and `module-spec' arguments.")
 
-(defvar qingeditor/modulemgr/before-install-packages-hook nil
-  "Before install/update/uninstall packages, run this hook.")
+(defvar qingeditor/modulemgr/before-install-packages-functions nil
+  "Before install/update/uninstall packages, run this hook. function
+in this hook receive package names to been install.")
 
-(defvar qingeditor/modulemgr/before-install-package-hook nil
-  "Before module manager install package, run this hook.")
+(defvar qingeditor/modulemgr/before-install-package-functions nil
+  "Before module manager install package, run this hook.the function
+in this hook receive `package-name' argument.")
 
-(defvar qingeditor/modulemgr/install-package-hook nil
-  "Before module manager install package, run this hook.")
+(defvar qingeditor/modulemgr/install-package-functions nil
+  "Before module manager install package, run this hook. the function
+in this hook receive `package-name' argument.")
 
-(defvar qingeditor/modulemgr/after-install-package-hook nil
-  "After module manager installed package, run this hook.")
-
-(defvar qingeditor/modulemgr/before-configure-packages-hook nil
-  "Before configure packages, run this hook.")
-
-(defvar qingeditor/modulemgr/before-configure-packages-hook nil
-  "Before configure package, run this hook.")
-
-(defvar qingeditor/modulemgr/configure-packages-hook nil
-  "When configure packages, run this hook.")
+(defvar qingeditor/modulemgr/after-install-package-functions nil
+  "After module manager installed package, run this hook. the function
+in this hook receive `package-name' argument.")
 
 (defvar qingeditor/modulemgr/before-configure-packages-hook nil
   "Before configure packages, run this hook.")
 
-(defvar qingeditor/modulemgr/after-configure-package-hook nil
-  "After configure package, run this hook.")
+(defvar qingeditor/modulemgr/before-configure-package-functions nil
+  "Before configure package, run this hook. function in this hook
+receive package name to been configured.")
+
+(defvar qingeditor/modulemgr/configure-package-functions nil
+  "When configure package, run this hook. function in this hook
+receive package name to been configured, configured-count and
+total-configure-count.")
+
+(defvar qingeditor/modulemgr/after-configure-package-functions nil
+  "After configure package, run this hook. function in this hook
+receive package name to been configured.")
+
+(defvar qingeditor/modulemgr/after-configure-packages-hook nil
+  "After configure packages, run this hook.")
 
 ;; Define some important const
 (defconst qingeditor/modulemgr/module-directory
@@ -130,6 +139,12 @@ or not loaded.")
   "Non nil indicates the number of errors occurred during the
     installation of initialization.")
 
+(defvar qingeditor/modulemgr/configured-count 0
+  "The count of packages has been configured.")
+
+(defvar qingeditor/modulemgr/total-configured-count 0
+  "The total count of packages to been configured.")
+
 (defun qingeditor/modulemgr/initialize ()
   "Initialize modulemgr internal data."
   (qingeditor/call-func qingeditor/module-configuration-setup
@@ -145,6 +160,7 @@ or not loaded.")
     (setq specs (delq 'editor-standard specs))
     (setq specs (delq 'editor-bootstrap specs))
     (push distribution specs)
+    (push 'editor-bootstrap specs)
     (setq qingeditor/modulemgr/target-modules specs))
   (qingeditor/modulemgr/detect-modules)
   (qingeditor/modulemgr/init-module-and-package-repo)
@@ -158,7 +174,7 @@ used."
 (defun qingeditor/modulemgr/package-usedp (package-name)
   "Return non-nil if NAME is the name of a used package."
   (let ((package (qingeditor/hash-table/get
-                  qinegditor/modulemgr/package-repo
+                  qingeditor/modulemgr/package-repo
                   package-name)))
     (and package
          (qingeditor/cls/get-safe-owner package)
@@ -210,8 +226,12 @@ used."
   (catch 'qingeditor-modulemgr-load-module-return
     (let* ((module-name (if (listp module-spec) (car module-spec) module-spec))
            (module (qingeditor/hash-table/get
-                    qingeditor/modulemgr/module-repo module-name)))
-      ;; we must first check wether `qingeditor' support the module named `module-name'
+                    qingeditor/modulemgr/module-repo module-name))
+           (module-dir (qingeditor/cls/get-module-dir module))
+           (has-extra-config (intern (format "qingeditor/%S/has-extra-config" module-name)))
+           (extra-config-filename (concat module-dir "config.el")))
+      ;; we must first check wether `qingeditor' support the module
+      ;; named `module-name'
       (unless module
         (error "qingeditor doesn't support module: %S" module-name))
       (when (memq module-name qingeditor/modulemgr/used-modules)
@@ -227,7 +247,8 @@ used."
        'qingeditor/modulemgr/load-module-functions
        module-name module-spec)
       ;; we need check dependencies of current module
-      (let ((require-modules-sym (intern (format "qingeditor/%S/require-modules" module-name))))
+      (let ((require-modules-sym
+             (intern (format "qingeditor/%S/require-modules" module-name))))
         (when (and (boundp require-modules-sym)
                    (listp (symbol-value require-modules-sym))
                    (> (length (symbol-value require-modules-sym)) 0))
@@ -236,13 +257,18 @@ used."
           ;; devel this function.
           (dolist (spec (symbol-value require-modules-sym))
             (qingeditor/modulemgr/load-module spec))))
+      ;; load extra config file
+      (when (and has-extra-config
+                 (symbol-value has-extra-config)
+                 (file-exists-p extra-config-filename))
+        (load extra-config-filename))
       ;; setup self
       (qingeditor/modulemgr/setup-module module-name module-spec)
       (setq qingeditor/modulemgr/load-recursive-level
             (1- qingeditor/modulemgr/load-recursive-level))
       (run-hook-with-args
-       'qingeditor/modulemgr/after-load-module-hook
-       module-name)
+       'qingeditor/modulemgr/after-load-module-functions
+       module-name module-spec)
       (add-to-list 'qingeditor/modulemgr/used-modules module-name)
       module)))
 
@@ -263,7 +289,8 @@ ensure module object exist."
                      (qingeditor/mplist-get module-spec :variables)))
         (has-extra-funcs-defs
          (intern-soft (format "qingeditor/%S/has-extra-funcs-defs" module-name)))
-        (has-init-funcs (intern-soft (format "qingeditor/%S/has-extra-funcs-defs" module-name))))
+        (has-init-funcs
+         (intern-soft (format "qingeditor/%S/has-extra-funcs-defs" module-name))))
     (when (and has-extra-funcs-defs
                (symbol-value has-extra-funcs-defs))
       (let* ((extra-funcs-filename (concat module-dir "funcs.el")))
@@ -283,85 +310,85 @@ defined in `module.el' of target module."
   (let* ((module (qingeditor/hash-table/get
                   qingeditor/modulemgr/module-repo module-name)))
     (dolist (spec (qingeditor/modulemgr/get-module-require-packages module-name))
-        (let* ((pkg-name (if (listp spec) (car spec) spec))
-               (pkg-name-str (symbol-name pkg-name))
-               (pkg (qingeditor/hash-table/get
-                     qingeditor/modulemgr/package-repo pkg-name))
-               (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
-               (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
-               (location (when (listp spec) (plist-get (cdr spec) :location)))
-               (init-func (intern (format "qingeditor/%S/init-%S"
-                                          module-name pkg-name)))
-               (pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name
-                                              pkg-name)))
-               (post-init-func (intern (format "qingeditor/%S/post-init-%S" module-name
-                                               pkg-name)))
-               (ownerp (or (and (eq 'config (qingeditor/cls/get-from-source pkg))
-                                (null (qingeditor/cls/get-owners pkg)))
-                           (fboundp init-func))))
-          ;; TODO when set like this maybe not right
-          (qingeditor/cls/set-property pkg :excluded excluded)
-          ;; toggle is always an expr to be eval.
-          (when toggle
-            (qingeditor/cls/set-property pkg :toggle toggle))
-          ;; setup package location
-          (when location
-            (let* ((pkg-from-source (qingeditor/cls/get-from-source pkg)))
-              (if (and (listp location)
-                       (eq (car location) 'recipe)
-                       (eq (plist-get (cdr location) :fetcher) 'local))
-                  (cond
-                   ((eq 'modue pkg-from-source)
-                    (let ((path (expand-file-name
-                                 (format "%s%s/%s.el"
-                                         (qingeditor/cls/get-local-dir module)
-                                         pkg-name-str
-                                         pkg-name-str))))
-                      (qingeditor/cls/set-property pkg :location
-                                                   `(recipe :fetcher file :path ,path))))
-                   ((eq 'config pkg-from-source)
-                    ;; TODO what is the local path for a package owned by the user 
-                    nil))
-                (qingeditor/cls/set-property pkg :location location))))
-          (when ownerp
-            ;; warn about multiple owners
-            (when (and (qingeditor/cls/get-owners pkg)
-                       (not (memq module-name (qingeditor/cls/get-owners pkg))))
-              (qingeditor/modulemgr/warning
-               (format (concat "More than one init function found for "
-                               "package %S. previous owner was %S, "
-                               "replacing it with module %S.")
-                       pkg-name (qingeditor/cls/get-name (car (qingeditor/cls/get-owners pkg)))
-                       (qingeditor/cls/get-name module))))
-            ;; last owner wins over the previous one
-            (object-add-to-list pkg :owners module))
-          ;; check consistency between package and defined init functions
-          (unless (or ownerp
-                      (eq 'config (qingeditor/cls/get-from-source pkg))
-                      (fboundp pre-init-func)
-                      (fboundp post-init-func)
-                      (oref pkg :excluded))
+      (let* ((pkg-name (if (listp spec) (car spec) spec))
+             (pkg-name-str (symbol-name pkg-name))
+             (pkg (qingeditor/hash-table/get
+                   qingeditor/modulemgr/package-repo pkg-name))
+             (excluded (when (listp spec) (plist-get (cdr spec) :excluded)))
+             (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
+             (location (when (listp spec) (plist-get (cdr spec) :location)))
+             (init-func (intern (format "qingeditor/%S/init-%S"
+                                        module-name pkg-name)))
+             (pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name
+                                            pkg-name)))
+             (post-init-func (intern (format "qingeditor/%S/post-init-%S" module-name
+                                             pkg-name)))
+             (ownerp (or (and (eq 'config (qingeditor/cls/get-from-source pkg))
+                              (null (qingeditor/cls/get-owners pkg)))
+                         (fboundp init-func))))
+        ;; TODO when set like this maybe not right
+        (qingeditor/cls/set-property pkg :excluded excluded)
+        ;; toggle is always an expr to be eval.
+        (when toggle
+          (qingeditor/cls/set-property pkg :toggle toggle))
+        ;; setup package location
+        (when location
+          (let* ((pkg-from-source (qingeditor/cls/get-from-source pkg)))
+            (if (and (listp location)
+                     (eq (car location) 'recipe)
+                     (eq (plist-get (cdr location) :fetcher) 'local))
+                (cond
+                 ((eq 'modue pkg-from-source)
+                  (let ((path (expand-file-name
+                               (format "%s%s/%s.el"
+                                       (qingeditor/cls/get-local-dir module)
+                                       pkg-name-str
+                                       pkg-name-str))))
+                    (qingeditor/cls/set-property pkg :location
+                                                 `(recipe :fetcher file :path ,path))))
+                 ((eq 'config pkg-from-source)
+                  ;; TODO what is the local path for a package owned by the user 
+                  nil))
+              (qingeditor/cls/set-property pkg :location location))))
+        (when ownerp
+          ;; warn about multiple owners
+          (when (and (qingeditor/cls/get-owners pkg)
+                     (not (memq module-name (qingeditor/cls/get-owners pkg))))
             (qingeditor/modulemgr/warning
-             (format (concat "package %s not initialized in module %s, "
-                             "you may consider removing this package from "
-                             "the package list or use the :toggle keyword "
-                             "instead of a `when' form.")
-                     pkg-name (qingeditor/cls/get-name module))))
-          ;; check if toggle can be applied
-          (when (and (not ownerp)
-                     (and (not (eq 'unspecified toggle))
-                          toggle))
-            (qingeditor/modulemgr/warning
-             (format (concat "Ignoring :toggle for package %s because "
-                             "module %S does not own it.")
-                     pkg-name
+             (format (concat "More than one init function found for "
+                             "package %S. previous owner was %S, "
+                             "replacing it with module %S.")
+                     pkg-name (qingeditor/cls/get-name (car (qingeditor/cls/get-owners pkg)))
                      (qingeditor/cls/get-name module))))
-          (when (fboundp pre-init-func)
-            (object-add-to-list pkg :pre-init-modules module-name))
-          (when (fboundp post-init-func)
-            (object-add-to-list pkg :post-init-modules module-name))
-          ;; add to used package used package list
-          (add-to-list 'qingeditor/modulemgr/used-packages pkg)))))
+          ;; last owner wins over the previous one
+          (object-add-to-list pkg :owners module))
+        ;; check consistency between package and defined init functions
+        (unless (or ownerp
+                    (eq 'config (qingeditor/cls/get-from-source pkg))
+                    (fboundp pre-init-func)
+                    (fboundp post-init-func)
+                    (oref pkg :excluded))
+          (qingeditor/modulemgr/warning
+           (format (concat "package %s not initialized in module %s, "
+                           "you may consider removing this package from "
+                           "the package list or use the :toggle keyword "
+                           "instead of a `when' form.")
+                   pkg-name (qingeditor/cls/get-name module))))
+        ;; check if toggle can be applied
+        (when (and (not ownerp)
+                   (and (not (eq 'unspecified toggle))
+                        toggle))
+          (qingeditor/modulemgr/warning
+           (format (concat "Ignoring :toggle for package %s because "
+                           "module %S does not own it.")
+                   pkg-name
+                   (qingeditor/cls/get-name module))))
+        (when (fboundp pre-init-func)
+          (object-add-to-list pkg :pre-init-modules module-name))
+        (when (fboundp post-init-func)
+          (object-add-to-list pkg :post-init-modules module-name))
+        ;; add to used package used package list
+        (add-to-list 'qingeditor/modulemgr/used-packages pkg-name)))))
 
 (defun qingeditor/modulemgr/install-packages ()
   "Install used packages."
@@ -371,12 +398,259 @@ defined in `module.el' of target module."
              (inhibit-same-window . t)
              (side . bottom)
              (window-height . 0.2))))
-         packages)
+         package-names)
     (dolist (package-name qingeditor/modulemgr/used-packages)
-      )))
+      (let ((package (qingeditor/hash-table/get
+                      qingeditor/modulemgr/package-repo
+                      package-name)))
+        (when (and (not (oref package :lazy-install))
+                   (not (memq (qingeditor/cls/get-location package) '(built-in site local)))
+                   (not (stringp (qingeditor/cls/get-location package)))
+                   (qingeditor/cls/enabledp package))
+          (push package-name package-names))))
+    (setq package-names (qingeditor/modulemgr/get-uninstalled-packages
+                         package-names))
+    (qingeditor/modulemgr/prepare-install-packages package-names)
+    (run-hook-with-args 'qingeditor/modulemgr/before-install-packages-functions
+                        package-names)
+    (let ((installed-count 0)
+          (total-install-count (length package-names)))
+      (dolist (package-name package-names)
+        (let* ((package (qingeditor/hash-table/get
+                         qingeditor/modulemgr/package-repo
+                         package-name))
+               (module (car (qingeditor/cls/get-owners package))))
+          (run-hook-with-args 'qingeditor/modulemgr/before-install-package-functions
+                              package-name installed-count total-install-count)
+          (setq installed-count (1+ installed-count))
+          (qingeditor/startup-buffer/replace-last-line
+           (format "--> installing %s: %s%s... [%s/%s]"
+                   (if module "package" "dependency")
+                   package-name (if module (format "@%S" (qingeditor/cls/get-name module)) "")
+                   installed-count total-install-count) t)
+          (condition-case-unless-debug err
+              (qingeditor/modulemgr/installer/install-package package)
+            ('error
+             (qingeditor/cls/increment-error-count modulemgr)
+             (qingeditor/startup-buffer/append
+              (format (concat "\nAn error occurred while installing %s "
+                              "(error: %s)\n") err))
+             (qingeditor/redisplay)))
+          (run-hook-with-args 'qingeditor/modulemgr/install-package-functions
+                              package-name installed-count total-install-count)
+          (run-hook-with-args 'qingeditor/modulemgr/after-install-package-functions
+                              package-name installed-count total-install-count)
+          )))
+    (qingeditor/startup-buffer/append "\n")
+    (run-hook-with-args 'qingeditor/modulemgr/before-install-packages-functions
+                        package-names)))
+
+(defun qingeditor/modulemgr/prepare-install-packages (package-names)
+  "We figure out packages need to be installed."
+  (let ((not-installed-count (length package-names)))
+    (when (> not-installed-count 0)7
+          (qingeditor/startup-buffer/append
+           (format "Found %s new package(s) to install...\n"
+                   not-installed-count))
+          (qingeditor/modulemgr/installer/refresh-package-archives)
+          (qingeditor/redisplay))))
 
 (defun qingeditor/modulemgr/configure-packages ()
-  )
+  "Configure used packages."
+  (qingeditor/modulemgr/prepare-configure-packages)
+  (run-hooks 'qingeditor/modulemgr/before-configure-packages-hook)
+  (qingeditor/modulemgr/configure-packages-by-stage 'bootstrap)
+  (qingeditor/modulemgr/configure-packages-by-stage 'pre)
+  (qingeditor/modulemgr/configure-packages-by-stage nil)
+  (run-hooks 'qingeditor/modulemgr/after-configure-packages-hook)
+  (qingeditor/modulemgr/finish-configure-packages))
+
+(defun qingeditor/modulemgr/prepare-configure-packages ()
+  "Prepare configure packages."
+  (setq qingeditor/modulemgr/total-configured-count 0)
+  (dolist (package-name qingeditor/modulemgr/used-packages)
+    (let ((package (qingeditor/hash-table/get
+                    qingeditor/modulemgr/package-repo
+                    package-name)))
+      (when (qingeditor/cls/enabledp package)
+        (setq qingeditor/modulemgr/total-configured-count
+              (1+ qingeditor/modulemgr/total-configured-count)))))
+  (setq qingeditor/modulemgr/configured-count 0)
+  (setq qingeditor/startup-buffer/loading-counter 0)
+  (setq qingeditor/startup-buffer/loading-value 0)
+  (setq qingeditor/startup-buffer/loading-total-count
+        qingeditor/modulemgr/total-configured-count))
+
+(defun qingeditor/modulemgr/finish-configure-packages ()
+  "Finish configure packages."
+  (setq qingeditor/modulemgr/total-configured-count 0)
+  (setq qingeditor/modulemgr/configured-count 0)
+  (setq qingeditor/startup-buffer/loading-counter 0)
+  (setq qingeditor/startup-buffer/loading-value 0)
+  (setq qingeditor/startup-buffer/loading-total-count 0)
+    ;; load used modules keymap-defs
+  (dolist (module-name qingeditor/modulemgr/used-modules)
+    (let* ((module (qingeditor/hash-table/get
+                    qingeditor/modulemgr/module-repo
+                    module-name))
+          (has-keymap-defs
+           (intern-soft (format "qingeditor/%S/has-keymap-defs" module-name)))
+          (keymap-setter-filename (concat (qingeditor/cls/get-module-dir module) "keymap-defs.el")))
+      (when (and has-keymap-defs
+                 (symbol-value has-keymap-defs)
+                 (file-exists-p keymap-setter-filename))
+        (load keymap-setter-filename))))
+  (qingeditor/startup-buffer/message "> Configure finished"))
+
+(defun qingeditor/modulemgr/configure-packages-by-stage (stage)
+  "Configure used packages."
+  (dolist (package-name qingeditor/modulemgr/used-packages)
+    (let ((package (qingeditor/hash-table/get
+                    qingeditor/modulemgr/package-repo
+                    package-name)))
+      (when (and (qingeditor/cls/enabledp package)
+                 (eq stage (qingeditor/cls/get-stage package)))
+        (cond
+         ((eq stage 'bootstrap)
+          (qingeditor/startup-buffer/message "+ Configuring bootstrap packages..."))
+         ((eq stage 'pre)
+          (qingeditor/startup-buffer/message "+ Configuring pre packages..."))
+         ((null stage)
+          (qingeditor/startup-buffer/message "+ Configuring packages...")))
+        (run-hook-with-args 'qingeditor/modulemgr/before-configure-package-functions
+                            'package-name)
+        (setq qingeditor/modulemgr/configured-count
+              (1+ qingeditor/modulemgr/configured-count))
+        (qingeditor/startup-buffer/loading-animation)
+        (cond
+         ((oref package :lazy-install)
+          (qingeditor/startup-buffer/message
+           (format "%S ignored since it can be lazily installed." package-name)))
+         ((and (oref package :excluded)
+               (not (oref package :protected)))
+          (qingeditor/startup-buffer/message
+           (format "%S ignored since it has been excluded." package-name)))
+         ((null (qingeditor/cls/get-owners package))
+          (qingeditor/startup-buffer/message
+           (format "%S ignored since it has no owner module." package-name)))
+         ((not (qingeditor/cls/enabledp package t))
+          (qingeditor/startup-buffer/message (format "%S is toggled off." package-name)))
+         (t
+          ;; ok we begin configure package
+          (let ((location (qingeditor/cls/get-location package)))
+            (cond
+             ((stringp location)
+              (if (file-directory-p location)
+                  (push (file-name-as-directory location) load-path)
+                (qingeditor/modulemgr/warning  "Location path for package %S does not exists (value: %s)."
+                                               package-name location)))
+             ((and (eq 'local location)
+                   (eq 'config (qingeditor/cls/get-from-source package)))
+              (push (file-name-as-directory
+                     (concat qingeditor/modulemgr/module-private-directory "local/"
+                             (symbol-name package-name)))
+                    load-path))
+             ((eq 'local location)
+              (let* ((owner (car (qingeditor/cls/get-owners package)))
+                     (dir (when owner (qingeditor/cls/get-module-dir owner))))
+                (push (format "%slocal/%S/" dir package-name) load-path)))))
+          ;; configuration
+          (unless (memq (qingeditor/cls/get-location package) '(local site built-in))
+            (qingeditor/modulemgr/installer/activate-package package-name))
+          (cond
+           ((eq 'config (qingeditor/cls/get-from-source package))
+            (qingeditor/startup-buffer/message
+             (format "%S is configured in the config file." package-name)))
+           (t
+            (qingeditor/modulemgr/do-configure-package package-name)))))
+        (run-hook-with-args 'qingeditor/modulemgr/configure-package-functions
+                            'package-name
+                            qingeditor/modulemgr/configured-count
+                            qingeditor/modulemgr/total-configured-count)
+        (run-hook-with-args 'qingeditor/modulemgr/after-configure-package-functions
+                            'package-name)))))
+
+(defun qingeditor/modulemgr/do-configure-package (package-name)
+  "Do actually configure `package-name'."
+  (let* ((package (qingeditor/hash-table/get
+                   qingeditor/modulemgr/package-repo
+                   package-name))
+         (owner (car (qingeditor/cls/get-owners package))))
+    (qingeditor/startup-buffer/message
+     (format "> Configuring %S..." package-name))
+    ;; pre-init
+    (mapc
+     (lambda (module-name)
+       (when (qingeditor/modulemgr/module-usedp module-name)
+         (let ((pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name package-name))))
+           (if (not (qingeditor/cls/package-enabled-p package module-name))
+               (qingeditor/startup-buffer/message
+                (format " -> ignore pre-init (%S)..." module-name))
+             (qingeditor/startup-buffer/message
+              (format " -> pre-init (%S)..." module-name))
+             (condition-case-unless-debug err
+                 (funcall pre-init-func)
+               ('error
+                (qingeditor/modulemgr/increment-error-count)
+                (qingeditor/startup-buffer/append
+                 (format
+                  (concat "\nAn error occurred while pre-configuring %S "
+                          "in module %S (error: %s)\n"
+                          package-name module-name err)))))))))
+     (qingeditor/cls/get-pre-init-modules package))
+
+    ;; init
+    (let* ((module-name (qingeditor/cls/get-name owner))
+          (init-func (intern (format "qingeditor/%S/init-%S" module-name package-name))))
+      (when (fboundp init-func)
+        (qingeditor/startup-buffer/message (format " -> init (%S)..." module-name))
+        (funcall init-func)))
+
+    ;; post init
+    (mapc
+     (lambda (module-name)
+       (when (qingeditor/cls/module-usedp modulemgr module-name)
+         (let ((post-init-func (intern (format "qingeditor/modulemgr/post-init-%S" module-name package-name))))
+           (if (not (qingeditor/cls/package-enabled-p package module-name))
+               (qingeditor/startup-buffer/message
+                (format " -> ignore post-init (%S)..." module-name))
+             (qingeditor/startup-buffer/message
+              (format " -> post-init (%S)..." module-name))
+             (condition-case-unless-debug err
+                 (funcall post-init-func)
+               ('error
+                (qingeditor/modulemgr/increment-error-count)
+                (qingeditor/startup-buffer/append
+                 (format
+                  (concat "\nAn error occurred while post-configuring %S "
+                          "in module %S (error: %s)\n"
+                          package-name module-name err)))))))))
+     (qingeditor/cls/get-pre-init-modules package))))
+
+(defun qingeditor/modulemgr/get-uninstalled-packages (pkg-names)
+  "Return a filtered list of PKG-NAMES to install."
+  (let (uninstalled-pkg-names
+        ret)
+    (setq uninstalled-pkg-names
+          (qingeditor/modulemgr/installer/get-packages-with-deps
+           pkg-names
+           (lambda (pkg-name)
+             (let* ((pkg (qingeditor/modulemgr/get-package pkg-name))
+                    (min-version (when pkg (oref pkg :min-version))))
+               (not (package-installed-p pkg-name min-version))))))
+    (dolist (pkg-name uninstalled-pkg-names)
+      (if (qingeditor/modulemgr/hash-key
+           qingeditor/modulemgr/package-repo pkg-name)
+          (add-to-list 'ret (qingeditor/modulemgr/get-package pkg-name))
+        (add-to-list 'ret (qingeditor/modulemgr/package (symbol-value pkg-name)
+                                                        :name pkg-name) t)))
+    ret))
+
+(defun qingeditor/modulemgr/get-package (package-name)
+  "Get package object by `package-name'."
+  (qingeditor/hash-table/get
+   qingeditor/modulemgr/package-repo
+   package-name))
 
 (defun qingeditor/modulemgr/detect-modules ()
   "Gather `qingeditor' modules."
@@ -448,56 +722,58 @@ that `qingeditor' support and all the packages that module require."
            (module-filename (concat module-dir "module.el"))
            module
            package-sepcs)
-     ;; first phase, we just load module define file and instance
-     ;; module class
-     (unless (file-exists-p module-filename)
-       (error "The module.el file of %S is not exist." key))
-     (load module-filename)
-     (setq module (make-instance 'qingeditor/modulemgr/module))
-     ;; invoke the `qingeditor/cls/init' method of module object.
-     (qingeditor/cls/set-name module module-name)
-     (qingeditor/cls/init module)
-     (qingeditor/cls/set-module-dir module module-dir)
-     (qingeditor/hash-table/set
-      qingeditor/modulemgr/module-repo
-      module-name module)
-     ;; we setup basic infomation for package 
-     (let ((module-require-packages
-            (qingeditor/modulemgr/get-module-require-packages module-name)))
-       (dolist (spec module-require-packages)
-         ;; we just simple instance the package class
-         ;; and set the name of package object.
-         (let* ((package-sym (if (listp spec) (car spec) spec))
-                (package-name (symbol-name package-sym))
-                (package (qingeditor/hash-table/get
-                          qingeditor/modulemgr/package-repo package-sym nil))
-                (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
-                (stage (when (listp spec) (plist-get (cdr spec) :stage)))
-                (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
-                (protected (when (listp spec) (plist-get (cdr spec) :protected)))
-                package-installed)
-           (unless package
-             (setq package (qingeditor/modulemgr/package package-name :name package-sym))
-             (qingeditor/hash-table/set qingeditor/modulemgr/package-repo
-                                        package-sym package)
-             ;; a bootstrap package is protected
-             (qingeditor/cls/set-property package :protected
-                                          (or protected
-                                              (eq 'bootstrap stage)))
-             (when protected
-               (add-to-list 'qingeditor/modulemgr/protected-packages
-                            package-sym)))
-           (when toggle
-             (qingeditor/cls/set-property package :toggle toggle))
-           (when stage
-               (qingeditor/cls/set-property package :stage stage))
-           (if min-version
-               (progn
-                 (qingeditor/cls/set-property package :min-version (version-to-list min-version))
-                 (setq package-installed (if (package-installed-p package-sym min-version) t nil)))
-             (setq package-installed (if (package-installed-p package-sym)
-                                           t nil)))
-           (oset package :installed package-installed)))))))
+      ;; first phase, we just load module define file and instance
+      ;; module class
+      (unless (file-exists-p module-filename)
+        (error "The module.el file of %S is not exist." key))
+      (load module-filename)
+      (setq module (make-instance 'qingeditor/modulemgr/module))
+      ;; invoke the `qingeditor/cls/init' method of module object.
+      (qingeditor/cls/set-name module module-name)
+      (qingeditor/cls/init module)
+      (qingeditor/cls/set-module-dir module module-dir)
+      (qingeditor/hash-table/set
+       qingeditor/modulemgr/module-repo
+       module-name module)
+      ;; we setup basic infomation for package 
+      (let ((module-require-packages
+             (qingeditor/modulemgr/get-module-require-packages module-name)))
+        (dolist (spec module-require-packages)
+          ;; we just simple instance the package class
+          ;; and set the name of package object.
+          (let* ((package-sym (if (listp spec) (car spec) spec))
+                 (package-name (symbol-name package-sym))
+                 (package (qingeditor/hash-table/get
+                           qingeditor/modulemgr/package-repo package-sym nil))
+                 (min-version (when (listp spec) (plist-get (cdr spec) :min-version)))
+                 (stage (when (listp spec) (plist-get (cdr spec) :stage)))
+                 (toggle (when (listp spec) (plist-get (cdr spec) :toggle)))
+                 (protected (when (listp spec) (plist-get (cdr spec) :protected)))
+                 package-installed)
+            (unless package
+              (setq package (qingeditor/modulemgr/package package-name :name package-sym))
+              (qingeditor/hash-table/set qingeditor/modulemgr/package-repo
+                                         package-sym package)
+              ;; a bootstrap package is protected
+              (qingeditor/cls/set-property package :protected
+                                           (or protected
+                                               (eq 'bootstrap stage)))
+              (when protected
+                (add-to-list 'qingeditor/modulemgr/protected-packages
+                             package-sym)))
+            (when toggle
+              (qingeditor/cls/set-property package :toggle toggle))
+            (when stage
+              (qingeditor/cls/set-property package :stage stage))
+            (if min-version
+                (progn
+                  (qingeditor/cls/set-property package :min-version
+                                               (version-to-list min-version))
+                  (setq package-installed
+                        (if (package-installed-p package-sym min-version) t nil)))
+              (setq package-installed (if (package-installed-p package-sym)
+                                          t nil)))
+            (oset package :installed package-installed)))))))
 
 (defun qingeditor/modulemgr/get-module-require-modules (module-name)
   "Get the require modules of module `module-name'."
