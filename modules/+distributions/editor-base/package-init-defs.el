@@ -125,7 +125,7 @@
     (add-hook 'prog-mode-hook 'linum-mode)
     (add-hook 'text-mode-hook 'linum-mode))
   (setq linum-format "%4d")
-  (qingeditor/toggle/add-toggle line-numbers
+  (qingeditor/add-toggle line-numbers
     :mode linum-mode
     :documentation "Show the line numbers."))
 
@@ -309,10 +309,10 @@
           (setq qingeditor/cjk/word-separating-categories
                 (default-value 'qingeditor/cjk/word-separating-categories))))
       (add-hook 'subword-mode-hook 'qingeditor/subword-enable-camel-case)
-      (qingeditor/toggle/add-toggle camel-case-motion
+      (qingeditor/add-toggle camel-case-motion
         :mode subword-mode
         :documentation "Toggle CamelCase motions.")
-      (qingeditor/toggle/add-toggle camel-case-motion-globally
+      (qingeditor/add-toggle camel-case-motion-globally
         :mode global-subword-mode
         :documentation "Globally toggle CamelCase motions."))
     :config
@@ -349,10 +349,10 @@
           (setq show-trailing-whitespace 1)))
       (add-hook 'prog-mode-hook 'qingeditor/editor-base/show-trailing-whitespace)
 
-      (qingeditor/toggle/add-toggle whitespace
+      (qingeditor/add-toggle whitespace
         :mode whitespace-mode
         :documentation "Display whitespace.")
-      (qingeditor/toggle/add-toggle whitespace-globally
+      (qingeditor/add-toggle whitespace-globally
         :mode global-whitespace-mode
         :documentation "Display whitespace globally.")
 

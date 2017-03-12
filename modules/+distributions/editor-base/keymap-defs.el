@@ -193,4 +193,43 @@
  "hdv"   'describe-variable
  "hI"    'qing-report-issue
  "hn"    'view-emacs-news)
+;; insert stuff
+(qingeditor/key-binder/set-leader-keys
+ "iJ" 'qing-insert-line-below-no-indent
+ "iK" 'qing-insert-line-above-no-indent
+ "ik" 'qing-insert-line-above
+ "ij" 'qing-insert-line-below)
+
+;; format
+(qingeditor/key-binder/set-leader-keys
+ "jo" 'open-line
+ "j=" 'qing-indent-region-or-buffer
+ "jS" 'qing-split-and-new-line
+ "jk" 'qing-goto-next-line-and-indent)
+
+;; navigation/jumping
+(qingeditor/key-binder/set-leader-keys
+ "j0" 'qing-push-mark-and-goto-beginning-of-line
+ "j$" 'qing-push-mark-and-goto-end-of-line
+ "jf" 'find-function
+ "jv" 'find-variable)
+
+;; Compliation
+(qingeditor/key-binder/set-leader-keys
+ "cC" 'compile
+ "ck" 'kill-compilation
+ "cr" 'recompile
+ "cd" 'qing-close-compilation-window)
+
+(with-eval-after-load 'compile
+  (define-key compilation-mode-map "r" 'recompile)
+  (define-key compilation-mode-map "g" nil))
+
+;; Narrow and widen
+(qingeditor/key-binder/set-leader-keys
+ "nr" 'narrow-to-region
+ "np" 'narrow-to-page
+ "nf" 'narrow-to-defun
+ "nw" 'widen)
+
 

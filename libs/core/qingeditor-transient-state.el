@@ -72,8 +72,7 @@ holds the key bindings."
   "Face for title of transient states.")
 
 (defmacro qingeditor/define-transient-state (name &rest props)
-  "Define fa transient state called `name'.
-`name' is a symbol.
+  "Define fa transient state called `name'. `name' is a symbol.
 Available `props':
 `:on-error SEXP'
     Evaluate `sexp' when the transient state is switched on.
@@ -99,10 +98,10 @@ Available `props':
     An sexp evaluating to a string for dynamic hinting
     When provideed `:hint' has no effect. Default is `nil'.
 `:foreign-keys SYMBOL'
-    What to do when keys not boudn in the transient state are entered. This
+    What to do when keys not bound in the transient state are entered. This
     can be nil (default), which means to exit the transient statem warn,
     which means to not exit but warn the user that the key is not part
-    of the transient state,, or run, which means to try to run the key binding
+    of the transient state or run, which means to try to run the key binding
     without exiting.
 `:bindings EXPRESSIONS'
     One or serval EXPRESSIONS with the form

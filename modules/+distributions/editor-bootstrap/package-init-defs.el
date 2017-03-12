@@ -50,7 +50,7 @@
 (defun qingeditor/editor-bootstrap/init-which-key ()
   "init which key."
   (require 'which-key)
-  (qingeditor/toggle/add-toggle
+  (qingeditor/add-toggle
    which-key
    :mode which-key-mode
    :documentation "Display a buffer with available key bindings.")

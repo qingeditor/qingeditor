@@ -46,8 +46,7 @@ gui, translate to [C-i]. Otherwise, [9] (TAB)."
 sequence. NAME is a string used as the prefix command.
 LONG-NAME if given is stored in `qingeditor/key-binder/prefix-titles'."
   (let* ((command name)
-         (full-prefix (concat qingeditor/config/leader-key " " prefix))
-         (full-prefix-lst (listify-key-sequence (kbd full-prefix))))
+         (full-prefix (concat qingeditor/config/leader-key " " prefix)))
     ;; define the prefix command only if it does not already exist
     (unless long-name
       (setq long-name name))

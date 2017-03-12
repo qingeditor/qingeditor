@@ -9,11 +9,11 @@
 
 (require 'qingeditor-funcs)
 
-(defvar qingeditor/toggle/toggles '()
+(defvar qingeditor/toggle-repo '()
   "List of all declared toggles. The structure of an element is a
 property list (name :func FUNCTION :doc STRING :key STRING).")
 
-(defmacro qingeditor/toggle/add-toggle (name &rest props)
+(defmacro qingeditor/add-toggle (name &rest props)
   "Add a toggle with `name' symbol.
 
 This macro creates the following functions:
@@ -45,7 +45,7 @@ Avaiblabe PROPS:
 `:mode SYMBOL'
     If given, must be a minor mode. This overrides `:on', `:off' and `:status'.
 
-All properties supported by `qingeditor/create-key-binding-form' can be
+All properties supported by `qingeditor/key-binder/create-key-binding-form' can be
 used.
 "
   (declare (indent 1))
@@ -62,7 +62,7 @@ used.
          (off-body (if mode `((,mode -1)) (qingeditor/mplist-get props :off)))
          (prefix-arg-var (plist-get props :prefix))
          (on-message (plist-get props :on-message))
-         (bind-keys (qingeditor/key-binder/create-key-binding-form props wrapper-func))
+         (bindkeys (qingeditor/key-binder/create-key-binding-form props wrapper-func))
          ;; we evaluate condition and status only if they are a list or
          ;; a bound symbol
          (status-eval `(and (or (and (symbolp ',status) (boundp ',status))
@@ -71,11 +71,11 @@ used.
     `(progn
        (push (append '(,name) '(:function ,wrapper-func
                                           :predicate ,wrapper-func-status) ',props)
-             qingeditor/toggle/toggles)
+             qingeditor/toggle-repo)
        ;; toggle function
        (defun ,wrapper-func ,(if prefix-arg-var (list prefix-arg-var) ())
          ,(format "Toggle %s on and off." (symbol-name name))
-         ,(if prefix-arg-var '(interactive "P") (interactive))
+         ,(if prefix-arg-var '(interactive "P") '(interactive))
          (if (or (null ',condition)
                  (and (or (and (symbolp ',condition) (boundp ',condition))
                           (listp ',condition))
@@ -104,6 +104,6 @@ used.
                ,(format "Toggle %s off." (symbol-name name))
                (interactive)
                (when (,wrapper-func-status) (,wrapper-func)))))
-       ,@bind-keys)))
+       ,bindkeys)))
 
 (provide 'qingeditor-toggle)
