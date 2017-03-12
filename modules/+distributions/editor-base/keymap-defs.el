@@ -238,3 +238,20 @@
   :documentation "Globally highlight the current line."
   :leader "thh")
 
+(qingeditor/add-toggle truncate-lines
+  :status truncate-lines
+  :on (toggle-truncate-lines)
+  :off (toggle-truncate-lines -1)
+  :documentation "Truncate long lines (no wrap)."
+  :leader "tl")
+
+(qingeditor/add-toggle visual-line-mode
+  :status visual-line-mode
+  :on
+  (progn
+    (visual-line-mode))
+  :off
+  (progn
+    (visual-line-mode -1))
+  :documentation "Move point according to visual lines."
+  :leader "tL")
