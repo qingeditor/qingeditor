@@ -49,7 +49,7 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
 used.
 "
   (declare (indent 1))
-  (let* ((wrapper-func (intern (format "qingeditor/toggle-%s"
+  (let* ((wrapper-func (intern (format "qing-toggle-%s"
                                        (symbol-name name))))
          (wrapper-func-status (intern (format "%s-p" wrapper-func)))
          (wrapper-func-on (intern (format "%s-on" wrapper-func)))
@@ -104,6 +104,6 @@ used.
                ,(format "Toggle %s off." (symbol-name name))
                (interactive)
                (when (,wrapper-func-status) (,wrapper-func)))))
-       ,bindkeys)))
+       ,@bindkeys)))
 
 (provide 'qingeditor-toggle)

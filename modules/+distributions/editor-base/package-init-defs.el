@@ -127,7 +127,8 @@
   (setq linum-format "%4d")
   (qingeditor/add-toggle line-numbers
     :mode linum-mode
-    :documentation "Show the line numbers."))
+    :documentation "Show the line numbers."
+    :leader "tn"))
 
 (defun qingeditor/editor-base/init-occur-mode ()
   (use-package occur-mode
@@ -311,10 +312,12 @@
       (add-hook 'subword-mode-hook 'qingeditor/subword-enable-camel-case)
       (qingeditor/add-toggle camel-case-motion
         :mode subword-mode
-        :documentation "Toggle CamelCase motions.")
+        :documentation "Toggle CamelCase motions."
+        :leader "tc")
       (qingeditor/add-toggle camel-case-motion-globally
         :mode global-subword-mode
-        :documentation "Globally toggle CamelCase motions."))
+        :documentation "Globally toggle CamelCase motions."
+        :leader "t C-c"))
     :config
     (qingeditor/font/diminish subword-mode " ⓒ" " c")))
 
@@ -351,10 +354,12 @@
 
       (qingeditor/add-toggle whitespace
         :mode whitespace-mode
-        :documentation "Display whitespace.")
+        :documentation "Display whitespace."
+        :leader "tw")
       (qingeditor/add-toggle whitespace-globally
         :mode global-whitespace-mode
-        :documentation "Display whitespace globally.")
+        :documentation "Display whitespace globally."
+        :leader "t C-w")
 
       (defun qingeditor/editor-base/set-whitespace-style-for-diff ()
         "Whitespace configuration for `diff-mode'."

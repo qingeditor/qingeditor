@@ -232,4 +232,9 @@
  "nf" 'narrow-to-defun
  "nw" 'widen)
 
+;; toggle
+(qingeditor/add-toggle highlight-current-line-globally
+  :mode global-hl-line-mode
+  :documentation "Globally highlight the current line."
+  :leader "thh")
 

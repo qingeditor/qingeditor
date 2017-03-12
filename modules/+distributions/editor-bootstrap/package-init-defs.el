@@ -53,7 +53,8 @@
   (qingeditor/add-toggle
    which-key
    :mode which-key-mode
-   :documentation "Display a buffer with available key bindings.")
+   :documentation "Display a buffer with available key bindings."
+   :leader "tK")
   (qingeditor/key-binder/set-leader-keys "hk" 'which-key-show-top-level)
   ;; Replace rules for better naming of functions
   (let ((new-descriptions
