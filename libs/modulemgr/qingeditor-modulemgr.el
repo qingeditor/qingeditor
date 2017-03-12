@@ -166,6 +166,18 @@ or not loaded.")
   (qingeditor/modulemgr/init-module-and-package-repo)
   (run-hooks 'qingeditor/modulemgr/mdoule-detect-hook))
 
+(defun qingeditor/modulemgr/get-package (package-name)
+  "Get package object by `package-name'."
+  (qingeditor/hash-table/get
+   qingeditor/modulemgr/package-repo
+   package-name))
+
+(defun qingeditor/modulemgr/get-module (module-name)
+  "Get module object by `module-name'."
+  (qingeditor/hash-table/get
+   qingeditor/modulemgr/module-repo
+   module-name))
+
 (defun qingeditor/modulemgr/module-usedp (module-name)
   "Return `non-nil' if the module named `module-name' been
 used."
@@ -645,12 +657,6 @@ defined in `module.el' of target module."
         (add-to-list 'ret (qingeditor/modulemgr/package (symbol-value pkg-name)
                                                         :name pkg-name) t)))
     ret))
-
-(defun qingeditor/modulemgr/get-package (package-name)
-  "Get package object by `package-name'."
-  (qingeditor/hash-table/get
-   qingeditor/modulemgr/package-repo
-   package-name))
 
 (defun qingeditor/modulemgr/detect-modules ()
   "Gather `qingeditor' modules."

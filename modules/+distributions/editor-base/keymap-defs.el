@@ -154,7 +154,8 @@
   :bindings
   ("n" qing-next-error "next")
   ("p" qing-next-error "previous")
-  ("q" nil "quit" :exit t))
+  ("q" nil "quit" :exit t)
+  :leader "e.")
 
 ;; file
 (qingeditor/key-binder/set-leader-keys

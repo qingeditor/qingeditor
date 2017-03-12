@@ -119,7 +119,7 @@ Available `props':
 
 All properties supported by `qingeditor/key-binder/create-key-binding-form' can be used."
   (declare (indent 1))
-  (let* ((func (qingeditor/transient-state-body-func-name name))
+  (let* ((func (qingeditor/transient-state-func-name name))
          (props-var (qingeditor/transient-state-props-var-name name))
          (body-func (qingeditor/transient-state-body-func-name name))
          (add-bindings

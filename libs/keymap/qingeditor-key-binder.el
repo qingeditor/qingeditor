@@ -158,9 +158,13 @@ Supported properties:
     One or several cons cells (MAP . KEY) where MAP is a mode map and KEY is a
     key sequence string to be set with `define-key'.
 "
-  (let ((global-key (qingeditor/mplist-get props :global-key))
+  (let ((leader (qingeditor/mplist-get props :leader))
+        (global-key (qingeditor/mplist-get props :global-key))
         (def-key (qingeditor/mplist-get props :define-key)))
     (append
+     (when leader
+       `((dolist (key ',leader)
+           (qingeditor/key-binder/set-leader-keys key ',func))))
      (when global-key
        `((dolist (key ',global-key)
            (global-set-key (kbd key) ',func))))
