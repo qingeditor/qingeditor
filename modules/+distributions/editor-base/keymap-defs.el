@@ -255,3 +255,38 @@
     (visual-line-mode -1))
   :documentation "Move point according to visual lines."
   :leader "tL")
+
+(qingeditor/add-toggle auto-fill-mode
+  :status auto-fill-function
+  :on (auto-fill-mode)
+  :off (auto-fill-mode -1)
+  :documentation "Break line beyond `current-fill-column' while editing."
+  :leader "tF")
+
+(qingeditor/add-toggle debug-on-error
+  :status debug-on-error
+  :on (setq debug-on-error t)
+  :off (setq debug-on-error nil)
+  :documentation "Toggle display of backtrace when an error happens."
+  :leader "tD")
+
+(qingeditor/add-toggle fringe
+  :status (not (equal fringe-mode 0))
+  :on (call-interactively 'fringe-mode)
+  :off (fringe-mode 0)
+  :documentation "Display the fringe in GUI mode."
+  :leader "Tf")
+
+(qingeditor/add-toggle fullscreen-frame
+  :status (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
+  :on (qing-toggle-frame-fullscreen)
+  :off (qing-toggle-frame-fullscreen)
+  :documentation "Display the current frame in full screen."
+  :leader "TF")
+
+(qingeditor/add-toggle maximize-frame
+  :status (eq (frame-parameter nil 'fullscreen) 'maximized)
+  :on (toggle-frame-maximized)
+  :off (toggle-frame-maximized)
+  :documentation "Maximize the current frame."
+  :leader "TM")
