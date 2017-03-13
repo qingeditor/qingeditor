@@ -190,4 +190,48 @@ defer call using `qingeditor/user-config-setup-finished-hook'."
       (funcall func)
     (add-hook 'qingeditor/user-config-setup-finished-hook func)))
 
+(defun qingeditor/member-if (predicate list &optional pointer)
+  "Find the first item satisfies `predicate' in `list'.
+Stop when reaching `pointer', which should pointer at a link
+in the list."
+  (let (elt)
+    (catch 'done
+      (while (and (consp list) (not (eq list pointer)))
+        (setq elt (car list))
+        (if (funcall predicate elt)
+            (throw 'done elt)
+          (setq list (cdr list)))))))
+
+(defun qingeditor/member-recursive-if (predicate tree)
+  "Find the first item satisfying `predicate' in tree."
+  (cond
+   ((funcall predicate tree)
+    tree)
+   ((listp tree)
+    (catch 'done
+      (dolist (elt tree)
+        (when (setq elt (qingeditor/member-recursive-if predicate elt))
+          (throw 'done elt)))))))
+
+(defun qingeditor/filter-list (predicate list &optional pointer)
+  "Delete by side-effect all items satisfying `predicate' in `list'.
+Stop when reaching `pointer'. if the first item satisfies `predicate', there is
+no way to remove it by side effect; therefore, write
+\(setq foo (qingeditor/filter-list 'predicate foo)) to be sure of
+changing the value of `foo'."
+  (let ((tail list)
+        elt head)
+    (while (and tail (not (eq tail pointer)))
+      (setq elt (car tail))
+      (cond
+       ((funcall predicate elt)
+        (setq tail (cdr tail))
+        (if head
+            (setcdr head tail)
+          (setq list tail)))
+       (t
+        (setq head tail
+              tail (cdr tail)))))
+    list))
+
 (provide 'qingeditor-funcs)

@@ -868,11 +868,21 @@ Compare them on count first,and in case of tie sort them alphabetically."
   (if (<= (- end beg) qingeditor/editor-base/yank-indent-threshold)
       (indent-region beg end)))
 
-;; TODO
 (qingeditor/editor-base/advise-commands
  "indent" (yank yank-pop ) around
  "If current mode is not one of `qingeditor/editor-base/indent-sensitive-modes'
- indent yanked text (with universal arg don't indent).")
+ indent yanked text (with universal arg don't indent)."
+ (qingeditor/start-undo-step)
+ ad-do-it
+ (if (and (not (equal '(4) (ad-get-arg 0)))
+          (not (member major-mode qingeditor/editor-base/indent-sensitive-modes))
+          (or (derived-mode-p 'prog-mode)
+              (member major-mode qingeditor/editor-base/indent-sensitive-modes)))
+     (let ((transient-mark-mode nil)
+           (save-undo buffer-undo-list))
+       (qingeditor/editor-base/yank-advised-indent-function (region-beginning)
+                                                            (region-end))))
+ (qingeditor/end-undo-step))
 
 ;; find file functions in split
 (defun qingeditor/editor-base/display-in-split (buffer alist)

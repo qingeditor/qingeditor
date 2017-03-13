@@ -51,5 +51,6 @@
     (url :location built-in)
     (visual-line-mode :location built-in)
     (whitespace :location built-in)
-    (winner :location built-in))
+    (winner :location built-in)
+    )
  )

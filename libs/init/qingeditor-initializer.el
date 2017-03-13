@@ -43,7 +43,8 @@ we finally process `qingeditor' modules."
   (run-hooks 'qingeditor/initializer/bootstrap-hook)
   (qingeditor/initializer/render-startup-screen)
   (qingeditor/modulemgr/initialize)
-  (qingeditor/modulemgr/process))
+  (qingeditor/modulemgr/process)
+  )
 
 (defun qingeditor/initializer/notify-init-finished ()
   "Do something to notify the qingeditor finish init."

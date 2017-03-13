@@ -160,29 +160,6 @@ their `prop' values."
 (unless (get 'display-table 'char-table-extra-slot)
   (put 'display-table 'char-table-extra-slot 0))
 
-(defun qingeditor/member-if (predicate list &optional pointer)
-  "Find the first item satisfies `predicate' in `list'.
-Stop when reaching `pointer', which should pointer at a link
-in the list."
-  (let (elt)
-    (catch 'done
-      (while (and (consp list) (not (eq list pointer)))
-        (setq elt (car list))
-        (if (funcall predicate elt)
-            (throw 'done elt)
-          (setq list (cdr list)))))))
-
-(defun qingeditor/member-recursive-if (predicate tree)
-  "Find the first item satisfying `predicate' in tree."
-  (cond
-   ((funcall predicate tree)
-    tree)
-   ((listp tree)
-    (catch 'done
-      (dolist (elt tree)
-        (when (setq elt (qingeditor/member-recursive-if predicate elt))
-          (throw 'done elt)))))))
-
 ;; Command properties functions
 ;; If no properties are defined for the command, serval parts of
 ;; qingeditor apply certain default rules; e.g., the repeat system decides
@@ -481,7 +458,7 @@ make the entries undoable as a single action. See
 `qingeditor/start-undo-step'."
   (when qingeditor/undo-list-pointer
     (setq buffer-undo-list
-          (evil-filter-list #'null buffer-undo-list qingeditor/undo-list-pointer))
+          (qingeditor/filter-list #'null buffer-undo-list qingeditor/undo-list-pointer))
     (setq qingeditor/undo-list-pointer (or buffer-undo-list t))))
 
 (defun qingeditor/undo-pop ()

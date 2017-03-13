@@ -256,20 +256,33 @@ via `key-value' paires. `body' should evaluate to a list of values.
            (push (cons code value) qingeditor/interactive-alist))
          code))))
 
-;; toggleable version of `with-temp-message'
-(defmacro qingeditor/save-echo-area (&rest body)
-  "Save the echo area; execute BODY; restore the echo area.
-Intermittent messages are not logged in the *Messages* buffer."
-  (declare (indent defun)
-           (debug t))
-  `(let ((inhibit-quit t)
-         qingeditor/echo-area-message
-         qingeditor/write-echo-area)
-     (unwind-protect
-         (progn
-           (qingeditor/echo-area-save)
-           ,@body)
-       (qingeditor/echo-area-restore))))
+(defmacro qingeditor/define-module (mname &rest defs)
+  "Define a module named `module-name'.
+
+\(fn MODULE_NAME  DOC [[KEY VALUE]...])"
+  (let ((doc-string (when (stringp (car-safe defs)) (pop defs)))
+        (require-modules (plist-get defs :require-modules))
+        (require-packages (plist-get defs :require-packages))
+        (has-extra-funcs-defs (plist-get defs :has-extra-funcs-defs))
+        (has-keymap-defs (plist-get defs :has-keymap-defs))
+        (has-extra-config (plist-get defs :has-extra-config))
+        (has-loadpath-provider (plist-get defs :has-loadpath-provider))
+        (module-name (intern (format "qingeditor/%S" mname))))
+    `(progn
+       (unless (bound-and-true-p ,module-name)
+         (defvar ,module-name t)
+         (defvar ,(intern (format "%S/require-modules" module-name))
+           ,require-modules)
+         (defvar ,(intern (format "%S/require-packages" module-name))
+           ,require-packages)
+         (defvar ,(intern (format "%S/has-keymap-defs" module-name))
+           ,has-keymap-defs)
+         (defvar ,(intern (format "%S/has-extra-funcs-defs" module-name))
+           ,has-extra-funcs-defs)
+         (defvar ,(intern (format "%S/has-extra-config" module-name))
+           ,has-extra-config)
+         (defvar ,(intern (format "%S/has-loadpath-provider" module-name))
+           ,has-loadpath-provider)))))
 
 (defmacro qingeditor/with-undo (&rest body)
   "Execute BODY with enabled undo.
@@ -309,32 +322,19 @@ is stored in `qingeditor/temporary-undo' instead of `buffer-undo-list'."
               ,@body))
         (qingeditor/end-undo-step)))))
 
-(defmacro qingeditor/define-module (mname &rest defs)
-  "Define a module named `module-name'.
-
-\(fn MODULE_NAME  DOC [[KEY VALUE]...])"
-  (let ((doc-string (when (stringp (car-safe defs)) (pop defs)))
-        (require-modules (plist-get defs :require-modules))
-        (require-packages (plist-get defs :require-packages))
-        (has-extra-funcs-defs (plist-get defs :has-extra-funcs-defs))
-        (has-keymap-defs (plist-get defs :has-keymap-defs))
-        (has-extra-config (plist-get defs :has-extra-config))
-        (has-loadpath-provider (plist-get defs :has-loadpath-provider))
-        (module-name (intern (format "qingeditor/%S" mname))))
-    `(progn
-       (unless (bound-and-true-p ,module-name)
-         (defvar ,module-name t)
-         (defvar ,(intern (format "%S/require-modules" module-name))
-           ,require-modules)
-         (defvar ,(intern (format "%S/require-packages" module-name))
-           ,require-packages)
-         (defvar ,(intern (format "%S/has-keymap-defs" module-name))
-           ,has-keymap-defs)
-         (defvar ,(intern (format "%S/has-extra-funcs-defs" module-name))
-           ,has-extra-funcs-defs)
-         (defvar ,(intern (format "%S/has-extra-config" module-name))
-           ,has-extra-config)
-         (defvar ,(intern (format "%S/has-loadpath-provider" module-name))
-           ,has-loadpath-provider)))))
+;; toggleable version of `with-temp-message'
+(defmacro qingeditor/save-echo-area (&rest body)
+  "Save the echo area; execute BODY; restore the echo area.
+Intermittent messages are not logged in the *Messages* buffer."
+  (declare (indent defun)
+           (debug t))
+  `(let ((inhibit-quit t)
+         qingeditor/echo-area-message
+         qingeditor/write-echo-area)
+     (unwind-protect
+         (progn
+           (qingeditor/echo-area-save)
+           ,@body)
+       (qingeditor/echo-area-restore))))
 
 (provide 'qingeditor-macros)
