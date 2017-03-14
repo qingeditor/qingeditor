@@ -129,4 +129,28 @@ Useful for making the home buffer the only visible buffer in the frame."
        (and (not buffer-read-only)
             (buffer-file-name)))))
 
+(defun qing-window-up (count)
+  "Move the cursor to new `count' window above the current one."
+  (interactive "p")
+  (dotimes (i (or count 1))
+    (windmove-up)))
+
+(defun qing-window-down (count)
+  "Move the cursor to new COUNT-th window below the current one."
+  (interactive "p")
+  (dotimes (i (or count 1))
+    (windmove-down)))
+
+(defun qing-window-left (count)
+  "Move the cursor to new COUNT-th window left of the current one."
+  (interactive "p")
+  (dotimes (i (or count 1))
+    (windmove-left)))
+
+(defun qing-window-right (count)
+  "Move the cursor to new COUNT-th window right of the current one."
+  (interactive "p")
+  (dotimes (i (or count 1))
+    (windmove-right)))
+
 (provide 'qingeditor-commands)

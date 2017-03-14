@@ -908,3 +908,20 @@ if `frame' is nil, it defaults to the selected frame."
                            (cons decreased-alpha decreased-alpha)))))
 
 
+(defun qing-split-window-below-and-focus ()
+  "Split the window vertically and focus the new window."
+  (interactive)
+  (split-window-below)
+  (windmove-down)
+  (when (and (boundp 'golden-ratio-mode)
+             (symbol-value golden-ratio-mode))
+    (golden-ratio)))
+
+(defun qing-split-window-right-and-focus ()
+  "Split the window horizontally and focus the new window."
+  (interactive)
+  (split-window-right)
+  (windmove-right)
+  (when (and (boundp 'golden-ratio-mode)
+             (symbol-value golden-ratio-mode))
+    (golden-ratio)))

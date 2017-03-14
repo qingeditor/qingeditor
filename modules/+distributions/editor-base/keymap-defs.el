@@ -346,3 +346,5 @@
  "qq" 'qing-prompt-kill-emacs
  "qQ" 'qing-kill-emacs
  "qz" 'qing-frame-killer)
+
+;; window

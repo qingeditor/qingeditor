@@ -510,4 +510,54 @@ Does not restore if `evil-write-echo-area' is non-nil."
   (setq qingeditor/echo-area-message nil
         qingeditor/write-echo-area nil))
 
+;; window navigation
+
+(defun qingeditor/resize-window (new-size &optional horizontal)
+  "Set the current window's width or height to `new-size'.
+if `horizontal' is non-nil the width of the window is changed,
+otherwise its height is changed."
+  (let ((count (- new-size (if horizontal (window-width) (window-height)))))
+    (if (>= emacs-major-version 24)
+        (enlarge-window count horizontal))
+    (let ((wincfg (current-window-configuration))
+          (nwins (length (window-list)))
+          (inhibit-redisplay t))
+      (catch 'done
+        (save-window-excursion
+          (while (not (zerop count))
+            (if (> count 0)
+                (progn
+                  (enlarge-window 1 horizontal)
+                  (setq count (1- count)))
+              (progn
+                (shrink-window 1 horizontal)
+                (setq count (1+ count))))
+            (if (= nwins (length (window-list)))
+                (setq wincfg (current-window-configuration))
+              (throw 'done t)))))
+      (set-window-configuration wincfg))))
+
+(defun qingeditor/get-buffer-tree (wintree)
+  "Extracts the buffer tree from a given window tree `wintree'."
+  (if (consp wintree)
+      (cons (car wintree) (mapcar #'qingeditor/get-buffer-tree (cddr wintree)))
+    (window-buffer wintree)))
+
+(defun qingeditor/restore-window-tree (win tree)
+  "Restore the given buffer tree layout as subwindows of `win'.
+`tree' is the tree layout to be restored.
+a tree layout is either a buffer or a list of form (DIR TREE ... ),
+where `dir' is t for horizontal split and nil otherwise. All other
+elements of the list are tre layouts itself."
+  (if (bufferp tree)
+      (set-window-buffer win tree)
+    ;; if tree is buffer list with on buffer only, do not split
+    ;; anymore
+    (if (not (cddr tree))
+        (qingeditor/restore-window-tree win (cadr tree))
+      ;; tree is a regular list, split recursive
+      (let ((newwin (split-window win nil (not (car tree)))))
+        (qingeditor/restore-window-tree win (cadr tree))
+        (qingeditor/restore-window-tree newwin (cons (car tree) (cddr tree)))))))
+
 (provide 'qingeditor-funcs-common)
