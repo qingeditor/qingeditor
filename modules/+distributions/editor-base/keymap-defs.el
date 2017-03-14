@@ -302,7 +302,7 @@
   :status nil
   :on (qing-toggle-transparency)
   :documentation "Make the current frame non-opaque."
-  :leader "TW")
+  :leader "TO")
 
 (qingeditor/define-transient-state scale-transparency
   :title "Frame Transparency Transient State"
@@ -318,5 +318,31 @@
  "TT"
  'qing-scale-transparency-transient-state/qing-toggle-transparency)
 
+(qingeditor/add-toggle tool-bar
+  :if window-system
+  :mode tool-bar-mode
+  :documentation "Display the toolbar in GUI mode."
+  :leader "Tt")
 
+(qingeditor/add-toggle menu-bar
+  :if window-system
+  :mode menu-bar-mode
+  :documentation "Display the menu bar."
+  :leader "Tm")
 
+(qingeditor/add-toggle semantic-stickyfunc
+  :mode semantic-stickyfunc-mode
+  :documentation "Enable semantic stickyfunc mode."
+  :leader "TS")
+
+(qingeditor/add-toggle semantic-stickyfunc-globally
+  :mode global-semantic-stickyfunc-mode
+  :documentation "Enable semantic stickyfunc globally."
+  :leader "T C-S")
+
+;; quit
+(qingeditor/key-binder/set-leader-keys
+ "qs" 'qing-save-buffers-kill-emacs
+ "qq" 'qing-prompt-kill-emacs
+ "qQ" 'qing-kill-emacs
+ "qz" 'qing-frame-killer)

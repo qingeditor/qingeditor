@@ -13,29 +13,24 @@
   "Run a hook for the major-mode after the local variables have been processed."
   (run-hooks (intern (format "%S-local-vars-hook" major-mode))))
 
-(defun qingeditor/editor-base/split-and-new-line ()
+(defun qing-split-and-new-line ()
   "Split a quoted strings or s-expression and insert a new line with
 auto-indent."
   (interactive)
   (sp-split-sexp 1)
   (sp-newline))
-(defalias 'qing-split-and-new-line 'qingeditor/editor-base/split-and-new-line)
 
-(defun qingeditor/editor-base/push-mark-and-goto-begnning-of-line ()
+(defun qing-push-mark-and-goto-begnning-of-line ()
   "Push a mark at current location and go to the beginning of the line."
   (interactive)
   (push-mark (point))
   (qingeditor/beginning-of-line))
-(defalias 'push-mark-and-goto-begnning-of-line
-  'qingeditor/editor-base/push-mark-and-goto-begnning-of-line)
 
-(defun qingeditor/editor-base/push-mark-and-goto-end-of-line ()
+(defun qing-push-mark-and-goto-end-of-line ()
   "Push a mark at current location and go to the end of the line."
   (interactive)
   (push-mark (point))
   (qingeditor/end-of-line))
-(defalias 'qing-push-mark-and-goto-end-of-line
-  'qingeditor/editor-base/push-mark-and-goto-end-of-line)
 
 ;; from Prelude
 ;; TODO: dispatch these in the modules
@@ -77,7 +72,7 @@ automatically applied to.")
       (buffer-disable-undo)
       (fundamental-mode))))
 
-(defun qingeditor/editor-base/indent-region-or-buffer ()
+(defun qing-indent-region-or-buffer ()
   "Indent a region if selected, otherwise the whole buffer."
   (interactive)
   (unless (member major-mode qingeditor/editor-base-indent-sensitive-modes)
@@ -91,10 +86,9 @@ automatically applied to.")
           (qingeditor/indent (point-min) (point-max))
           (message "Indented buffer.")))
       (whitespace-cleanup))))
-(defalias 'qing-indent-region-or-buffer 'qingeditor/editor-base/indent-region-or-buffer)
 
 ;; from https://gist.github.com/3402786
-(defun qingeditor/editor-base/toggle-maximize-buffer ()
+(defun qing-toggle-maximize-buffer ()
   "Maximize buffer."
   (interactive)
   (if (and (= 1 (length (window-list)))
@@ -103,10 +97,9 @@ automatically applied to.")
     (progn
       (window-configuration-to-register ?_)
       (delete-other-windows))))
-(defalias 'qing-toggle-maximize-buffer 'qingeditor/editor-base/toggle-maximize-buffer)
 
 ;; https://tsdh.wordpress.com/2007/03/28/deleting-windows-vertically-or-horizontally/
-(defun qingeditor/editor-base/maximize-horizontally ()
+(defun qing-maximize-horizontally ()
   "Delete all windows left or right of the current window."
   (interactive)
   (require 'windmove)
@@ -115,7 +108,6 @@ automatically applied to.")
       (delete-window))
     (while (condition-case nil (windmove-right) (error nil))
       (delete-window))))
-(defalias 'qing-maximize-horizontally 'qingeditor/editor-base/maximize-horizontally)
 
 (defun qingeditor/editor-base/useful-buffer-p (buffer)
   "Determines if  a buffer is useful."
@@ -132,7 +124,7 @@ automatically applied to.")
   (not (qingeditor/useful-buffer-p buffer)))
 
 ;; from magnars modified by ffevotte for dedicated windows support
-(defun qingeditor/editor-base/rotate-windows (count)
+(defun qing-rotate-windows (count)
   "Rotate each window forwards.
 A negative prefix arguments rotates each window backwards.
 Dedicated (locked) windows are left untouched."
@@ -157,16 +149,14 @@ Dedicated (locked) windows are left untouched."
                (set-window-start w1 s2)
                (set-window-start w2 s1)
                (setq i next-i)))))))
-(defalias 'qing-rotate-windows 'qingeditor/editor-base/rotate-windows)
 
-(defun qingeditor/editor-base/rotate-windows-backward (count)
+(defun qing-rotate-windows-backward (count)
   "Rotate each window backwards.
 Decicded (locked) windows are left untouched."
   (interactive "p")
-  (qingeditor/editor-base/rotate-windows (* -1 count)))
-(defalias 'qing-rotate-windows-backward 'qingeditor/editor-base/rotate-windows-backward)
+  (qing-rotate-windows (* -1 count)))
 
-(defun qingeditor/editor-base/rename-file (filename &optional new-filename)
+(defun qing-rename-file (filename &optional new-filename)
   "Rename `filename' to `new-filename'.
 
 When `new-filename' is not specified, asked user for a new name.
@@ -200,10 +190,9 @@ projectile cache when it's possible and update recentf list."
                (call-interactively #'projectile-invalidate-cache))
              (message "File '%s' sucessfully renamed to '%s'" short-name
                       (file-name-nondirectory new-name)))))))
-(defalias 'qing-rename-file 'qingeditor/editor-base/rename-file)
 
 ;; from magnars
-(defun qingeditor/editor-base/rename-current-buffer-name ()
+(defun qing-rename-current-buffer-name ()
   "Renames current buffer and file it is visiting."
   (interactive)
   (let* ((name (buffer-name))
@@ -232,10 +221,8 @@ projectile cache when it's possible and update recentf list."
                      (projectile-project-p))
             (call-interactively #'projectile-invalidate-cache))
           (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
-(defalias 'qing-rename-current-buffer-name
-  'qingeditor/editor-base/rename-current-buffer-name)
 
-(defun qingeditor/editor-base/delete-file (filename &optional ask-user)
+(defun qing-delete-file (filename &optional ask-user)
   "Remove specified file or directory.
 
 Also kill assocated buffer (if any exists) and invalidates
@@ -255,10 +242,9 @@ removal."
         (when (and (qingeditor/cls/package-usedp modulemgr 'projectile)
                    (projectile-project-p))
           (call-interactively #'projectile-invalidate-cache))))))
-(defalias 'qing-delete-file 'qingeditor/editor-base/delete-file)
 
 ;; from magnars
-(defun qingeditor/editor-base/delete-current-buffer-file ()
+(defun qing-delete-current-buffer-file ()
   "Removes file connected to the current buffer and kills buffer."
   (interactive)
   (let ((filename (buffer-file-name))
@@ -274,10 +260,9 @@ removal."
                      (projectile-project-p))
             (call-interactively #'projectile-invalidate-cache))
           (message "File '%s' successfully removed" filename))))))
-(defalias 'qing-delete-current-buffer-file 'qingeditor/editor-base/delete-current-buffer-file)
 
 ;; from magnars
-(defun qingeditor/editor-base/sudo-edit (&optional arg)
+(defun qing-sudo-edit (&optional arg)
   (interactive "p")
   (let ((fname (if (or arg (not buffer-file-name))
                    (read-file-name "File: ")
@@ -296,9 +281,8 @@ removal."
              (setq last-match-end (match-end 0)))
            (insert (format "|sudo:%s" (or last-ssh-hostname "localhost"))))
          (t (concat "/sudo:root@localhost:" fname))))))))
-(defalias 'qing-sudo-edit 'qingeditor/editor-base/sudo-edit)
 
-(defun qingeditor/editor-base/delete-window (&optional arg)
+(defun qing-delete-window (&optional arg)
   "Delete the current window.
 
 If the universal prefix argument is used then kill the buffer too."
@@ -306,9 +290,8 @@ If the universal prefix argument is used then kill the buffer too."
   (if (equal '(4) arg)
       (kill-buffer-and-window)
     (delete-window)))
-(defalias 'qing-delete-window 'qingeditor/editor-base/delete-window)
 
-(defun qingeditor/editor-base/ace-delete-window (&optional arg)
+(defun qing-ace-delete-window (&optional arg)
   "Ace delete window.
 If the universal prefix argument is used then kill the buffer too."
   (interactive "P")
@@ -318,12 +301,11 @@ If the universal prefix argument is used then kill the buffer too."
    (lambda (window)
      (when (equal '(4) arg)
        (with-selected-window window
-         (qingeditor/editor-base/kill-this-buffer arg)))
+         (qing-kill-this-buffer arg)))
      (aw-delete-window window))))
-(defalias 'qing-ace-delete-window 'qingeditor/editor-base/ace-delete-window)
 
 ;; our own implementation of kill-this-buffer from menu-bar.el
-(defun qingeditor/editor-base/kill-this-buffer (&optional arg)
+(defun qing-kill-this-buffer (&optional arg)
   "Kill the current buffer.
 If the universal prefix arguments is used then kill also the window."
   (interactive "P")
@@ -332,9 +314,8 @@ If the universal prefix arguments is used then kill also the window."
     (if (equal '(4) arg)
         (kill-buffer-and-window)
       (kill-buffer))))
-(defalias 'qing-kill-this-buffer 'qingeditor/editor-base/kill-this-buffer)
 
-(defun qingeditor/editor-base/ace-kill-this-buffer (&optional arg)
+(defun qing-ace-kill-this-buffer (&optional arg)
   "Ace kill visible buffer in a window.
 If the universal prefix argument is used then kill also the window."
   (interactive "P")
@@ -344,11 +325,10 @@ If the universal prefix argument is used then kill also the window."
      "Ace - Kill buffer in window"
      (lambda (window)
        (with-selected-window window
-         (qingeditor/editor-base/kill-this-buffer arg))))))
-(defalias 'qing-ace-kill-this-buffer 'qingeditor/editor-base/ace-kill-this-buffer)
+         (qing-kill-this-buffer arg))))))
 
 ;; found at http://emacswiki.org/emacs/KillingBuffers
-(defun qingeditor/editor-base/kill-other-buffers (&optioanl arg)
+(defun qing-kill-other-buffers (&optioanl arg)
   "Kill all other buffers.
 If the universal prefix argument is used then will the windows too."
   (interactive "P")
@@ -357,10 +337,9 @@ If the universal prefix argument is used then will the windows too."
     (mapc 'kill-buffer (defq (current-buffer) (buffer-list)))
     (when (equal '(4) arg) (delete-other-windows))
     (message "Buffers deleted!")))
-(defalias 'qing-kill-other-buffer 'qingeditor/editor-base/kill-other-buffers)
 
 ;; from http://dfan.org/blog/2009/02/19/emacs-dedicated-windows/
-(defun qingeditor/editor-base/toggle-current-window-dedication ()
+(defun qing-toggle-current-window-dedication ()
   "Toggle dedication state of a window."
   (interactive)
   (let* ((window (selected-window))
@@ -369,11 +348,9 @@ If the universal prefix argument is used then will the windows too."
     (message "Window %sdedicated to %s"
              (if dedicated "no longer " "")
              (buffer-name))))
-(defalias 'qing-toggle-current-window-dedication
-  'qingeditor/editor-base/toggle-current-window-dedication)
 
 ;; http://camdez.com/blog/2013/11/14/emacs-show-buffer-file-name/
-(defun qingeditor/editor-base/show-and-copy-buffer-filename ()
+(defun qing-show-and-copy-buffer-filename ()
   "Show and copy the full path to the current file in the minibuffer."
   (interactive)
   ;; list-buffers-directory is the variable set in dired buffers
@@ -382,70 +359,56 @@ If the universal prefix argument is used then will the windows too."
     (if filename
         (message (kill-new filename))
       (error "Buffer not visiting a file."))))
-(defalias 'qing-show-and-copy-buffer-filename
-  'qingeditor/editor-base/show-and-copy-buffer-filename)
 
 ;; adapted from bozhidar
 ;; http://emacsredux.com/blog/2013/05/18/instant-access-to-init-dot-el/
-(defun qingeditor/editor-base/find-user-init-filename ()
+(defun qing-find-user-init-filename ()
   "Edit the `user-init-file', in the current window."
   (interactive)
   (find-file-existing user-init-file))
-(defalias 'qing-find-user-init-filename
-  'qingeditor/editor-base/find-user-init-filename)
 
-(defun qingeditor/editor-base/find-user-config-file ()
+(defun qing-find-user-config-file ()
   "Edit the user config file in the current window."
   (interactive)
   (find-file-existing (qingeditor/user-config-filename)))
-(defalias 'qing-find-user-config-file 'qingeditor/editor-base/find-user-config-file)
 
-(defun qingeditor/editor-base/ediff-user-config-and-template ()
+(defun qing-ediff-user-config-and-template ()
   "ediff the current user config with the template."
   (interactive)
   (ediff (qingeditor/user-config-filename)
          (concat qingeditor/template-dir ".qingeditor.template")))
-(defalias 'qing-ediff-user-config-and-template
-  'qingeditor/editor-base/ediff-user-config-and-template)
 
-(defun qingeditor/editor-base/new-empty-buffer ()
+(defun qing-new-empty-buffer ()
   "Create a new buffer called untitled(<n>)"
   (interactive)
   (let ((newbuf (generate-new-buffer-name "untitled")))
     (switch-to-buffer newbuf)))
-(defalias 'qing-new-empty-buffer 'qingeditor/editor-base/new-empty-buffer)
 
 ;; from https://gist.github.com/timcharper/493269
-(defun qingeditor/editor-base/split-window-vertically-and-switch ()
+(defun qing-split-window-vertically-and-switch ()
   (interactive)
   (split-window-vertically)
   (other-window 1))
-(defalias 'qing-split-window-vertically-and-switch
-  'qingeditor/editor-base/split-window-vertically-and-switch)
 
-(defun qingeditor/editor-base/split-window-horizontally-and-switch ()
+(defun qing-split-window-horizontally-and-switch ()
   (interactive)
   (split-window-horizontally)
   (other-window 1))
-(defalias 'qing-split-window-horizontally-and-switch
-  'qingeditor/editor-base/split-window-horizontally-and-switch)
 
-(defun qingeditor/editor-base/layout-tripe-columns ()
+(defun qing-layout-tripe-columns ()
   "Set the layout to tripe columns."
   (interactive)
   (delete-other-windows)
   (dotimes (i 2) (split-window-right))
   (balance-windows))
-(defalias 'qing-layout-tripe-columns 'qingeditor/editor-base/layout-tripe-columns)
 
-(defun qingeditor/editor-base/layout-double-columns ()
+(defun qing-layout-double-columns ()
   "Set layout to double colmuns."
   (interactive)
   (delete-other-windows)
   (split-window-right))
-(defalias 'qing-layout-double-columns 'qingeditor/editor-base/layout-double-columns)
 
-(defun qingeditor/editor-base/insert-line-above-no-indent (count)
+(defun qing-insert-line-above-no-indent (count)
   "Insert a new line above with no indentation."
   (interactive "p")
   (let ((p (+ (point) count)))
@@ -459,9 +422,8 @@ If the universal prefix argument is used then will the windows too."
         (insert "\n")
         (setq count (1- count))))
     (goto-char p)))
-(defalias 'qing-insert-line-above-no-indent 'qingeditor/editor-base/insert-line-above-no-indent)
 
-(defun qingeditor/editor-base/insert-line-below-no-indent (count)
+(defun qing-insert-line-below-no-indent (count)
   "Insert a new line below with no indentation."
   (interactive "p")
   (save-excursion
@@ -469,10 +431,9 @@ If the universal prefix argument is used then will the windows too."
     (while (> count 0)
       (insert "\n")
       (setq count (1- count)))))
-(defalias 'qing-insert-line-below-no-indent 'qingeditor/editor-base/insert-line-below-no-indent)
 
 ;; from https://github.com/gempesaw/dotemacs/blob/emacs/dg-defun.el
-(defun qingeditor/editor-base/kill-matching-buffers-rudely (regexp &optional internal-too)
+(defun qing-kill-matching-buffers-rudely (regexp &optional internal-too)
   "kill buffers whose name matches the specified `refexp'. This function, unlike the build in
 `kill-matching-buffers' does so without asking. The optional second argument indicates whether to
 kill internal buffer too."
@@ -484,7 +445,6 @@ kill internal buffer too."
                  (or internal-too (/= (aref name 0) ?\s))
                  (string-match regexp name))
         (kill-buffer buffer)))))
-(defalias 'qing-kill-matching-buffers-rudely 'qingeditor/editor-base/kill-matching-buffers-rudely)
 
 ;; advise to prevent server from closing
 (defvar qingeditor/editor-base/really-kill-emacs nil
@@ -511,35 +471,32 @@ kill internal buffer too."
       ad-do-it
     (qingeditor/editor-base/frame-killer)))
 
-(defun qingeditor/editor-base/save-buffers-kill-emacs ()
+(defun qing-save-buffers-kill-emacs ()
   "Save all changed buffers and exit qingeditor."
   (interactive)
   (setq qingeditor/editor-base/really-kill-emacs t)
   (save-buffers-kill-emacs))
 
-(defun qingeditor/editor-base/kill-emacs ()
+(defun qing-kill-emacs ()
   "Lose all changes and exit qingeditor."
   (interactive)
   (setq qingeditor/editor-base/really-kill-emacs t)
   (kill-emacs))
-(defalias 'qing-really-kill-emacs 'qingeditor/editor-base/really-kill-emacs)
 
-(defun qingeditor/editor-base/prompt-kill-emacs ()
+(defun qing-prompt-kill-emacs ()
   "Prompt to save changed buffer and exit qingeditor."
   (interactive)
   (setq qingeditor/editor-base/really-kill-emacs t)
   (save-some-buffers)
   (kill-emacs))
-(defalias 'qing-prompt-kill-emacs 'qingeditor/editor-base/prompt-kill-emacs)
 
-(defun qingeditor/editor-base/frame-killer ()
+(defun qing-frame-killer ()
   "Kill server buffer and hide the main Emacs window."
   (interactive)
   (condition-case-unless-debug nil
       (delete-frame nil t)
     (error
      (make-frame-invisible nil t))))
-(defalias 'qing-frame-killer 'qingeditor/editor-base/frame-killer)
 
 (defun qingeditor/editor-base/toggle-frame-fullscreen ()
   (interactive)
@@ -550,9 +507,8 @@ kill internal buffer too."
       (qingeditor/editor-base/toggle-frame-fullscreen-non-native)
     (toggle-frame-fullscreen)))
 
-(defalias 'qing-toggle-frame-fullscreen 'qingeditor/editor-base/toggle-frame-fullscreen)
 ;; have no effect
-(defun qingeditor/editor-base/toggle-fullscreen ()
+(defun qing-toggle-fullscreen ()
   "toggle full screen on X11 and Carbon."
   (interactive)
   (cond
@@ -564,9 +520,8 @@ kill internal buffer too."
     (set-frame-parameter
      nil 'fullscreen
      (when (not (frame-parameter nil 'fullscreen)) 'fullscreen)))))
-(defalias 'qing-toggle-fullscreen 'qingeditor/editor-base/toggle-fullscreen)
 
-(defun qingeditor/editor-base/toggle-frame-fullscreen-non-native ()
+(defun qing-toggle-frame-fullscreen-non-native ()
   "Toggle full screen non-natively. Uses the `fullboth' frame paramerter
    rather than `fullscreen'. Useful to fullscreen on OSX w/o animations."
   (interactive)
@@ -580,7 +535,6 @@ kill internal buffer too."
              (if (eq (frame-parameter nil 'maximized) 'maximized)
                  'maximized)
            'fullboth)))))
-(defalias 'qing-toggle-frame-fullscreen-non-native 'qingeditor/editor-base/toggle-frame-fullscreen-non-native)
 
 ;; taken from Prelude: https://github.com/bbatsov/prelude
 (defmacro qingeditor/editor-base/advise-commands (advice-name commands class &rest body)
@@ -594,24 +548,22 @@ The body of the advice is in `body'."
                     ,@body))
                commands)))
 
-(defun qingeditor/editor-base/safe-revert-buffer ()
+(defun qing-safe-revert-buffer ()
   "Prompt before reverting the file."
   (interactive)
   (revert-buffer nil nil))
-(defalias 'qing-safe-revert-buffer 'qingeditor/editor-base/safe-revert-buffer)
 
-(defun qingeditor/editor-base/safe-erase-buffer ()
+(defun qing-safe-erase-buffer ()
   "Prompt before erasing the content of the file."
   (interactive)
   (if (y-or-n-p (format "Erase content of buffer %s ? " (current-buffer)))
       (erase-buffer)))
-(defalias 'qing-safe-erase-buffer 'qingeditor/editor-base/safe-erase-buffer)
 
-(defun qingeditor/editor-base/find-ert-test-buffer (ert-test)
+(defun qing-find-ert-test-buffer (ert-test)
   "Return the buffer where `ert-test' is defined."
   (car (find-definition-noselect (ert-test-name ert-test) 'ert-deftest)))
 
-(defun qingeditor/editor-base/ert-run-tests-buffer ()
+(defun qing-ert-run-tests-buffer ()
   "Run all the tests in the current buffer."
   (interactive)
   (save-buffer)
@@ -619,8 +571,7 @@ The body of the advice is in `body'."
   (let ((cbuf (current-buffer)))
     (ert '(satisfies
            (lambda (test)
-             (eq cbuf (qingeditor/editor-base/find-ert-test-buffer test)))))))
-(defalias 'qing-ert-run-tests-buffer 'qingeditor/editor-base/ert-run-tests-buffer)
+             (eq cbuf (qing-find-ert-test-buffer test)))))))
 
 (defun qingeditor/editor-base/open-in-external-app (file-path)
   "Open `file-path' in external application."
@@ -632,7 +583,7 @@ The body of the advice is in `body'."
     (let ((process-connection-type nil))
       (start-process "" nil "xdg-open" file-path)))))
 
-(defun qingeditor/editor-base/open-file-or-directory-in-external-app (arg)
+(defun qing-open-file-or-directory-in-external-app (arg)
   "Open current file in external application.
 If the universal prefix argument is used open the folder
 containing the current file by the default explorer."
@@ -645,35 +596,29 @@ containing the current file by the default explorer."
       (if file-path
           (qingeditor/editor-base/open-in-external-app file-path)
         (message "No file associated to this buffer.")))))
-(defalias 'qing-open-file-or-directory-in-external-app
-  'qingeditor/editor-base/open-file-or-directory-in-external-app)
 
-(defun qingeditor/editor-base/switch-to-minibuffer-window ()
+(defun qing-switch-to-minibuffer-window ()
   "Switch to minibuffer window (if active)."
   (interactive)
   (when (active-minibuffer-window)
     (select-window (active-minibuffer-window))))
-(defalias 'qing-switch-to-minibuffer-window
-  'qingeditor/editor-base/switch-to-minibuffer-window)
 
 ;; http://stackoverflow.com/a/10216338/4869
-(defun qingeditor/editor-base/copy-whole-buffer-to-clipboard ()
+(defun qing-copy-whole-buffer-to-clipboard ()
   "Copy entire buffer to clipboard."
   (interactive)
   (clipboard-kill-ring-save (point-min) (point-max)))
-(defalias 'qing-copy-whole-buffer-to-clipboard 'qingeditor/editor-base/copy-whole-buffer-to-clipboard)
 
-(defun qingeditor/editor-base/copy-clipboard-to-whole-buffer ()
+(defun qing-copy-clipboard-to-whole-buffer ()
   "Copy clipboard and replace buffer."
   (interactive)
   (delete-region (point-min) (point-max))
   (clipboard-yank)
   (deactivate-mark))
-(defalias 'qing-copy-clipboard-to-whole-buffer 'qingeditor/editor-base/copy-clipboard-to-whole-buffer)
 
 ;; align functions
 ;; modified function from http://emacswiki.org/emacs/AlignCommands
-(defun qingeditor/editor-base/align-repeat (start end regexp &optional justify-right after)
+(defun qing-align-repeat (start end regexp &optional justify-right after)
   "Repeat alignment with respect to the given regular expression.
 If `justify-right' is non nil justify to the right instead of the
 left. If `after' is non nil, add whitespace to the left instead of
@@ -688,10 +633,9 @@ the right."
          (group (if justify-right -1 1)))
     (message "%S" complete-regexp)
     (align-regexp start end complete-regexp group 1 t)))
-(defalias 'qing-align-repeat 'qingeditor/editor-base/align-repeat)
 
 ;; Modified answer from http://emacs.stackexchange.com/questions/47/align-vertical-columns-of-numbers-on-the-decimal-point
-(defun qingeditor/editor-base/align-repeat-decimal (start end)
+(defun qing-align-repeat-decimal (start end)
   "Align a table of numbers on decimal points and dollar signs (both optional)"
   (interactive "r")
   (require 'align)
@@ -702,7 +646,6 @@ the right."
                        (spacing 1 1)
                        (justify nil t)))
                 nil))
-(defalias 'qing-align-repeat-decimal 'qingeditor/editor-base/align-repeat-decimal)
 
 (defmacro qingeditor/editor-base/create-align-repeat-x
     (name regexp &optional justify-right default-after)
@@ -723,25 +666,22 @@ the right."
 (qingeditor/editor-base/create-align-repeat-x "right-paren" ")" t)
 (qingeditor/editor-base/create-align-repeat-x "backslash" "\\\\")
 
-(defun qingeditor/editor-base/dos2unix ()
+(defun qing-dos2unix ()
   "Convert the current buffer to unix file format."
   (interactive)
   (set-buffer-file-coding-system 'undecided-unix nil))
-(defalias 'qing-dos2unix 'qingeditor/editor-base/dos2unix)
 
-(defun qingeditor/editor-base/unix2dos ()
+(defun qing-unix2dos ()
   "Convert the current buffer to dos file format."
   (interactive)
   (set-buffer-file-coding-system 'undecided-dos nil))
-(defalias 'qing-unix2dos 'qingeditor/editor-base/unix2dos)
 
-(defun qingeditor/editor-base/copy-file ()
+(defun qing-copy-file ()
   "Write the file under new name."
   (interactive)
   (call-interactively 'write-file))
-(defalias 'qing-copy-file 'qingeditor/editor-base/copy-file)
 
-(defun qingeditor/editor-base/uniquify-lines ()
+(defun qing-uniquify-lines ()
   "Remove duplicate adjacent lines in region or current buffer."
   (interactive)
   (save-excursion
@@ -751,15 +691,13 @@ the right."
         (goto-char beg)
         (while (re-search-forward "^\\(.*\n\\)\\1+" end t)
           (replace-match "\\1"))))))
-(defalias 'qing-uniquify-lines 'qingeditor/editor-base/uniquify-lines)
 
-(defun qingeditor/editor-base/sort-lines ()
+(defun qing-sort-lines ()
   "Sort lines in region or current buffer."
   (interactive)
   (let ((beg (if (region-active-p) (region-beginning) (point-min)))
         (end (if (region-active-p) (region-end) (point-max))))
     (sort-lines nil beg end)))
-(defalias 'qing-sort-lines 'qingeditor/editor-base/sort-lines)
 
 ;; linum mouse helpers
 (defvar qingeditor/editor-base/linum-mdown-line nil
@@ -775,7 +713,7 @@ the right."
       (next-line (1- click-y))
       (1+ (line-number-at-pos)))))
 
-(defun qingeditor/editor-base/md-select-linum (event)
+(defun qing-md-select-linum (event)
   "Select code block between point and `qingeditor/editor-base/linum-mdown-line'."
   (interactive "e")
   (mouse-select-window event)
@@ -783,9 +721,8 @@ the right."
   (set-mark (point))
   (setq qingeditor/editor-base/linum-mdown-line
         (line-number-at-pos)))
-(defalias 'qing-md-select-linum 'qingeditor/editor-base/md-select-linum)
 
-(defun qingeditor/editor-base/mu-select-linum ()
+(defun qing-mu-select-linum ()
   "Select code block between point and `qingeditor/editor-base/linum-mdown-line'."
   (interactive)
   (when qingeditor/editor-base/linum-mdown-line
@@ -795,9 +732,8 @@ the right."
       (set-mark (line-end-position))
       (goto-line (min qingeditor/editor-base/linum-mdown-line mu-line))
       (setq qingeditor/editor-base/linum-mdown-line nil))))
-(defalias 'qing-mu-select-linum 'qingeditor/editor-base/mu-select-linum)
 
-(defun qingeditor/editor-base/select-current-block ()
+(defun qing-select-current-block ()
   "Select the current block of the between blank lines."
   (interactive)
   (let (p1 p2)
@@ -810,7 +746,6 @@ the right."
           (progn (re-search-backward "\n[ \t]*\n")
                  (setq p2 (point)))
         (setq p2 (point))))))
-(defalias 'qing-select-current-block 'qingeditor/editor-base/select-current-block)
 
 ;; From http://xugx2007.blogspot.ca/2007/06/benjamin-rutts-emacs-c-development-tips.html
 (setq compilation-finish-function
@@ -826,7 +761,7 @@ the right."
             (message "compilation ok.")))))
 
 ;; from http://www.emacswiki.org/emacs/WordCount
-(defun qingeditor/editor-base/count-words-analysis (start end)
+(defun qing-count-words-analysis (start end)
   "Count how many times each word is used in the region. Punctuation
 is ignored."
   (interactive "r")
@@ -859,7 +794,6 @@ Compare them on count first,and in case of tie sort them alphabetically."
       (if (> (length formated) 2)
           (message (substring 0 -2))
         (message "No Words.")))))
-(defalias 'qing-count-words-analysis 'qingeditor/editor-base/count-words-analysis)
 
 ;; indent on paste
 ;; from Prelude: https://github.com/bbatsov/prelude
@@ -894,21 +828,19 @@ a split-side entry, its value must be usable as the SIDE argument for
     (window--display-buffer buffer window 'window alist)
     window))
 
-(defun qingeditor/editor-base/find-file-vsplit (file)
+(defun qing-find-file-vsplit (file)
   "find file in vertical split"
   (interactive "FFind file (vsplit): ")
   (let ((buffer (find-file-noselect file)))
     (pop-to-buffer buffer '(qingeditor/editor-base/display-in-split (split-side . right)))))
-(defalias 'qing-find-file-vsplit 'qingeditor/editor-base/find-file-vsplit)
 
-(defun qingeditor/editor-base/find-file-split (file)
+(defun qing-find-file-split (file)
   "find file in horizontal split"
   (interactive "FFind file (split): ")
   (let ((buffer (find-file-noselect file)))
     (pop-to-buffer buffer '(qingeditor/editor-base/display-in-split (split-side . below)))))
-(defalias 'qing-find-file-split 'qingeditor/editor-base/find-file-split)
 
-(defun qingeditor/editor-base/switch-to-scratch-buffer ()
+(defun qing-switch-to-scratch-buffer ()
   "Switch to the `*scratch*' buffer. Create it first if needed."
   (interactive)
   (let ((exists (get-buffer "*scratch*")))
@@ -917,15 +849,12 @@ a split-side entry, its value must be usable as the SIDE argument for
                (not (eq major-mode qingeditor/config/scratch-mode))
                (fboundp qingeditor/config/scratch-mode))
       (funcall qingeditor/config/scratch-mode))))
-(defalias 'qing-switch-to-scratch-buffer 'qingeditor/editor-base/switch-to-scratch-buffer)
 
-(defun qingeditor/editor-base/close-compilation-window ()
+(defun qing-close-compilation-window ()
   "Close the window containing the '*compilation*' buffer."
   (interactive)
   (when compilation-last-buffer
     (delete-windows-on compilation-last-buffer)))
-(defalias 'qing-close-compilation-window
-  'qingeditor/editor-base/close-compilation-window)
 
 (defun qingeditor/editor-base/no-linum (&rest ignore)
   "Disable linum if current buffer."
@@ -934,12 +863,13 @@ a split-side entry, its value must be usable as the SIDE argument for
 
 (defun qingeditor/editor-base/linum-update-window-scale-fix (win)
   "Fix linum for scaled text in the window WIN."
-  (set-window-margins win
-                      (ceiling (* (if (boundp 'text-scale-mode-step)
-                                      (expt text-scale-mode-step
-                                            text-scale-mode-amount) 1)
-                                  (if (car (window-margins))
-                                      (car (window-margins)) 1)))))
+  (set-window-margins
+   win
+   (ceiling (* (if (boundp 'text-scale-mode-step)
+                   (expt text-scale-mode-step
+                         text-scale-mode-amount) 1)
+               (if (car (window-margins))
+                   (car (window-margins)) 1)))))
 
 
 ;; commands
