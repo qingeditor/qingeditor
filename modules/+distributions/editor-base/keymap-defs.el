@@ -290,3 +290,33 @@
   :off (toggle-frame-maximized)
   :documentation "Maximize the current frame."
   :leader "TM")
+
+(qingeditor/add-toggle mode-line
+  :status (not qingeditor/hidden-mode-line-mode)
+  :on (qingeditor/hidden-mode-line-mode -1)
+  :off (qingeditor/hidden-mode-line-mode)
+  :documentation "Toggle the visibility of modeline."
+  :leader "tmt")
+
+(qingeditor/add-toggle transparent-frame
+  :status nil
+  :on (qing-toggle-transparency)
+  :documentation "Make the current frame non-opaque."
+  :leader "TW")
+
+(qingeditor/define-transient-state scale-transparency
+  :title "Frame Transparency Transient State"
+  :doc "\n[_+_/_=_] increase transparency [_-_] decrease [_T_] toggle [_q_] quit"
+  :bindings
+  ("+" qing-increase-transparency)
+  ("=" qing-increase-transparency)
+  ("-" qing-decrease-transparency)
+  ("T" qing-toggle-transparency)
+  ("q" nil :exit t))
+
+(qingeditor/key-binder/set-leader-keys
+ "TT"
+ 'qing-scale-transparency-transient-state/qing-toggle-transparency)
+
+
+

@@ -8,20 +8,20 @@
 ;;
 (defun qingeditor/transient-state-func-name (name)
   "Return the name of the transient state function."
-  (intern (format "qingeditor/%S-transient-state" name)))
+  (intern (format "qing-%S-transient-state" name)))
 
 (defun qingeditor/transient-state-props-var-name (name)
   "Return the name of the variable use to store the transient state properties."
-  (intern (format "qingeditor/%S-transient-state-props" name)))
+  (intern (format "qing-%S-transient-state-props" name)))
 
 (defun qingeditor/transient-state-body-func-name (name)
   "Return the name of the transient state function."
-  (intern (format "qingeditor/%S-transient-state/body" name)))
+  (intern (format "qing-%S-transient-state/body" name)))
 
 (defun qingeditor/transient-state-heads-name (name)
   "Return the name of the transient state heads variable which
 holds the key bindings."
-  (intern (format "qingeditor/%S-transient-state/heads" name)))
+  (intern (format "qing-%S-transient-state/heads" name)))
 
 (defun qingeditor/transient-state-adjust-bindings (bindings to-remove to-add)
   (append
@@ -122,9 +122,9 @@ All properties supported by `qingeditor/key-binder/create-key-binding-form' can 
          (props-var (qingeditor/transient-state-props-var-name name))
          (body-func (qingeditor/transient-state-body-func-name name))
          (add-bindings
-          (intern (format "qingeditor/%S-transient-state-add-bindings" name)))
+          (intern (format "qing-%S-transient-state-add-bindings" name)))
          (remove-bindings
-          (intern (format "qingeditor/%S-transient-state-remove-bindings" name)))
+          (intern (format "qing-%S-transient-state-remove-bindings" name)))
          (bindings (qingeditor/mplist-get props :bindings))
          (doc (or (plist-get props :doc) "\n"))
          (title (plist-get props :title))

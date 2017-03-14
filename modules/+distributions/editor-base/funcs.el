@@ -940,3 +940,41 @@ a split-side entry, its value must be usable as the SIDE argument for
                                             text-scale-mode-amount) 1)
                                   (if (car (window-margins))
                                       (car (window-margins)) 1)))))
+
+
+;; commands
+;; Transparency transient-state
+(defun qing-toggle-transparency (&optional frame)
+  "Toggle betweeen transparency and opaque state for `frame'.
+if `frame' is nil, its defaults to the selected frame."
+  (interactive)
+  (let* ((alpha (frame-parameter frame 'alpha))
+         (config-setting (cons qingeditor/config/active-transparency
+                               qingeditor/config/inactive-transparency)))
+    (set-frame-parameter
+     frame 'alpha
+     (if (not (equal 'alpha config-setting))
+         config-setting
+       '(100 . 100)))))
+
+(defun qing-increase-transparency (&optional frame)
+  "Increase transparency for `frame'.
+If `frmae' is nil, it defaults to the selected `frame'."
+  (interactive)
+  (let* ((current-alpha (car (frame-parameter frame 'alpha)))
+         (increased-alpha (- current-alpha 5)))
+    (when (>= increased-alpha frame-alpha-lower-limit)
+      (set-frame-parameter frame 'alpha
+                           (cons increased-alpha increased-alpha)))))
+
+(defun qing-decrease-transparency (&optional frame)
+  "Decrease transparency for `frame'.
+if `frame' is nil, it defaults to the selected frame."
+  (interactive)
+  (let* ((current-alpha (car (frame-parameter frame 'alpha)))
+         (decreased-alpha (+ current-alpha 5)))
+    (when (<= decreased-alpha 100)
+      (set-frame-parameter frame 'alpha
+                           (cons decreased-alpha decreased-alpha)))))
+
+
