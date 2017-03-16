@@ -343,22 +343,6 @@ list of command properties as passed to `qingeditor/define-command'."
                 properties (append properties plist)))))
     (cons `(append ,@forms) properties)))
 
-(defun qingeditor/interactive-form (&rest args)
-  "Evaluate interactive forms ARGS.
-The return value is a cons cell (FORM . PROPERTIES),
-where FORM is a single list-expression to be passed to
-a standard `interactive' statement, and PROPERTIES is a
-list of command properties as passed to `qingeditor/define-command'."
-  (let (forms properties)
-    (dolist (arg args)
-      (if (not (stringp arg))
-          (setq forms (append forms (list arg)))
-        (setq arg (qingeditor/interactive-string arg)
-              forms (append forms (cdr (car arg)))
-              properties (append properties (cdr arg)))))
-    (cons (apply #'qingeditor/concatenate-interactive-forms forms)
-          properties)))
-
 (defun qingeditor/concatenate-interactive-forms (&rest forms)
   "Concatenate interactive list expressions `forms'.
 Returns a single expression where successive expressions
@@ -385,6 +369,22 @@ are joined, if possible."
         (car result))
        (t
         `(append ,@result))))))
+
+(defun qingeditor/interactive-form (&rest args)
+  "Evaluate interactive forms ARGS.
+The return value is a cons cell (FORM . PROPERTIES),
+where FORM is a single list-expression to be passed to
+a standard `interactive' statement, and PROPERTIES is a
+list of command properties as passed to `qingeditor/define-command'."
+  (let (forms properties)
+    (dolist (arg args)
+      (if (not (stringp arg))
+          (setq forms (append forms (list arg)))
+        (setq arg (qingeditor/interactive-string arg)
+              forms (append forms (cdr (car arg)))
+              properties (append properties (cdr arg)))))
+    (cons (apply #'qingeditor/concatenate-interactive-forms forms)
+          properties)))
 
 (defun qingeditor/insert-newline-above ()
   "Insert a new line above point and places point in that line
@@ -559,5 +559,189 @@ elements of the list are tre layouts itself."
       (let ((newwin (split-window win nil (not (car tree)))))
         (qingeditor/restore-window-tree win (cadr tree))
         (qingeditor/restore-window-tree newwin (cons (car tree) (cddr tree)))))))
+
+;; Types
+(defun qingeditor/type (object &optional default)
+  "Return the type of `object', or `default' if none."
+  (let (type)
+    (cond
+     ((overlayp object)
+      (setq type (overlay-get object :type)))
+     ((qingeditor/range-p object)
+      (setq type (nth 2 object)))
+     ((listp object)
+      (setq type (plist-get object :type)))
+     ((commandp object)
+      (setq type (qingeditor/get-command-property object :type)))
+     ((symbolp object)
+      (setq type (get object 'type))))
+    (setq type (or type default))
+    (and (qingeditor/type-p type) type)))
+
+(defun qingeditor/set-type (type prop)
+  "Return property `prop' for `type'."
+  (cond
+   ((overlayp object)
+    (overlay-put object :type type))
+   ((qingeditor/range-p object)
+    (qingeditor/set-range-type object type))
+   ((listp object)
+    (plist-put object :type type))
+   ((commandp object)
+    (qingeditor/set-command-property object :type type))
+   ((symbolp object)
+    (put object 'type type)))
+  object)
+
+(defun qingeditor/type-property (type prop)
+  "Return property `prop' for `type'."
+  (qingeditor/get-property qingeditor/type-properties type prop))
+
+(defun qingeditor/type-p (sym)
+  "Whether `sym' is the name of a type."
+  (assq sym qingeditor/type-properties))
+
+(defun qingeditor/expand (beg end type &rest properties)
+  "expand `beg' and `end' as `type' with `properties'.
+Return a list (beg end type properties ... ), where the tail
+may contains a property list."
+  (apply #'qingeditor-transform
+         ;; don't expand if already expanded
+         (unless (plist-get properties :expanded) :expand)
+         beg end type properties))
+
+(defun qingeditor/contract (beg end type &rest properties)
+  "Contact `beg' and `end' as `type' with `properties'.
+Return a list (BEG END TYPE PROPERTIES ... ), where the tail
+may contains a property list."
+  (apply #'qingeditor/transform :contract beg end type properties))
+
+(defun qingeditor/normalize (beg end type &rest properties)
+  "Normalize `beg' and `end' as `type' with `properties'.
+return a list (BEG END TYPE PROPERTIES ... ), where the tail
+may contain a property list."
+  (apply #'qingeditor/transform :normalize beg end type properties))
+
+(defun qingeditor/transform (transform beg end type &rest properties)
+  "Apply `transform' on `beg' and `end' with `properties'.
+Return a list (BEG END TYPE PROPERTIES ... ), where the tail
+may contain a property list. If `transform' is undefined,
+return positions unchanged."
+  (let* ((type (or type (qingeditor/type properties)))
+         (transform (when (and type transform)
+                      (qingeditor/type-property type transform))))
+    (if transform
+        (apply transform beg end properties)
+      (apply #'qingeditor/range beg end type properties))))
+
+(defun qingeditor/describe (beg end type &rest properties)
+  "return description of `beg' and `end' with `properties'.
+if no description is available, return the empty string."
+  (let* ((type (or type (qingeditor/type properties)))
+         (properties (plist-put properties :type type))
+         (describe (qingeditor/type-property type :string)))
+    (or (when describe
+          (apply describe beg end properties))
+        "")))
+
+;;; Ranges
+
+(defun qingeditor/range (beg end &optional type &rest properties)
+  "Return a list (BEG END [TYPE] PROPERTIES...).
+`beg' and `end' are buffer positions (numbers or markers),
+`type' is a type as per `qingeditor/type-p', and `properties'
+is a property list."
+  (let ((beg (qingeditor/normalize-position beg))
+        (end (qingeditor/normalize-position end)))
+    (when (and (numberp beg) (numberp end))
+      (append (list (min beg end) (max beg end))
+              (when (qingeditor/type-p type)
+                (list type)
+                properties)))))
+
+(defun qingeditor/range-p (object)
+  "Whether `object' is a range."
+  (and (listp object)
+       (>= (length object) 2)
+       (numberp (nth 0 object))
+       (numberp (nth 1 object))))
+
+(defun qingeditor/tange-beginning (range)
+  "Return beginning of `range'."
+  (when (qingeditor/range-p range)
+    (let ((beg (qingeditor/normalize-position (nth 0 range)))
+          (end (qingeditor/normalize-position (nth 1 range))))
+      (min beg end))))
+
+(defun qingeditor/tange-end (range)
+  "Return end of `range'."
+  (when (qingeditor/range-p range)
+    (let ((beg (qingeditor/normalize-position (nth 0 range)))
+          (end (qingeditor/normalize-position (nth 1 range))))
+      (max beg end))))
+
+(defun qingeditor/copy-range (range)
+  "Return a copy of `range'."
+  (copy-sequence range))
+
+(defun qingeditor/set-range-beginning (range beg &optional copy)
+  "Set `range' beginning to `beg'.
+if `copy' is non-nil, return a copy of `range'."
+  (when copy
+    (setq range (qingeditor/copy-range range)))
+  (setcar range beg)
+  range)
+
+(defun qingeditor/set-range-end (range end &optional copy)
+  "Set `range' end to `end'.
+if `copy' is non-nil, return a copy of `range'."
+  (when copy
+    (setq range (qingeditor/copy-range range)))
+  (setcar (cdr range) end)
+  range)
+
+(defun qingeditor/set-range-type (range type &optional copy)
+  "Set type if `range' to `type'.
+if `copy' is non-nil, return a copy of range."
+  (when copy
+    (setq range (qingeditor/copy-range range)))
+  (if type
+      (setcdr (cdr range)
+              (cons type (qingeditor/range-properties range)))
+    (setcdr (cdr range) (qingeditor/range-properties range)))
+  range)
+
+(defun qingeditor/set-range-properties (range properties &optional copy)
+  "Set properties of `range' to `properties'.
+if `copy' is non-nil, return a copy of `range'."
+  (when copy
+    (setq range (qingeditor/copy-range range)))
+  (if (qingeditor/type range)
+      (setcdr (cdr (cdr range)) properties)
+    (setcdr (cdr range) properties))
+  range)
+
+(defun qingeditor/range-union (range1 range2 &optional type)
+  "Return the union of the ranges `range1' and `range2'.
+If the ranges have conflicting types, use the type of `range1'.
+This can be overridden with `type'."
+  (when (and (qingeditor/range-p range1)
+             (qingeditor/range-p range2))
+    (qingeditor/range (min (qingeditor/range-beginning range1)
+                           (qingeditor/range-beginning range2))
+                      (max (qingeditpr/range-end range1)
+                           (qingeditor/range-end range2))
+                      (or type
+                          (qingeditor/type range1)
+                          (qingeditor/type range2)))))
+
+(defun qingeditor/subrange-p (range1 range2)
+  "Whether `range1' is contained within `range2'."
+  (and (qingeditor/range-p range1)
+       (qingeditor/range-p range2)
+       (<= (qingeditor/range-beginning range2)
+           (qingeditor/range-beginning range1))
+       (>= (qingeditor/range-end range2)
+           (qingeditor/range-end range1))))
 
 (provide 'qingeditor-funcs-common)

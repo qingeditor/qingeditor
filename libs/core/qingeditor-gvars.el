@@ -29,6 +29,7 @@
 
 (defvar qingeditor/user-config-setup-finished-hook nil
   "After invoke user config setup function, run this hook.")
+
 (defvar qingeditor/user-config-setup-hook-invoked nil
   "`t' if config setup had been runned.")
 
@@ -138,12 +139,48 @@ list of categories."
 
 (defvar-local qingeditor/gne-min-line nil
   "The first line in the buffer that is a valid result.")
+
 (defvar-local qingeditor/gne-max-line nil
   "The last line in the buffer that is a valid result.")
+
 (defvar-local qingeditor/gne-cur-line 0
   "The current line in the buffer. (It is problematic to use
 point for this.)")
+
 (defvar-local qingeditor/gne-line-func nil
   "The function to call to visit the result on a line.")
+
+(qingeditor/define-local-var qingeditor/scroll-count 0
+  "Holds last used prefix for `qing-scroll-up'
+and `qing-scroll-down'.
+Determine how many lines should be scrolled.
+Default value is 0 - scroll half the screen.")
+
+(qingeditor/define-local-var qingeditor/scroll-line-count 1
+  "Holds last used prefix for `qing-scroll-line-up'
+and `qing-scroll-line-down'.
+Determine how many lines should be scrolled.
+Default value is 1 line.")
+
+(qingeditor/define-local-var qingeditor/this-register nil
+  "Current register.")
+
+(qingeditor/define-local-var qingeditor/this-macro nil
+  "Current macro register.")
+
+(qingeditor/define-local-var qingeditor/this-operator nil
+  "Current operator.")
+
+(qingeditor/define-local-var qingeditor/this-motion nil
+  "Current motion.")
+
+(qingeditor/define-local-var qingeditor/this-motion-count nil
+  "Current motion count.")
+
+(defvar qingeditor/type-properties nil
+  "Specifications made by `qingeditor/define-type'.
+Entries have the form (TYPE . PLIST), where PLIST is a property
+list specifying functions for handling the type: expanding it,
+describing it, etc.")
 
 (provide 'qingeditor-gvars)

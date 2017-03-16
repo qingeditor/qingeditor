@@ -337,4 +337,114 @@ Intermittent messages are not logged in the *Messages* buffer."
            ,@body)
        (qingeditor/echo-area-restore))))
 
+(defmacro qingeditor/define-type (type doc &rest body)
+  "Define type `type'.
+`doc' is a general description and shows up in all docstrings.
+It is followed by a list of keywords and functions:
+
+:expand FUNC         Expansion function. This function should accept
+                     two postions in the current buffer, `beg' and `end',
+                     and return a pair of expanded buffer positions.
+:contract FUNC       The opposite of :expand, optional.
+:one-to-one BOOL     Whether expansion is one to one. This means that
+                     :expand followed by :contract always returns the
+                     original range.
+:normalize FUNC      Normalization function, optional. This function should
+                     accept two unexpanded positions and adjust them before
+                     expansion. May be used to deal with buffer positions
+                     and returns a human readable string, for example,
+                     \"2 lines\".
+
+If futher keywords and functions are specified, they are assumed to
+be transformations ob buffer positions, like :expand and :contract.
+
+\(fn TYPE DOC [[KEY FUNC] ... ])"
+  (declare (indent defun)
+           (debug (&define name
+                           [&optional stringp]
+                           [&rest [keywordp function-form]])))
+  (let (args defun-forms func key name plist string sym val)
+    ;; standard values
+    (setq plist (plist-put plist :one-to-one t))
+    ;; keywords
+    (while (keywordp (car-safe body))
+      (setq key (pop body)
+            val (pop body))
+      (if (plist-member plist key) ; not a function
+          (setq plist (plist-put plist key val))
+        (setq func val
+              sym (intern (replace-regexp-in-string
+                           "^:" "" (symbol-name key)))
+              name (intern (format "qingeditor/type/%s-%s" type sym))
+              args (car (cdr-safe func))
+              string (car (cdr (cdr-safe func)))
+              string (if (stringp string)
+                         (format "%s\n\n" string) "")
+              plist (plist-put plist key `',name))
+        (add-to-list
+         'defun-forms
+         (cond
+          ((eq key :string)
+           `(defun ,name (beg end &rest properties)
+              ,(format "Return size of %s from `beg' to `end' \
+with `properties'.\n\n%s%s" type string doc)
+              (let ((beg (qingeditor/normalize-position beg))
+                    (end (qingeditor/normalize-position end))
+                    (type ',type)
+                    plist rang)
+                (when (and beg end)
+                  (save-excursion
+                    (qingeditor/sort beg end)
+                    (unless (plist-get properties :expand)
+                      (setq range (apply #'qingeditor-expand
+                                         beg end type properties)
+                            beg (qingeditor/range-beginning range)
+                            end (qingeditor/range-end range)
+                            type (qingeditor/type range type)
+                            plist (qingeditor/range-properties range))
+                      (setq properties
+                            (qingeditor/concat-plist properties plist)))
+                    (or (apply #',func beg end
+                               (when ,(> (length args) 2)
+                                 properties))
+                        ""))))))
+          (t
+           `(defun ,name (beg end &rest properties)
+              ,(format "Perform %s transformation on %s from `beg' to `end'\
+with `properties'.\n\n%s%s" sym type string doc)
+              (let ((beg (qingeditor/normalize-position beg))
+                    (end (qingeditor/normalize-position end))
+                    (type ',type)
+                    plist range)
+                (when (and beg end)
+                  (save-excursion
+                    (qingeditor/sort beg end)
+                    (when (memq ,key '(:expand :contract))
+                      (setq properties
+                            (plist-put properties
+                                       :expanded
+                                       ,(eq key :expand))))
+                    (setq range (or (apply #',func beg end
+                                           (when ,(> (length args) 2)
+                                             properties))
+                                    (apply #'qingeditor/range
+                                           beg end type properties))
+                          beg (qingeditor/range-beginning range)
+                          end (qingeditor/range-end range)
+                          type (qingeditor/type range type)
+                          plist (qingeditor/range-properties range))
+                    (setq properties
+                          (qingeditor/concat-plists properties plist))
+                    (apply #'qingeditor/range beg end type properties)))))))
+         t)))
+    ;; one-to-one requires both or neither of :expand and :contract
+    (when (plist-get plist :expand)
+      (setq plist (plist-put plist :one-to-one
+                             (and (plist-get plist :contract)
+                                  (plist-get plist :one-to-one)))))
+    `(progn
+       (qingeditor/put-property 'qingeditor/type-properties ',type ,@plist)
+       ,@defun-forms
+       ',type)))
+
 (provide 'qingeditor-macros)
