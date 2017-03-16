@@ -24,3 +24,4 @@
     (face-attribute 'helm-source-header :box))
   (defvar helm-source-header-default-height
     (face-attribute 'helm-source-header :height)))
+

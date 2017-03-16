@@ -52,7 +52,7 @@
     :documentation "A list of modules where this module is disabled.")
 
    (enabled
-    :initarg :enable-for
+    :initarg :enabled-for
     :initform 'unspecified
     :type (satisfies (lambda (x) (or (listp x) (eq 'unspecified x))))
     :documentation (concat "A list of modules where this module is enabled."

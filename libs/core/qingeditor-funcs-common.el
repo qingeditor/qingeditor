@@ -6,7 +6,7 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 ;;
-;; common functions
+;; Common functions
 
 (defun qingeditor/normalize-position (pos)
   "Return `pos' if is does not exceed the buffer boundaries.

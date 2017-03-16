@@ -201,6 +201,7 @@
  "ij" 'qing-insert-line-below)
 
 ;; format
+
 (qingeditor/key-binder/set-leader-keys
  "jo" 'open-line
  "j=" 'qing-indent-region-or-buffer
@@ -208,6 +209,7 @@
  "jk" 'qing-goto-next-line-and-indent)
 
 ;; navigation/jumping
+
 (qingeditor/key-binder/set-leader-keys
  "j0" 'qing-push-mark-and-goto-beginning-of-line
  "j$" 'qing-push-mark-and-goto-end-of-line
@@ -215,6 +217,7 @@
  "jv" 'find-variable)
 
 ;; Compliation
+
 (qingeditor/key-binder/set-leader-keys
  "cC" 'compile
  "ck" 'kill-compilation
@@ -226,6 +229,7 @@
   (define-key compilation-mode-map "g" nil))
 
 ;; Narrow and widen
+
 (qingeditor/key-binder/set-leader-keys
  "nr" 'narrow-to-region
  "np" 'narrow-to-page
@@ -233,6 +237,7 @@
  "nw" 'widen)
 
 ;; toggle
+
 (qingeditor/add-toggle highlight-current-line-globally
   :mode global-hl-line-mode
   :documentation "Globally highlight the current line."
@@ -340,7 +345,8 @@
   :documentation "Enable semantic stickyfunc globally."
   :leader "T C-S")
 
-;; quit
+;; Quit
+
 (qingeditor/key-binder/set-leader-keys
  "qs" 'qing-save-buffers-kill-emacs
  "qq" 'qing-prompt-kill-emacs

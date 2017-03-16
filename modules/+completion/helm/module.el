@@ -18,7 +18,7 @@
  :require-packages
  '(ace-jump-helm-line
    auto-highlight-symbol
-   (bookmark :has-init)
+   bookmark
    helm
    helm-ag
    helm-descbinds
@@ -29,7 +29,7 @@
    helm-swoop
    helm-themes
    (qingeditor/helm-help-mode :location local)
-   (imenu :has-init nil)
+   imenu
    popwin
-   (projectile :has-init nil))
+   projectile)
  )

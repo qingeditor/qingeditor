@@ -192,17 +192,17 @@ used."
          (qingeditor/cls/get-safe-owner package)
          (not (oref package :excluded)))))
 
-(defun qingeditor/modulemgr/package-enable-p (package-name moudle-name)
+(defun qingeditor/modulemgr/package-enabled-p (package-name module-name)
   "Returns true if `package-name' should be configured for `module-name'.
 `module-name' must not be the owner of `package-name'."
-  (let* ((qingeditor/hash-table/get qingeditor/modulemgr/package-repo
-                                    package-name)
+  (let* ((package (qingeditor/hash-table/get qingeditor/modulemgr/package-repo
+                                             package-name))
          (owner (when package
                   (car (qingeditor/cls/get-owners package))))
          (disabled (when owner (oref owner :disabled-for)))
          (enabled (when owner (oref owner :enabled-for))))
     (when package
-      (if (not (eq 'unspecified enable))
+      (if (not (eq 'unspecified enabled))
           (memq module-name enabled)
         (not (memq module-name disabled))))))
 
@@ -293,10 +293,10 @@ ensure module object exist."
         (module-dir (qingeditor/cls/get-module-dir module))
         (disabled (when (listp module-spec)
                     (qingeditor/mplist-get module-spec :disabled-for)))
-        (enabled (when (listp module-spec)
-                   (if (memq :enable-for module-spec)
-                       (qingeditor/mplist-get module-spec :enable-for)
-                     'unspecified)))
+        (enabled (if (and (listp module-spec)
+                          (memq :enabled-for module-spec))
+                     (qingeditor/mplist-get module-spec :enabled-for)
+                   'unspecified))
         (variables (when (listp module-spec)
                      (qingeditor/mplist-get module-spec :variables)))
         (has-extra-funcs-defs
@@ -312,7 +312,7 @@ ensure module object exist."
       (when (file-exists-p init-funcs-filename)
         (load init-funcs-filename)))
     (oset module :disabled-for disabled)
-    (oset module :enable-for enabled)
+    (oset module :enabled-for enabled)
     (oset module :variables variables)
     (qingeditor/modulemgr/setup-module-packages module-name)))
 
@@ -595,7 +595,7 @@ defined in `module.el' of target module."
      (lambda (module-name)
        (when (qingeditor/modulemgr/module-usedp module-name)
          (let ((pre-init-func (intern (format "qingeditor/%S/pre-init-%S" module-name package-name))))
-           (if (not (qingeditor/cls/package-enabled-p package module-name))
+           (if (not (qingeditor/modulemgr/package-enabled-p package-name module-name))
                (qingeditor/startup-buffer/message
                 (format " -> ignore pre-init (%S/%S)..." module-name package-name))
              (qingeditor/startup-buffer/message
@@ -621,9 +621,9 @@ defined in `module.el' of target module."
     ;; post init
     (mapc
      (lambda (module-name)
-       (when (qingeditor/cls/module-usedp modulemgr module-name)
-         (let ((post-init-func (intern (format "qingeditor/modulemgr/post-init-%S" module-name package-name))))
-           (if (not (qingeditor/cls/package-enabled-p package module-name))
+       (when (qingeditor/modulemgr/module-usedp  module-name)
+         (let ((post-init-func (intern (format "qingeditor/%S/post-init-%S" module-name package-name))))
+           (if (not (qingeditor/modulemgr/package-enabled-p package-name module-name))
                (qingeditor/startup-buffer/message
                 (format " -> ignore post-init (%S/%S)..." module-name package-name))
              (qingeditor/startup-buffer/message
@@ -637,7 +637,7 @@ defined in `module.el' of target module."
                   (concat "\nAn error occurred while post-configuring %S "
                           "in module %S (error: %s)\n"
                           package-name module-name err)))))))))
-     (qingeditor/cls/get-pre-init-modules package))))
+     (qingeditor/cls/get-post-init-modules package))))
 
 (defun qingeditor/modulemgr/get-uninstalled-packages (pkg-names)
   "Return a filtered list of PKG-NAMES to install."
