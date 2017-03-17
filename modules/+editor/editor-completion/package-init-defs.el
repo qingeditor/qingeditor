@@ -17,7 +17,7 @@
   (setq helm-echo-input-in-header-line t)
   (setq helm-imenu-execute-action-at-once-if-one nil)
   (setq helm-org-format-outline-path t)
-  ;(setq helm-display-function 'qingeditor/editor-completion/display-helm-window)
+  (setq helm-display-function 'qingeditor/editor-completion/display-helm-window)
   (with-eval-after-load 'helm
     (qingeditor/font/hide-lighter helm-mode)
     (when (and qingeditor/config/helm-resize
@@ -26,8 +26,8 @@
       (setq helm-autoresize-min-height 10)
       (helm-autoresize-mode 1))
     ;; setup hooks
-    ;;(add-hook 'helm-minibuffer-set-up-hook
-   ;;           'qingeditor/editor-completion/helm-hide-minibuffer-maybe)
+    (add-hook 'helm-minibuffer-set-up-hook
+              'qingeditor/editor-completion/helm-hide-minibuffer-maybe)
     (add-hook 'helm-before-initialize-hook 'qingeditor/editor-completion/helm-toggle-header-line)
     )
   )

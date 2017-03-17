@@ -23,7 +23,7 @@
 
 (defun qingeditor/helm/init-helm ()
   (use-package helm
-    :defer 1
+    :defer 0.5
     :commands (qing-helm-find-files)
     :init
     (progn
@@ -36,7 +36,7 @@
       )
     :config
     (progn
-      (helm-mode)
+      (helm-mode 1)
       (with-eval-after-load 'helm-mode ; required
         (qingeditor/font/hide-lighter helm-mode)))))
 
