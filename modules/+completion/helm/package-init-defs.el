@@ -13,7 +13,7 @@
     :defer t
     :init
     (with-eval-after-load 'helm
-      (define-key helm-map (kbd "C-q" 'ace-jump-helm-line)))))
+      (define-key helm-map (kbd "C-q") 'ace-jump-helm-line))))
 
 (defun qingeditor/helm/init-auto-highlight-symbol ()
   )
@@ -22,7 +22,23 @@
   )
 
 (defun qingeditor/helm/init-helm ()
-  )
+  (use-package helm
+    :defer 1
+    :commands (qing-helm-find-files)
+    :init
+    (progn
+      (add-hook 'helm-cleanup-hook #'qingeditor/helm/helm-cleanup)
+      ;; key bindings
+      ;; Use helm to provide :ls, unless ibuffer is used
+      (unless (qingeditor/modulemgr/package-usedp 'smex)
+        (global-set-key (kbd "M-x") 'helm-M-x))
+      (global-set-key (kbd "C-x C-f") 'qing-helm-find-files)
+      )
+    :config
+    (progn
+      (helm-mode)
+      (with-eval-after-load 'helm-mode ; required
+        (qingeditor/font/hide-lighter helm-mode)))))
 
 (defun qingeditor/helm/init-helm-ag ()
   )

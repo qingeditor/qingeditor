@@ -16,3 +16,7 @@
     (helm :sources (helm-def-source--emacs-faces
                     (format "%s" (or default "default")))
           :buffer "*helm faces*")))
+
+(defun qingeditor/editor-completion/helm-toggle-header-line ())
+
+(defun qingeditor/editor-completion/display-helm-window (buffer))
