@@ -36,6 +36,12 @@
 (defvar qingeditor/initialized nil
   "`t' if the qingeditor finished init.")
 
+(defconst qingeditor/use-package-add-hook-keywords
+  '(:pre-init
+    :post-init
+    :pre-config
+    :post-config))
+
 (defvar qingeditor/command-properties nil
   "Specifications made by `qingeditor/define-command'.")
 

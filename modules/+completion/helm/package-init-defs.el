@@ -9,7 +9,11 @@
 ;; helm init method defs
 
 (defun qingeditor/helm/init-ace-jump-helm-line ()
-  )
+  (use-package ace-jump-helm-line
+    :defer t
+    :init
+    (with-eval-after-load 'helm
+      (define-key helm-map (kbd "C-q" 'ace-jump-helm-line)))))
 
 (defun qingeditor/helm/init-auto-highlight-symbol ()
   )
