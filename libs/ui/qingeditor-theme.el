@@ -212,7 +212,6 @@ package name does not match name plus `-theme' suffix.")
 (defun qingeditor/theme/notify-theme-loaded (theme)
   "Some processing that needs to be done when the current theme
 has been changed to `theme'."
-  (interactive)
   (run-hooks 'qingeditor/post-theme-change-hook))
 
 (defun qingeditor/theme/get-theme-package (theme)
