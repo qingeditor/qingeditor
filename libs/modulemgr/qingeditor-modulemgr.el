@@ -241,7 +241,8 @@ used."
                     qingeditor/modulemgr/module-repo module-name))
            (module-dir (qingeditor/cls/get-module-dir module))
            (has-extra-config (intern (format "qingeditor/%S/has-extra-config" module-name)))
-           (extra-config-filename (concat module-dir "config.el")))
+           (extra-config-filename (concat module-dir "config.el"))
+           (has-loadpath-provider (intern (format "qingeditor/%S/has-loadpath-provider" module-name))))
       ;; we must first check wether `qingeditor' support the module
       ;; named `module-name'
       (unless module
@@ -269,6 +270,19 @@ used."
           ;; devel this function.
           (dolist (spec (symbol-value require-modules-sym))
             (qingeditor/modulemgr/load-module spec))))
+      ;; register load path
+      (when (and has-loadpath-provider
+                 (symbol-value has-loadpath-provider))
+        (let ((provider-func (intern (format "qingeditor/%S/register-loadpath" module-name)))
+              (module-dir (qingeditor/cls/get-module-dir module)))
+          (when (fboundp provider-func)
+            (let ((dirs (funcall provider-func))
+                  (base-dir (file-name-as-directory module-dir)))
+              (dolist (dir dirs)
+                (let ((dir (concat base-dir dir)))
+                  (when (and (file-exists-p dir)
+                             (file-directory-p dir))
+                    (add-to-list 'load-path dir t))))))))
       ;; load extra config file
       (when (and has-extra-config
                  (symbol-value has-extra-config)

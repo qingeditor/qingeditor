@@ -11,6 +11,7 @@
  "The editor-editing config module"
  :has-extra-funcs-defs t
  :has-extra-config t
+ :has-loadpath-provider t
  :require-packages
  '(aggressive-indent
    avy
@@ -30,3 +31,6 @@
    uuidgen
    ws-butler)
  )
+
+(defun qingeditor/editor-editing/register-loadpath ()
+  '("local/qingeditor-whitespace-cleanup"))
