@@ -8,7 +8,7 @@
 ;;
 ;; editor completion module extra function defs
 
-(defun qing-helm-face ()
+(defun qing-helm-faces ()
   "Describe face."
   (interactive)
   (require 'helm-elisp)

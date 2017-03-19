@@ -106,11 +106,119 @@
         (kbd "S-TAB") 'helm-find-files-up-one-level)
       (define-key helm-map (kbd "C-z") 'helm-select-action))))
 
-(defun qingeditor/editor-completion/init-default-ivy-config ()
-  )
-
 (defun qingeditor/editor-completion/init-ido ()
-  )
+  (setq ido-save-directory-list-file
+        (concat qingeditor/cache-dir "ido.last")
+        ido-enable-flex-matching t)
+  (ido-mode t))
 
 (defun qingeditor/editor-completion/init-ido-vertical-mode ()
-  )
+  (use-package ido-vertical-mode
+    :init
+    (progn
+      (ido-vertical-mode t)
+      (defun qingeditor/editor-completion/ido-minibuffer-setup ()
+        "Setup the minibuffer."
+        ;; Since ido is implemented in a while loop where each
+        ;; iteration setup a whole new minibuffer, we have to keep
+        ;; track of any activated ido navigation transient-state and force
+        ;; the reactivation at each iteration.
+        (when qingeditor/editor-completion/ido-navigation-ms-enabled
+          (qingeditor/ido-navigation-micro-state)))
+      (add-hook 'ido-minibuffer-setup-hook 'qingeditor/editor-completion/ido-minibuffer-setup)
+
+      (defvar qingeditor/editor-completion/ido-navigation-ms-enabled nil
+        "Flag which is non nil when ido navigation transient-state is enabled.")
+
+      (defvar qingeditor/editor-completion/ido-navigation-ms-face-cookie-minibuffer nil
+        "Cookie pointing to the local face remapping.")
+
+      (defface qingeditor/editor-completion/ido-navigation-ms-face
+        `((t :background ,(face-attribute 'error :foreground)
+             :foreground "black"
+             :weight bold))
+        "Face for ido minibuffer prompt when ido transient-state is activated."
+        :group 'qingeditor)
+
+      (defun qing-ido-invoke-in-new-frame ()
+        "signals ido mode to create a new frame after exiting."
+        (interactive)
+        (setq ido-exit-minibuffer-target-window 'frame)
+        (ido-exit-minibuffer))
+
+      (defadvice ido-read-internal
+          (around ido-read-internal-with-minibuffer-other-window activate)
+        (let* (ido-exit-minibuffer-target-window
+               (this-buffer (current-buffer))
+               (result ad-do-it))
+          (cond
+           ((equal ido-exit-minibuffer-target-window 'other)
+            (if (=1 (count-windows))
+                (qing-split-window-horizontally-and-switch)
+              (other-window 1)))
+           ((equal ido-exit-minibuffer-target-window 'horizontal)
+            (qing-split-window-horizontally-and-switch))
+           ((equal ido-exit-minibuffer-target-window 'vertical)
+            (qing-split-window-vertical-and-switch))
+           ((equal ido-exit-minibuffer-target-window 'frame)
+            (make-frame)))
+          ;; why? same ido commands, such as textmate.el's
+          ;; textmate-goto-symbol don't switch the current buffer
+          (switch-to-buffer this-buffer)
+          result))
+
+      (defun qingeditor/editor-completion/ido-navigation-ms-set-face ()
+        "Set faces for ido navigation transient-state."
+        (setq qingeditor/editor-completion/ido-navigation-ms-face-cookie-minibuffer
+              (face-remap-add-relative
+               'minibuffer-prompt
+               'qingeditor/editor-completion/ido-navigation-ms-face)))
+
+      (defun qingeditor/editor-completion/ido-navigation-ms-on-enter ()
+        "Initialization of ido transient-state."
+        (setq qingeditor/editor-completion/ido-navigation-ms-enabled t)
+        (qingeditor/editor-completion/ido-navigation-ms-set-face))
+
+      (defun qingeditor/editor-completion/ido-navigation-ms-on-exit ()
+        "Action to perform when exiting ido transient-state."
+        (face-remap-remove-relative
+         qingeditor/editor-completion/ido-navigation-ms-face-cookie-minibuffer))
+
+      (defun qingeditor/editor-completion/ido-navigation-ms-full-doc ()
+        "Full documentation for ido navigation transient-state."
+        "
+  [?]           display this help
+  [e]           enter dired
+  [j] [k]       next/previous match
+  [h]           delete backward or parent directory
+  [l]           select match
+  [n] [p]       next/previous directory in history
+  [o]           open in other window
+  [s]           open in a new horizontal split
+  [t]           open in other frame
+  [v]           open in a new vertical split
+  [q]           quit")
+
+      (qingeditor/define-transient-state ido-navigation
+        :title "ido Transient State"
+        :foreign-keys run
+        :on-enter (qingeditor/editor-completion/ido-navigation-ms-on-enter)
+        :on-exit  (qingeditor/editor-completion/ido-navigation-ms-on-exit)
+        :bindings
+        ;;("?" nil (qingeditor/editor-completion/ido-navigation-ms-full-doc))
+        ("<RET>" ido-exit-minibuffer :exit t)
+        ("<escape>" nil :exit t)
+        ("e" ido-select-text :exit t)
+        ("h" ido-delete-backward-updir)
+        ("j" ido-next-match)
+        ("J" ido-next-match-dir)
+        ("k" ido-prev-match)
+        ("K" ido-prev-match-dir)
+        ("l" ido-exit-minibuffer :exit t)
+        ("n" ido-next-match-dir)
+        ("o" qing-ido-invoke-in-other-window :exit t)
+        ("p" ido-prev-match-dir)
+        ("q" nil :exit t)
+        ("s" qing-ido-invoke-in-vertical-split :exit t)
+        ("t" qing-ido-invoke-in-new-frame :exit t)
+        ("v" qing-ido-invoke-in-horizontal-split :exit t)))))
