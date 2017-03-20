@@ -14,7 +14,8 @@
   (let ((unicodep (qingeditor/symbol-value
                    qingeditor/config/show-mode-line-unicode-symbols)))
     (cl-loop for (mode uni nouni) in qingeditor/font/diminished-minor-modes
-             do (diminish mode (if unicodep uni nouni)))))
+             do
+             (diminish mode (if unicodep uni nouni)))))
 
 (defun qingeditor/editor-bootstrap/hydra-key-doc-function (key key-width doc doc-width)
   "Custom hint documentation format for keys."

@@ -15,7 +15,7 @@
  :require-packages
  '(aggressive-indent
    avy
-   (bracketed-paste :toggle (version<= emacs-version "25.0.92"))
+   (bracketed-paste :toggle (version<= emacs-version "26.0.92"))
    clean-aindent-mode
    eval-sexp-fu
    expand-region

@@ -7,7 +7,24 @@
 ;; License: GPLv3
 
 (defun qingeditor/editor-editing/init-aggressive-indent ()
-  )
+  (use-package aggressive-indent
+    :defer t
+    :init
+    (progn
+      (qingeditor/add-toggle aggressive-indent
+        :mode aggressive-indent-mode
+        :documentation "Always keep code indented."
+        :leader "tI")
+      (qingeditor/add-toggle aggressive-indent-globally
+        :mode global-aggressive-indent-mode
+        :documentation "Always keep code indented globally."
+        :leader "t C-I")
+      )
+    :config
+    (progn
+      (add-hook 'diff-auto-refine-mode-hook
+                #'qing-toggle-aggressive-indent-off)
+      (qingeditor/font/diminish aggressive-indent-mode " Ⓘ" " I"))))
 
 (defun qingeditor/editor-editing/init-avy ()
   )
