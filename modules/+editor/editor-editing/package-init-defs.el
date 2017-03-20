@@ -27,7 +27,34 @@
       (qingeditor/font/diminish aggressive-indent-mode " Ⓘ" " I"))))
 
 (defun qingeditor/editor-editing/init-avy ()
-  )
+  (use-package avy
+    :defer t
+    :commands (qing-avy-open-url qing-avy-goto-url avy-pop-mark)
+    :init
+    (progn
+      (setq avy-all-windows 'all-frames)
+      (setq avy-background t)
+      (qingeditor/key-binder/set-leader-keys
+       "jb" 'avy-pop-mark
+       "jj" 'avy-goto-char
+       "jJ" 'avy-goto-char-2
+       "jl" 'avy-goto-line
+       "ju" 'qing-avy-goto-url
+       "jw" 'avy-goto-word-or-subword-1
+       "xo" 'qing-avy-open-url))
+    :config
+    (progn
+      (defun qing-avy-goto-url ()
+        "Use avy to go to an URL in the buffer."
+        (interactive)
+        (avy--generic-jump "https?://" nil 'pre))
+
+      (defun qing-avy-open-url ()
+        "Use avy to select an URL in the buffer and open it."
+        (interactive)
+        (save-excursion
+          (qing-avy-goto-url)
+          (browse-url-at-point))))))
 
 (defun qingeditor/editor-editing/init-bracketed-paste ()
   )
