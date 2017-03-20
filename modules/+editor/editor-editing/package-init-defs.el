@@ -57,19 +57,81 @@
           (browse-url-at-point))))))
 
 (defun qingeditor/editor-editing/init-bracketed-paste ()
-  )
+  (use-package bracketed-paste
+    :defer t
+    :init
+    ;; Enable bracketed-paste for tty
+    (add-hook 'tty-setup-hook 'bracketed-paste-enable)))
 
 (defmethod qingeditor/editor-editing/init-clean-aindent-mode ()
-  )
+  (use-package clean-aindent-mode
+    :config (clean-aindent-mode)))
 
 (defmethod qingeditor/editor-editing/init-eval-sexp-fu ()
-  )
+  ;; ignore obsolete function warning generated on startup
+  (let ((byte-compile-not-obsolete-funcs (append byte-compile-not-obsolete-funcs '(preceding-sexp))))
+    (require 'eval-sexp-fu)))
 
 (defun qingeditor/editor-editing/init-expand-region ()
-  )
+  (use-package expand-region
+    :defer t
+    :init (qingeditor/key-binder/set-leader-keys "v" 'er/expand-region)
+    :config
+    (progn
+      ;; add search capability to expand-region
+      (when (qingeditor/modulemgr/package-usedp 'helm-ag)
+        (defadvice er/prepare-for-more-expansions-internal
+            (around helm-ag/prepare-for-more-expansions-internal activate)
+          ad-do-it
+          (let ((new-msg (concat (car ad-return-value)
+                                 ", / to search in project, "
+                                 "f to search in files, "
+                                 "b to search in opened buffers"))
+                (new-bindings (cdr ad-return-value)))
+            (cl-pushnew
+             '("/" (lambda ()
+                     (call-interactively
+                      'qing-helm-project-smart-do-search-region-or-symbol)))
+             new-bindings)
+
+            (cl-pushnew
+             '("f" (lambda ()
+                     (call-interactively
+                      'qing-helm-files-smart-do-search-region-or-symbol)))
+             new-bindings)
+
+            (cl-pushnew
+             '("b" (lambda ()
+                     (call-interactively
+                      'qing-helm-buffers-smart-do-search-region-or-symbol)))
+             new-bindings)
+
+            (setq ad-return-value (cons new-msg new-bindings)))))
+      (setq expand-region-contract-fast-key "V"
+            expand-region-reset-fast-key "r"))))
 
 (defun qingeditor/editor-editing/init-hexl ()
-  )
+  (use-package hexl
+    :defer t
+    :init
+    (progn
+      (qingeditor/key-binder/set-leader-keys "fh" 'hexl-find-file)
+      (qingeditor/key-binder/set-leader-keys-for-major-mode
+       'hexl-mode
+       "d" 'hexl-insert-decimal-char
+       "c" 'hexl-insert-octal-char
+       "x" 'hexl-insert-hex-char
+       "X" 'hexl-insert-hex-string
+       "g" 'hexl-goto-address
+       "]" 'hexl-end-of-1k-page
+       "[" 'hexl-beginning-of-1k-page
+       "h" 'hexl-backward-char
+       "l" 'hexl-forward-char
+       "j" 'hexl-next-line
+       "k" 'hexl-previous-line
+       "$" 'hexl-end-of-line
+       "^" 'hexl-beginning-of-line
+       "0" 'hexl-beginning-of-line))))
 
 (defun qingeditor/editor-editing/init-hungry-delete ()
   )

@@ -103,7 +103,7 @@ pairs. For example,
          (leader1 (when (qingeditor/key-binder/acceptable-leader-p
                          qingeditor/config/major-mode-leader-key)
                     qingeditor/config/major-mode-leader-key))
-         (leader2 (when (qingeditor/config/key-binder/acceptable-leader-p
+         (leader2 (when (qingeditor/key-binder/acceptable-leader-p
                          qingeditor/config/leader-key)
                     (concat qingeditor/config/leader-key
                             (unless minor " m"))))
