@@ -134,7 +134,18 @@
        "0" 'hexl-beginning-of-line))))
 
 (defun qingeditor/editor-editing/init-hungry-delete ()
-  )
+  (use-package hungry-delete
+    :defer t
+    :init
+    (qingeditor/add-toggle hungry-delete
+      :mode hungry-delete-mode
+      :documentation "Delete consecutive horizonatal whitespace with a signal key."
+      :leader "td")
+    :config
+    (progn
+      (setq-default hungry-delete " \t\f\v") ; only horizonatal whitespace
+      (define-key hungry-delete-mode-map (kbd "DEL") 'hungry-delete-backward)
+      (define-key hungry-delete-mode-map (kbd "S-DEL") 'delete-backward-char))))
 
 (defun qingeditor/editor-editing/init-link-hint ()
   )
