@@ -148,7 +148,13 @@
       (define-key hungry-delete-mode-map (kbd "S-DEL") 'delete-backward-char))))
 
 (defun qingeditor/editor-editing/init-link-hint ()
-  )
+  (use-package link-hint
+    :defer t
+    :init
+    (progn
+      (qingeditor/key-binder/set-leader-keys
+        "xO" 'link-hint-open-multiple-links
+        "xo" 'link-hint-open-link))))
 
 (defun qingeditor/editor-editing/init-lorem-ipsum ()
   )

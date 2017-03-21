@@ -295,7 +295,7 @@ used."
       (run-hook-with-args
        'qingeditor/modulemgr/after-load-module-functions
        module-name module-spec)
-      (add-to-list 'qingeditor/modulemgr/used-modules module-name)
+      (add-to-list 'qingeditor/modulemgr/used-modules module-name t)
       module)))
 
 (defun qingeditor/modulemgr/setup-module (module-name module-spec)
@@ -414,7 +414,7 @@ defined in `module.el' of target module."
         (when (fboundp post-init-func)
           (object-add-to-list pkg :post-init-modules module-name))
         ;; add to used package used package list
-        (add-to-list 'qingeditor/modulemgr/used-packages pkg-name)))))
+        (add-to-list 'qingeditor/modulemgr/used-packages pkg-name t)))))
 
 (defun qingeditor/modulemgr/install-packages ()
   "Install used packages."
