@@ -183,7 +183,54 @@
       "xK" 'qing-move-text-transient-state/move-text-up)))
 
 (defun qingeditor/editor-editing/init-origami ()
-  )
+  (use-package origami
+    :defer t
+    :init
+    (progn
+      (global-origami-mode)
+      (qingeditor/define-transient-state fold
+        :title "Code Fold Transient State"
+        :doc "
+ Close^^            Open^^             Toggle^^           Goto^^             Other^^
+ ───────^^───────── ───────^^───────── ───────^^───────── ───────^^───────── ───────^^─────────
+ [_c_] at point     [_o_] at point     [_a_] at point     [_n_] next         [_s_] single out
+ [_C_] recursively  [_O_] recursively  [_A_] all          [_p_] previous     [_R_] reset
+ [_m_] all          [_r_] all          [_TAB_] like org ^^                   [_q_] quit"
+        :foreign-keys run
+        :on-enter (unless (bound-and-true-p origami-mode) (origami-mode 1))
+        :bindings
+        ("a" origami-forward-toggle-node)
+        ("A" origami-toggle-all-nodes)
+        ("c" origami-close-node)
+        ("C" origami-close-node-recursively)
+        ("o" origami-open-node)
+        ("O" origami-open-node-recursively)
+        ("r" origami-open-all-nodes)
+        ("m" origami-close-all-nodes)
+        ("n" origami-next-fold)
+        ("p" origami-previous-fold)
+        ("s" origami-show-only-node)
+        ("R" origami-reset)
+        ("TAB" origami-recursively-toggle-node)
+        ("<tab>" origami-recursively-toggle-node)
+        ("q" nil :exit t)
+        ("C-g" nil :exit t)
+        ("<SPC>" nil :exit t))
+      (qingeditor/key-binder/declare-prefix "to" "Origami toggles")
+      (qingeditor/key-binder/set-leader-keys
+        "toa" 'qing-fold-transient-state/origami-forward-toggle-node
+        "toc" 'qing-fold-transient-state/origami-close-node
+        "toC" 'qing-fold-transient-state/origami-close-node-recursively
+        "toO" 'qing-fold-transient-state/origami-open-node-recursively
+        "too" 'qing-fold-transient-state/origami-open-node
+        "tor" 'qing-fold-transient-state/origami-open-all-nodes
+        "tom" 'qing-fold-transient-state/origami-close-all-nodes
+        "tos" 'qing-fold-transient-state/origami-show-only-node
+        "ton" 'qing-fold-transient-state/origami-next-fold
+        "top" 'qing-fold-transient-state/origami-previous-fold
+        "toR" 'qing-fold-transient-state/origami-reset
+        "to <tab>" 'qing-fold-transient-state/origami-recursively-toggle-node
+        "to TAB" 'qing-fold-transient-state/origami-recursively-toggle-node))))
 
 (defun qingeditor/editor-editing/init-smartparens ()
   )
