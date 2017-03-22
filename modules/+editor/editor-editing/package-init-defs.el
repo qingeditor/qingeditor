@@ -264,12 +264,12 @@
         :leader "t C-p")
       ; key bindings
       (qingeditor/key-binder/set-leader-keys
-       "js" 'sp-splice-sexp
-       "jn" 'sp-newline))
+       "js" 'sp-split-sexp
+       "jn" 'sp-newline)
+      (qingeditor/font/diminish smartparens-mode " ⓟ" " p"))
     :config
     (progn
       (require 'smartparens-config)
-      (qingeditor/font/diminish " ⓟ" " p")
       (qingeditor/editor-editing/adaptive-smartparent-pair-overlay-face)
       (add-hook 'qingeditor/post-theme-change-hook
                 'qingeditor/editor-editing/adaptive-smartparent-pair-overlay-face)
@@ -281,11 +281,34 @@
       (sp-pair "[" nil :post-handlers
                '(:add (qingeditor/editor-editing/smartparens-pair-newlien-and-indent "RET")))
       (when qingeditor/config/smart-closing-parenthesis
-        (global-set-key ?\) 'qing-smart-closing-parenthesis))
-      )))
+        (global-set-key ?\) 'qing-smart-closing-parenthesis)))))
 
 (defun qingeditor/editor-editing/init-qingeditor/whitespace-cleanup ()
-  )
+  (use-package qingeditor-whitespace-cleanup
+    :commands (qingeditor/whitespace-cleanup-mode
+               qingeditor/global-whitespace-cleanup-mode)
+    :init
+    (progn
+      (qingeditor/add-toggle whitespace-cleanup
+        :mode qingeditor/whitespace-cleanup-mode
+        :documentation "Automatic whitespace clean up."
+        :on-message (qingeditor/whitespace-cleanup/on-message)
+        :leader "tW")
+      (qingeditor/add-toggle global-whitespace-cleanup
+        :mode qingeditor/global-whitespace-cleanup-mode
+        :status qingeditor/whitespace-cleanup-mode
+        :on (let ((qingeditor/whitespace-cleanup-globally t))
+              (qingeditor/whitespace-cleanup-mode))
+        :off (let ((qingeditor/whitespace-cleanup-globally t))
+               (qingeditor/whitespace-cleanup-mode -1))
+        :on-message (qingeditor/whitespace-cleanup/on-message t)
+        :documentation "Global automatic whitespace clean up."
+        :leader "t C-S-w")
+      (with-eval-after-load 'ws-butler
+        (when qingeditor/config/whitespace-cleanup
+          (qingeditor/toggle-global-whitespace-cleanup-on)))
+      (qingeditor/font/diminish qingeditor/whitespace-cleanup-mode " Ⓦ" " W")
+      (qingeditor/font/diminish qingeditor/global-whitespace-cleanup-mode " Ⓦ" " W"))))
 
 (defun qingeditor/editor-editing/init-undo-tree ()
   )
