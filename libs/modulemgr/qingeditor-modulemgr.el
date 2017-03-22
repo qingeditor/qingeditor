@@ -424,7 +424,8 @@ defined in `module.el' of target module."
              (inhibit-same-window . t)
              (side . bottom)
              (window-height . 0.2))))
-         package-names)
+         package-names
+         need-install-packages)
     (dolist (package-name qingeditor/modulemgr/used-packages)
       (let ((package (qingeditor/hash-table/get
                       qingeditor/modulemgr/package-repo
@@ -434,18 +435,16 @@ defined in `module.el' of target module."
                    (not (stringp (qingeditor/cls/get-location package)))
                    (qingeditor/cls/enabledp package))
           (push package-name package-names))))
-    (setq package-names (qingeditor/modulemgr/get-uninstalled-packages
+    (setq need-install-packages (qingeditor/modulemgr/get-uninstalled-packages
                          package-names))
-    (qingeditor/modulemgr/prepare-install-packages package-names)
+    (qingeditor/modulemgr/prepare-install-packages need-install-packages)
     (run-hook-with-args 'qingeditor/modulemgr/before-install-packages-functions
-                        package-names)
+                        need-install-packages)
     (let ((installed-count 0)
-          (total-install-count (length package-names)))
-      (dolist (package-name package-names)
-        (let* ((package (qingeditor/hash-table/get
-                         qingeditor/modulemgr/package-repo
-                         package-name))
-               (module (car (qingeditor/cls/get-owners package))))
+          (total-install-count (length need-install-packages)))
+      (dolist (package need-install-packages)
+        (let* ((module (car (qingeditor/cls/get-owners package)))
+               (package-name (qingeditor/cls/get-name package)))
           (run-hook-with-args 'qingeditor/modulemgr/before-install-package-functions
                               package-name installed-count total-install-count)
           (setq installed-count (1+ installed-count))
@@ -469,11 +468,11 @@ defined in `module.el' of target module."
           )))
     (qingeditor/startup-buffer/append "\n")
     (run-hook-with-args 'qingeditor/modulemgr/before-install-packages-functions
-                        package-names)))
+                        need-install-packages)))
 
-(defun qingeditor/modulemgr/prepare-install-packages (package-names)
+(defun qingeditor/modulemgr/prepare-install-packages (packages)
   "We figure out packages need to be installed."
-  (let ((not-installed-count (length package-names)))
+  (let ((not-installed-count (length packages)))
     (when (> not-installed-count 0)7
           (qingeditor/startup-buffer/append
            (format "Found %s new package(s) to install...\n"
@@ -665,7 +664,7 @@ defined in `module.el' of target module."
                     (min-version (when pkg (oref pkg :min-version))))
                (not (package-installed-p pkg-name min-version))))))
     (dolist (pkg-name uninstalled-pkg-names)
-      (if (qingeditor/modulemgr/hash-key
+      (if (qingeditor/hash-table/has-key
            qingeditor/modulemgr/package-repo pkg-name)
           (add-to-list 'ret (qingeditor/modulemgr/get-package pkg-name))
         (add-to-list 'ret (qingeditor/modulemgr/package (symbol-value pkg-name)

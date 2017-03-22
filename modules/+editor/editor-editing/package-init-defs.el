@@ -19,12 +19,11 @@
         :mode global-aggressive-indent-mode
         :documentation "Always keep code indented globally."
         :leader "t C-I")
-      )
+      (qingeditor/font/diminish aggressive-indent-mode " Ⓘ" " I"))
     :config
     (progn
       (add-hook 'diff-auto-refine-mode-hook
-                #'qing-toggle-aggressive-indent-off)
-      (qingeditor/font/diminish aggressive-indent-mode " Ⓘ" " I"))))
+                #'qing-toggle-aggressive-indent-off))))
 
 (defun qingeditor/editor-editing/init-avy ()
   (use-package avy

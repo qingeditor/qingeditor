@@ -6,10 +6,5 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 
-(qingeditor/define-module
- editor-misc
- "The editor-misc config module"
- :require-packages
- '(dumb-jump
-   request
-   ))
+(defun qingeditor/editor-misc/init-dumb-jump ()
+  (message "-----------------"))
