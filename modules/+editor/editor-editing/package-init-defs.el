@@ -311,10 +311,29 @@
       (qingeditor/font/diminish qingeditor/global-whitespace-cleanup-mode " Ⓦ" " W"))))
 
 (defun qingeditor/editor-editing/init-undo-tree ()
-  )
+  (use-package undo-tree
+    :init
+    (progn
+      (global-undo-tree-mode)
+      (setq undo-tree-visualizer-timestamps t)
+      (setq undo-tree-visualizer-diff t)
+      (qingeditor/font/hide-lighter undo-tree-mode))))
 
 (defun qingeditor/editor-editing/init-uuidgen ()
-  )
+  (use-package uuidgen
+    :commands (uuidgen-1 uuidgen-4)
+    :init
+    (progn
+      (qingeditor/key-binder/declare-prefix "iU" "uuid")
+      (qingeditor/key-binder/set-leader-keys
+       "iU1" 'qing-uuidgen-1
+       "iU4" 'qing-uuidgen-4
+       "iUU" 'qing-uuidgen-4))))
 
 (defun qingeditor/editor-editing/init-ws-butler ()
-  )
+  ;; not deferred on purpose, init-spacemacs-whitespace-cleanup need
+  ;; it to be loaded.
+  (use-package ws-butler
+    :init
+    (progn
+      (qingeditor/font/hide-lighter ws-butler-mode))))
