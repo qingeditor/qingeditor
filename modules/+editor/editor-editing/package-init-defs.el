@@ -233,7 +233,56 @@
         "to TAB" 'qing-fold-transient-state/origami-recursively-toggle-node))))
 
 (defun qingeditor/editor-editing/init-smartparens ()
-  )
+  (use-package smartparens
+    :defer t
+    :commands (sp-split-sexp sp-newline sp-up-sexp)
+    :init
+    (progn
+      ;; settings
+      (setq sp-show-pair-delay 0.2
+            ;; fix paren highlighting in normal mode
+            sp-show-pair-from-inside t
+            sp-cancel-autoskip-on-backward-movement nil
+            sp-highlight-pair-overlay nil
+            sp-highlight-wrap-overlay nil
+            sp-highlight-wrap-tag-overlay nil)
+      (qingeditor/add-to-hooks (if qingeditor/config/smartparens-strict-mode
+                                   'smartparens-strict-mode
+                                 'smartparens-mode)
+                               '(prog-mode-hook comint-mode-hook))
+      ;; enable smartparens-mode in `eval-expression'
+      (add-hook 'minibuffer-setup-hook 'qingeditor/editor-editing/conditionally-enable-smartparens-mode)
+      ;; toggles
+      (qingeditor/add-toggle smartparens
+        :mode smartparens-mode
+        :documentation "Enable smartparens."
+        :leader "tp")
+
+      (qingeditor/add-toggle smartparens-globally
+        :mode smartparens-global-mode
+        :documentation "Enable smartparens globally."
+        :leader "t C-p")
+      ; key bindings
+      (qingeditor/key-binder/set-leader-keys
+       "js" 'sp-splice-sexp
+       "jn" 'sp-newline))
+    :config
+    (progn
+      (require 'smartparens-config)
+      (qingeditor/font/diminish " ⓟ" " p")
+      (qingeditor/editor-editing/adaptive-smartparent-pair-overlay-face)
+      (add-hook 'qingeditor/post-theme-change-hook
+                'qingeditor/editor-editing/adaptive-smartparent-pair-overlay-face)
+      (show-smartparens-global-mode +1)
+      ;; don't create a pair with single quote in minibuffer
+      (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+      (sp-pair "{" nil :post-handlers
+               '(:add (qingeditor/editor-editing/smartparens-pair-newline-and-ident "RET")))
+      (sp-pair "[" nil :post-handlers
+               '(:add (qingeditor/editor-editing/smartparens-pair-newlien-and-indent "RET")))
+      (when qingeditor/config/smart-closing-parenthesis
+        (global-set-key ?\) 'qing-smart-closing-parenthesis))
+      )))
 
 (defun qingeditor/editor-editing/init-qingeditor/whitespace-cleanup ()
   )

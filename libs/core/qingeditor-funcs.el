@@ -234,7 +234,7 @@ changing the value of `foo'."
               tail (cdr tail)))))
     list))
 
-(defun qingeditor/add-to-hook (hook funcs)
+(defun qingeditor/add-to-hooks (hook funcs)
   "Add list of functions to hook."
   (dolist (func funcs)
     (add-hook hook func)))
