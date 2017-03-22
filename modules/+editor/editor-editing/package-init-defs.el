@@ -157,7 +157,17 @@
         "xo" 'link-hint-open-link))))
 
 (defun qingeditor/editor-editing/init-lorem-ipsum ()
-  )
+  (use-package lorem-ipsum
+    :commands (lorem-ipsum-insert-list
+               lorem-ipsum-insert-paragraphs
+               lorem-ipsum-insert-sentences)
+    :init
+    (progn
+      (qingeditor/key-binder/declare-prefix "il" "lorem ipsum")
+      (qingeditor/key-binder/set-leader-keys
+        "ill" 'lorem-ipsum-insert-list
+        "ilp" 'lorem-ipsum-insert-paragraphs
+        "ils" 'lorem-ipsum-insert-sentences))))
 
 (defun qingeditor/editor-editing/init-move-text ()
   )
