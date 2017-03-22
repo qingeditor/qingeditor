@@ -170,7 +170,17 @@
         "ils" 'lorem-ipsum-insert-sentences))))
 
 (defun qingeditor/editor-editing/init-move-text ()
-  )
+  (use-package move-text
+    :defer t
+    :init
+    (qingeditor/define-transient-state move-text
+        :title "Move Text Transient State"
+        :bindings
+        ("J" move-text-down "move down")
+        ("K" move-text-up "move up"))
+    (qingeditor/key-binder/set-leader-keys
+      "xJ" 'qing-move-text-transient-state/move-text-down
+      "xK" 'qing-move-text-transient-state/move-text-up)))
 
 (defun qingeditor/editor-editing/init-origami ()
   )
