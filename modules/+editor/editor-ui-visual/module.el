@@ -9,19 +9,4 @@
 (qingeditor/define-module
  editor-ui-visual
  "The editor-ui-visual config module"
- :require-packages
- '(
-   ;; default
-   adaptive-wrap
-   auto-highlight-symbol
-   column-enforce-mode
-   hide-comnt
-   highlight-indentation
-   highlight-numbers
-   highlight-parentheses
-   ;; waiting for an overlay bug to be fixed
-   ;; see https://github.com/syl20bnr/spacemacs/issues/2529
-   (hl-anything :exclude t)
-   indent-guide
-   rainbow-delimiters
-   volatile-highlights))
+ )
