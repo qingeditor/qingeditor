@@ -17,5 +17,8 @@
       ;; Since it's dumb, we add it to the end of the default jump handlers. At
       ;; the time of writing it is the only default jump handler. (gtags remains
       ;; mode-local)
-      
-      )))
+      (add-to-list 'qingeditor/default-jump-handlers #'dumb-jump-go 'append))))
+
+(defun qingeditor/editor-misc/init-request ()
+  (setq request-storage-directory
+        (concat qingeditor/cache-dir "request/")))
