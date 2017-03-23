@@ -9,4 +9,18 @@
 (qingeditor/define-module
  editor-ui-visual
  "The editor-ui-visual config module"
+ :has-extra-funcs-defs t
+ :require-packages
+ '((ansi-colors :location built-in)
+   fancy-battery
+   fill-column-indicator
+   golden-ratio
+   hl-todo
+   neotree
+   popup
+   popwin
+   (smooth-scrolling :location built-in)
+   spaceline
+   )
  )
+
