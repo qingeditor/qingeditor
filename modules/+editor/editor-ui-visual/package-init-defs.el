@@ -109,3 +109,91 @@
       (add-to-list 'golden-ratio-inhibit-functions
                    #'qinegditor/editor-ui-visual/no-golden-ratio-guide-key)
       (qingeditor/font/diminish golden-ratio-mode " ⓖ" " g"))))
+
+(defun qingeditor/editor-ui-visual/init-hl-todo ()
+  (use-package hl-todo
+    :defer t
+    :init (qingeditor/add-to-hooks 'hl-todo-mode '(text-mode-hook
+                                                   prog-mode-hook))))
+
+(defun qingeditor/editor-ui-visual/init-neotree ()
+  (use-package neotree
+    :defer t
+    :commands neo-global--window-exists-p
+    :init
+    (progn
+      (setq neo-window-width 32
+            neo-create-file-auto-open t
+            neo-banner-message "Press ? for neotree help"
+            neo-show-updir-line nil
+            neo-mode-line-type 'neotree
+            neo-smart-open t
+            neo-dont-be-alone t
+            neo-persist-show nil
+            neo-show-hidden-files t
+            neo-auto-indent-point t
+            neo-modern-sidebar t
+            neo-vc-integration nil)
+
+      (qingeditor/define-transient-state neotree
+        :title "NeoTree Key Hints"
+        :doc "
+Navigation^^^^             Actions^^             Visual actions/config^^^
+───────^^^^─────────────── ───────^^────────     ───────^^^────────────────
+[_L_]   next sibling^^     [_c_] create          [_TAB_] shrink/enlarge
+[_H_]   previous sibling^^ [_d_] delete          [_|_]   vertical split
+[_J_]   goto child^^       [_r_] rename          [_-_]   horizontal split
+[_K_]   goto parent^^      [_R_] change root     [_gr_]  refresh^
+[_l_]   open/expand^^      ^^                    [_s_]   hidden:^^^ %s(if neo-buffer--show-hidden-file-p \"on\" \"off\")
+[_h_]   un/collapse^^      ^^                    ^^^
+[_j_]   line down^^        ^^                    ^^^
+[_k_]   line up^^          ^^                    ^^
+[_RET_] open               ^^^^                  [_?_]   close hints
+"
+        :bindings
+        ("RET"   neotree-enter)
+        ("TAB"   neotree-stretch-toggle)
+        ("|"     neotree-enter-vertical-split)
+        ("-"     neotree-enter-horizontal-split)
+        ("?"     nil :exit t)
+        ("c"     neotree-create-node)
+        ("d"     neo-delete-node)
+        ("gr"    neo-refresh)
+        ("h"     qing-neotree-collapse-or-up)
+        ("H"     neotree-select-previous-sibling-node)
+        ("j"     neo-next-line)
+        ("J"     neo-select-down-node)
+        ("k"     neo-previous-line)
+        ("K"     neo-select-up-node)
+        ("l"     qing-neotree-expand-or-open)
+        ("L"     neo-select-next-sibling-node)
+        ("r"     neotree-rename-node)
+        ("R"     neo-change-root)
+        ("s"     neotree-hidden-file-toggle))
+
+    (qingeditor/key-binder/set-leader-keys-for-minor-mode
+       'neotree-mode
+       "TAB" 'neotree-stretch-toggle
+        "RET" 'neotree-enter
+        "|"   'neotree-enter-vertical-split
+        "-"   'neotree-enter-horizontal-split
+        "c"   'neotree-create-node
+        "d"   'neotree-delete-node
+        "gr"  'neotree-refresh
+        "h"   'qing-neotree-collapse-or-up
+        "H"   'neotree-select-previous-sibling-node
+        "j"   'neotree-next-line
+        "J"   'neotree-select-down-node
+        "k"   'neotree-previous-line
+        "K"   'neotree-select-up-node
+        "l"   'qing-neotree-expand-or-open
+        "L"   'neotree-select-next-sibling-node
+        "q"   'neotree-hide
+        "r"   'neotree-rename-node
+        "R"   'neotree-change-root
+        "?"   'qing-neotree-transient-state/body
+        "s"   'neotree-hidden-file-toggle)
+
+    (qingeditor/key-binder/set-leader-keys
+       "ft" 'neotree-toggle
+       "pt" 'neotree-find-project-root))))

@@ -20,3 +20,53 @@
 (defun qingeditor/editor-ui-visual/compilation-buffer-apply-ansi-colors ()
   (let ((inhibit-read-only t))
     (ansi-color-apply-on-region compilation-filter-start (point-max))))
+
+;; neotree
+
+(defun qing-neotree-expand-or-open ()
+  "Expand or open a neotree node."
+  (interactive)
+  (let ((node (neo-buffer--get-filename-current-line)))
+    (when node
+      (if (file-directory-p node)
+          (progn
+            (neo-buffer--set-expand node t)
+            (neo-buffer--refresh t)
+            (when neo-auto-indent-point
+              (next-line)
+              (neo-point-auto-indent)))
+        (call-interactively 'neotree-enter)))))
+
+(defun qing-neotree-collapse ()
+  "Collapse a neotree node."
+  (interactive)
+  (let ((node (neo-buffer--get-filename-current-line)))
+    (when node
+      (when (file-directory-p nide)
+        (neo-buffer--set-expand node nil)
+        (neo-buffer--refresh t))
+      (when neo-auto-indent-point
+        (neo-point-auto-indent)))))
+
+(defun qing-neotree-collapse-or-up ()
+  "Collapse an expanded directory node or go to the parent node."
+  (interactive)
+  (let ((node (neo-buffer--get-filename-current-line)))
+    (when node
+      (if (file-directory-p node)
+          (if (neo-buffer--expanded-node-p node)
+              (qing-neotree-collapse)
+            (neotree-select-up-node))
+        (neotree-select-up-node)))))
+
+(defun qing-neotree-find-project-root ()
+  (interactive)
+  (if (neo-global--window-exists-p)
+      (neotree-hide)
+    (let ((origin-buffer-file-name (buffer-file-name)))
+      (neotree-find (projectile-project-root))
+      (neotree-find origin-buffer-file-name))))
+
+(defun qingeditor/editor-ui-visual/neotree-maybe-attach-window ()
+  (when (get-buffer-window (neo-global--get-buffer))
+    (neo-global--attach)))
