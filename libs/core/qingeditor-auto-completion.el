@@ -20,26 +20,23 @@ The variable name format is company-backends-MODE."
      ',qingeditor/default-company-backends
      ,(format "Company backend list for %S" mode)))
 
-(defmacro qongeditor/add-company-hook (mode module)
+(defmacro qingeditor/add-company-hook (mode module)
   "Enable company for the given `mode'.
 `mode' must match the symbol passed in `qingeditor/defvar-company-backends'.
 The initialization function is hooked to `MODE-hook'."
   (let ((mode-hook (intern (format "%S-hook" mode)))
-        (method-name (intern (format "qingeditor/cls/init-company-%S" mode)))
         (init-hook-name (intern (format "qingeditor/%S/init-commany-%S-hook" module mode)))
         (backend-list (intern (format "company-backends-%S" mode))))
-    `(when (qingeditor/cls/package-usedp (qingeditor/gmodulemgr) 'company)
-       (defmethod ,method-name ((this ,module))
+    `(when (qingeditor/modulemgr/package-usedp 'company)
+       (defun ,init-hook-name ()
          ,(format "Initialize company for %S" mode)
          (when auto-completion-enable-snippets-in-popup
-           (setq ,backend-list (mapcar 'qingeditor/show-snippets-in-comoany
+           (setq ,backend-list (mapcar 'qingeditor/show-snippets-in-company
                                        ,backend-list)))
          (set (make-variable-buffer-local 'auto-completion-front-end)
               'company)
          (set (make-variable-buffer-local 'company-backends)
               ,backend-list))
-       (defun ,init-hook-name ()
-         (,method-name ,module))
        (add-hook ',mode-hook ',init-hook-name t)
        (add-hook ',mode-hook 'company-mode t))))
 
@@ -64,10 +61,9 @@ MODE parameter must match the parameter used in the call to
   "Enable auto-complete for the given MODE.
 The initialization function is hooked to `MODE-hook'."
   (let ((mode-hook (intern (format "%S-hook" mode)))
-        (method-name (intern (format "qingeditor/cls/init-auto-complete-%S" mode)))
         (init-hook-name (intern (format "qingeditor/%S/init-auto-complete-%S-hook" module mode))))
-    `(when (qingeditor/cls/package-usedp (qingeditor/gmodulemgr) 'auto-complete)
-       (defmethod ,method-name ((this ,module))
+    `(when (qingeditor/modulemgr/package-usedp 'auto-complete)
+       (defun ,init-hook-name ()
          ,(format "Initialize auto-complete for %S" mode)
          (set (make-variable-buffer-local 'auto-completion-front-end)
               'auto-complete)
