@@ -97,10 +97,6 @@ and its values are removed."
   (setq qingeditor/init-redisplay-count-private
         (1+ qingeditor/init-redisplay-count-private)))
 
-(defun qingeditor/gmodulemgr ()
-  "Return the global module manager object."
-  qingeditor/modulemgr)
-
 (defun qingeditor/user-config-filename ()
   "Get the user config filename."
   qingeditor/config/target-cfg-filename)
@@ -238,5 +234,14 @@ changing the value of `foo'."
   "Add list of functions to hook."
   (dolist (func funcs)
     (add-hook hook func)))
+
+(defun qingeditor/register-repl (feature repl-func &optional tag)
+  "Register REPL-FUNC to the global list of REPLs SPACEMACS-REPL-LIST.
+FEATURE will be loaded before running the REPL, in case it is not already
+loaded. If TAG is non-nil, it will be used as the string to show in the helm
+buffer."
+  (push `(,(or tag (symbol-name repl-func))
+          . (,feature . ,repl-func))
+        qingeditor/repl-list))
 
 (provide 'qingeditor-funcs)

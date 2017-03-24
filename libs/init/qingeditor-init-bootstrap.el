@@ -17,6 +17,7 @@
 (require 'qingeditor-commands)
 (require 'qingeditor-key-binder)
 (require 'qingeditor-toggle)
+(require 'qingeditor-auto-completion)
 (require 'qingeditor-jump)
 (require 'qingeditor-hash-table)
 (require 'qingeditor-hidden-mode-line)

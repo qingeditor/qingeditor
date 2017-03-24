@@ -5,6 +5,7 @@
 ;;
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
+
 (defvar qingeditor/default-company-backends
   '((company-dabbrev-code company-gtags company-etags company-keywords)
     company-files company-dabbrev)
@@ -30,7 +31,7 @@ The initialization function is hooked to `MODE-hook'."
     `(when (qingeditor/modulemgr/package-usedp 'company)
        (defun ,init-hook-name ()
          ,(format "Initialize company for %S" mode)
-         (when auto-completion-enable-snippets-in-popup
+         (when qingeditor/auto-completion/enable-snippets-in-popup
            (setq ,backend-list (mapcar 'qingeditor/show-snippets-in-company
                                        ,backend-list)))
          (set (make-variable-buffer-local 'auto-completion-front-end)
@@ -40,7 +41,7 @@ The initialization function is hooked to `MODE-hook'."
        (add-hook ',mode-hook ',init-hook-name t)
        (add-hook ',mode-hook 'company-mode t))))
 
-(defmacro qingeditor/disable-company (mode)
+(defmacro qingeditor/disable-company (mode module)
   "Disable company for the given `mode'.
 MODE parameter must match the parameter used in the call to
 `qongeditor/add-company-hook'."

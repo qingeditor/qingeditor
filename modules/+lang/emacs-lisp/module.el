@@ -15,4 +15,18 @@
  "The emacs-lisp config module"
  :has-extra-funcs-defs t
  :has-extra-config t
- )
+ :require-packages
+ '(
+   auto-compile
+   company
+   eldoc
+   elisp-slime-nav
+   (emacs-lisp :location built-in)
+   flycheck
+   ggtags
+   helm-gtags
+   (ielm :location built-in)
+   macrostep
+   semantic
+   smartparens
+   srefactor))

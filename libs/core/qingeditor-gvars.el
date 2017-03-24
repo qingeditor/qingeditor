@@ -82,6 +82,9 @@ a line."
 Certain commands depending on undo use this variable
 instead of `buffer-undo-list'.")
 
+(defvar qingeditor/repl-list '()
+  "List of all registered REPLs.")
+
 (qingeditor/define-local-var qingeditor/echo-area-message nil
   "Previous value of `current-message'.")
 
