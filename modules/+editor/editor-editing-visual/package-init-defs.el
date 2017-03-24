@@ -12,7 +12,7 @@
     (progn
       (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode))))
 
-(defun qingeditor/editor-ui-visual/init-auto-highlight-symbol ()
+(defun qingeditor/editor-editing-visual/init-auto-highlight-symbol ()
   (use-package auto-highlight-symbol
     :defer t
     :init
@@ -66,16 +66,16 @@
               (qing-symbol-highlight-transient-state/body))
           (message "No symbol has been searched for now.")))
 
-      (defun qingeditor/editor-ui-visual/ensure-ahs-enabled-locally ()
+      (defun qingeditor/editor-editing-visual/ensure-ahs-enabled-locally ()
         "Ensure ahs is enabled for the local buffer."
         (unless
             (bound-and-true-p ahs-mode-line)
           (auto-highlight-symbol-mode)))
 
-      (defun qingeditor/editor-ui-visual/ahs-highlight-now-wrapper ()
+      (defun qingeditor/editor-editing-visual/ahs-highlight-now-wrapper ()
         "Safe wrapper for ahs-highlight-now"
         (eval '(progn
-                 (qingeditor/editor-ui-visual/ensure-ahs-enabled-locally)
+                 (qingeditor/editor-editing-visual/ensure-ahs-enabled-locally)
                  (ahs-highlight-now)) nil))
 
 

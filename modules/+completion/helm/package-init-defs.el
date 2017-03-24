@@ -70,7 +70,7 @@
 (defun qingeditor/helm/post-init-imenu ()
   )
 
-(defun qingeditor/helm/init-popwin ()
+(defun qingeditor/helm/post-init-popwin ()
   )
 
 (defun qingeditor/helm/post-init-projectile ()

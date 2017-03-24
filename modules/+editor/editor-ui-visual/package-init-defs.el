@@ -197,3 +197,26 @@ Navigation^^^^             Actions^^             Visual actions/config^^^
     (qingeditor/key-binder/set-leader-keys
        "ft" 'neotree-toggle
        "pt" 'neotree-find-project-root))))
+
+(defun qingeditor/editor-ui-visual/init-popup ()
+  )
+
+(defun qingeditor/editor-ui-visual/init-popwin ()
+  (use-package popwin
+    :config
+    (popwin-mode 1)
+    (qingeditor/key-binder/set-leader-keys "wpm" 'popwin:messages)
+    (qingeditor/key-binder/set-leader-keys "wpp" 'popwin:close-popup-window)
+    ;; dont use default value but manager it ourselves
+    (setq popwin:special-display-config nil)
+
+    ;; buffers that we manage
+    (push '("*Help*"                  :dedicated t :position bottom :stick t :noselect t :height 0.4)   popwin:special-display-config)
+    (push '("*compilation*"           :dedicated t :position bottom :stick t :noselect t :height 0.4)   popwin:special-display-config)
+    (push '("*Shell Command Output*"  :dedicated t :position bottom :stick t :noselect nil)             popwin:special-display-config)
+    (push '("*Async Shell Command*"   :dedicated t :position bottom :stick t :noselect nil)             popwin:special-display-config)
+    (push '(" *undo-tree*"            :dedicated t :position bottom :stick t :noselect nil :height 0.4) popwin:special-display-config)
+    (push '("*ert*"                   :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)
+    (push '("*grep*"                  :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)
+    (push '("*nosetests*"             :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)
+    (push '("^\*WoMan.+\*$"           :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)))

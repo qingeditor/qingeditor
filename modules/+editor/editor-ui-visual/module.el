@@ -17,8 +17,8 @@
    golden-ratio
    hl-todo
    neotree
-   popup
    popwin
+   popup
    (smooth-scrolling :location built-in)
    spaceline
    )
