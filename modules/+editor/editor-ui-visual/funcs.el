@@ -70,3 +70,59 @@
 (defun qingeditor/editor-ui-visual/neotree-maybe-attach-window ()
   (when (get-buffer-window (neo-global--get-buffer))
     (neo-global--attach)))
+
+;; smooth scrolling
+(defun qing-enable-smooth-scrolling ()
+  "Enable smooth scrolling."
+  (interactive)
+  (setq scroll-conservatively 101))
+
+(defun qing-disable-smooth-scrolling ()
+  "Disable smooth scrolling."
+  (interactive)
+  (setq scroll-conservatively 0))
+
+;; spaceline
+
+(defun qingeditor/editor-ui-visual/customize-powerline-faces ()
+  "Alter powerline face to make them work with more themes."
+  (when (boundp 'powerline-inactive2)
+    (set-face-attribute 'powerline-inactive2 nil
+                        :inherit 'font-lock-comment-face)))
+
+;; spaceline
+(defun qingeditor/editor-ui-visual/customize-powerline-faces ()
+  "Alter powerline face to make them work with more themes."
+  (when (boundp 'powerline-inactive2)
+    (set-face-attribute 'powerline-inactive2 nil
+                        :inherit 'font-lock-comment-face)))
+
+(defun qingeditor/editor-ui-visual/prepare-diminish ()
+  (when spaceline-minor-modes-p
+    (let ((unicodep (qingeditor/symbol-value
+                     qingeditor/config/show-mode-line-unicode-symbols)))
+      (setq spaceline-minor-modes-separator
+            (if unicodep (if (display-graphic-p) "" " ") "|"))
+      (dolist (mm qingeditor/font/diminished-minor-modes)
+        (let ((mode (car mm)))
+          (when (and (boundp mode) (symbol-value mode))
+            (let* ((unicode (cadr mm))
+                   (ascii (caddr mm))
+                   (dim (if unicodep
+                            unicode
+                          (if ascii ascii unicode))))
+              (diminish mode dim))))))))
+
+(defun qingeditor/editor-ui-visual/set-powerline-for-startup-buffers ()
+  "Set the powerline for buffers created when Emacs starts."
+  (dolist (buffer '("*Messages*" "*qingeditor*" "*Compile-Log*"))
+    (when (and (get-buffer buffer)
+               (qingeditor/modulemgr/package-usedp 'spaceline))
+      (qingeditor/editor-ui-visual/restore-powerline buffer))))
+
+(defun qingeditor/editor-ui-visual/restore-powerline (buffer)
+  "Restore the powerline in buffer"
+  (with-current-buffer buffer
+    (setq-local mode-line-format (default-value 'mode-line-format))
+    (powerline-set-selected-window)
+    (powerline-reset)))

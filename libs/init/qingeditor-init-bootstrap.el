@@ -39,7 +39,8 @@
 to this event if you want to do some that needs to have the display system
 initialized."
  (progn
-   (run-hooks 'qingeditor/display-system-ready-hook)
+   (dolist (fn (reverse qingeditor/display-system-ready-init-list))
+     (funcall fn))
    (ad-disable-advice 'server-create-window-system-frame
                       'after
                       'qingeditor/advice/init-display)

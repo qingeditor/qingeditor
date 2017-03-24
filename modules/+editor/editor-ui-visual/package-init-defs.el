@@ -10,7 +10,6 @@
   (add-hook 'compilation-filter-hook
             #'qingeditor/editor-ui-visual/compilation-buffer-apply-ansi-colors))
 
-
 (defun qingeditor/editor-ui-visual/init-fancy-battery ()
   (use-package fancy-battery
     :defer t
@@ -220,3 +219,14 @@ Navigation^^^^             Actions^^             Visual actions/config^^^
     (push '("*grep*"                  :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)
     (push '("*nosetests*"             :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)
     (push '("^\*WoMan.+\*$"           :dedicated t :position bottom :stick t :noselect nil          )   popwin:special-display-config)))
+
+(defun qingeditor/editor-ui-visual/init-smooth-scrolling ()
+  (setq scroll-preserve-screen-position t
+        scroll-margin 0
+        scroll-conservatively (if qingeditor/config/smooth-scrolling 101 0))
+  (qingeditor/add-toggle smooth-scrolling
+    :status (= 101 scroll-conservatively)
+    :on (qing-enable-smooth-scrolling)
+    :off (qing-disable-smooth-scrolling)
+    :documentation "Smooth scrolling."
+    :leader "tv"))

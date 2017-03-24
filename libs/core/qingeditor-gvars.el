@@ -24,7 +24,7 @@
 (defvar qingeditor/window-resize-hook nil
   "When `emacs' frame changed it's size, run this hook.")
 
-(defvar qingeditor/display-system-ready-hook nil
+(defvar qingeditor/display-system-ready-init-list nil
   "When display system initialized, run this hook.")
 
 (defvar qingeditor/user-config-setup-finished-hook nil

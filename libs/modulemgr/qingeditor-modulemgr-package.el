@@ -132,9 +132,10 @@ changed."
   ;; always the car of the `:owners' slot.
   (let ((modules (oref this :owners)))
     (while (and (consp modules)
-                (not (qingeditor/modulemgr/module-usedp (car modules))))
+                (not (qingeditor/modulemgr/module-usedp (qingeditor/cls/get-name (car modules)))))
       (pop modules))
-    (when (qingeditor/modulemgr/module-usedp (car modules))
+    (when (and modules
+               (qingeditor/modulemgr/module-usedp (qingeditor/cls/get-name (car modules))))
       (car modules))))
-
+ 
 (provide 'qingeditor-modulemgr-package)

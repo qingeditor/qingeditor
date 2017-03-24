@@ -42,12 +42,7 @@ we attach a listener to `qingeditor/display-system-ready-event' event."
      (if init
          (progn
            ,@body)
-       (push (qingeditor/cls/attach
-              qingeditor/geventmgr
-              qingeditor/display-system-ready-event
-              (qingeditor/eventmgr/event-handler/init (lambda ()
-                                                        ,@body)))
-             qingeditor/global-listeners-pool))))
+       (push (lambda () ,@body) qingeditor/display-system-ready-init-list))))
 
 (defmacro qingeditor/symbol-value (symbol)
   "Return the value of SYMBOL corresponding to a dotspacemacs variable.
