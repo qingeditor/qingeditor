@@ -421,34 +421,121 @@ Search for a search tool in the order provided by `qingeditor/config/search-tool
        (kbd "q") #'quit-window))))
 
 (defun qingeditor/helm/init-helm-descbinds ()
-  )
+  (use-package helm-descbinds
+    :defer t
+    :init
+    (progn
+      (setq helm-descbinds-window-style #'split)
+      (add-hook #'helm-mode-hook #'helm-descbinds-mode)
+      (qingeditor/key-binder/set-leader-keys
+       "?" #'helm-descbinds))))
 
 (defun qingeditor/helm/init-helm-flx ()
-  )
+  (use-package helm-flx
+    :defer t)
+  (qingeditor/use-package-add-hook
+      helm
+    :pre-config
+    (progn
+      ;; Disable for helm-find-files until performance issues are sorted
+      ;; https://github.com/PythonNut/helm-flx/issues/9
+      (setq helm-flx-for-helm-find-files nil)
+      (helm-flx-mode))))
 
 (defun qingeditor/helm/init-helm-make ()
-  )
+  (use-package helm-make
+    :defer t
+    :init
+    (qingeditor/key-binder/set-leader-keys
+     "cc" #'helm-make-projectile
+     "cm" #'helm-make)))
 
 (defun qingeditor/helm/init-helm-mode-manager ()
-  )
+  (use-package helm-mode-manager
+    :defer t
+    :init
+    (progn
+      (qingeditor/key-binder/set-leader-keys
+       "hM" #'helm-switch-major-mode
+       "h C-m" #'helm-enable-minor-mode))))
 
 (defun qingeditor/helm/init-helm-projectile ()
-  )
+  (use-package helm-projectile
+    :commands
+    (helm-projectile-switch-to-buffer
+     helm-projectile-find-dir
+     helm-projectile-dired-find-dir
+     helm-projectile-recentf
+     helm-projectile-find-file
+     helm-projectile-grep
+     helm-projectile
+     helm-projectile-switch-project)
+    :init
+    (progn
+      ;; needed for smart search if user's default tool is grep
+      (defalias 'qing-helm-project-do-grep 'helm-projectile-grep)
+      (defalias 'qing-helm-project-do-grep-region-or-symbol
+        'helm-projectile-grep)
+      ;; overwrite projectile settings
+      (qingeditor/use-package-add-hook projectile
+        :post-init
+        (progn
+          (setq projectile-switch-project-action #'helm-projectile)
+          (qingeditor/key-binder/set-leader-keys
+           "pb"  #'helm-projectile-switch-to-buffer
+           "pd"  #'helm-projectile-find-dir
+           "pf"  #'helm-projectile-find-file
+           "pF"  #'helm-projectile-find-file-dwim
+           "ph"  #'helm-projectile
+           "pp"  #'helm-projectile-switch-project
+           "pr"  #'helm-projectile-recentf
+           "sgp" #'helm-projectile-grep))))))
 
 (defun qingeditor/helm/init-helm-swoop ()
-  )
+  (use-package helm-swoop
+    :defer t
+    :init
+    (progn
+      (setq helm-swoop-split-with-multiple-windows t
+            helm-swoop-split-direction 'split-window-vertically
+            helm-swoop-speed-or-color t
+            helm-swoop-split-window-function #'helm-default-display-buffer
+            helm-swoop-pre-input-function (lambda () ""))
+
+      (defun qing-helm-swoop-region-or-symbol ()
+        "Call `helm-swoop' with default input."
+        (interactive)
+        (let ((helm-swoop-pre-input-function
+               (lambda ()
+                 (if (region-active-p)
+                     (buffer-substring-no-properties (region-beginning)
+                                                     (region-end))
+                   (let ((thing (thing-at-point 'symbol t)))
+                     (if thing thing ""))))))
+          (call-interactively 'helm-swoop)))
+
+      (qingeditor/key-binder/set-leader-keys
+       "ss"    #'helm-swoop
+       "sS"    #'qing-helm-swoop-region-or-symbol
+       "s C-s" #'helm-multi-swoop-all))))
 
 (defun qingeditor/helm/init-helm-themes ()
-  )
-
-(defun qingeditor/helm/init-qingeditor/helm-help-mode ()
-  )
+  (use-package helm-themes
+    :defer t
+    :init
+    (progn
+      (qingeditor/key-binder/set-leader-keys
+       "Ts" #'helm-themes))))
 
 (defun qingeditor/helm/post-init-imenu ()
-  )
+  (qingeditor/key-binder/set-leader-keys
+   "ji" #'qing-helm-jump-in-buffer))
 
 (defun qingeditor/helm/post-init-popwin ()
-  )
+  ;; disable popwin-mode while Helm session is running
+  (add-hook #'helm-after-initialize-hook #'qingeditor/helm/prepare-display)
+  ;; Restore popwin-mode after a Helm session finishes.
+  (add-hook #'helm-cleanup-hook #'qingeditor/helm/restore-display))
 
 (defun qingeditor/helm/post-init-projectile ()
-  )
+  (setq projectile-completion-system 'helm))
