@@ -260,7 +260,7 @@
       (add-hook 'prog-mode-hook #'highlight-numbers-mode)
       (add-hook 'asm-mode-hook (lambda () (highlight-numbers-mode -1))))))
 
-(defun qingeditor/editor-editing-visual/init-highlight-parenthesis ()
+(defun qingeditor/editor-editing-visual/init-highlight-parentheses ()
   (use-package highlight-parentheses
     :defer t
     :init
@@ -272,8 +272,9 @@
       (setq hl-paren-colors '("Springgreen3"
                               "IndianRed1"
                               "IndianRed3"
-                              "IndianRed4"))
-
+                              "IndianRed4")))
+    :config
+    (progn
       (qingeditor/font/hide-lighter highlight-parentheses-mode)
       (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold))))
 
