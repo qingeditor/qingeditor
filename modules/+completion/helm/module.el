@@ -7,7 +7,7 @@
 ;; This file is not part of GNU Emacs.
 ;; License: GPLv3
 ;;
-;; The editor-base module class
+;; The helm config module class
 ;;; Code:
 
 (qingeditor/define-module
@@ -28,7 +28,6 @@
    helm-projectile
    helm-swoop
    helm-themes
-   (qingeditor/helm-help-mode :location local)
    imenu
    popwin
    projectile)

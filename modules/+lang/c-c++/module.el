@@ -1,4 +1,3 @@
-;;; qingeditor --- a distribution of Emacs editor
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
@@ -8,22 +7,25 @@
 ;; License: GPLv3
 
 (qingeditor/define-module
- emacs-lisp
+ c-c++
  "The emacs-lisp config module"
  :has-extra-funcs-defs t
  :has-extra-config t
  :require-packages
- '(
-   auto-compile
+ '(cc-mode
+   disaster
+   clang-format
+   cmake-mode
    company
-   eldoc
-   elisp-slime-nav
-   (emacs-lisp :location built-in)
+   (company-c-headers :toggle (qingeditor/modulemgr/package-usedp 'company))
+   company-ycmd
    flycheck
+   gdb-mi
    ggtags
+   helm-cscope
    helm-gtags
-   (ielm :location built-in)
-   macrostep
    semantic
-   smartparens
-   srefactor))
+   srefactor
+   stickyfunc-enhance
+   ycmd
+   xcscope))

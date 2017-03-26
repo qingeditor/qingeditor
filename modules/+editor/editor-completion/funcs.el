@@ -28,6 +28,8 @@
     (window-width . 0.6)
     (window-height . 0.4)))
 
+(defvar qingeditor/editor-completion/display-buffer-alist nil)
+
 (defun qingeditor/editor-completion/display-helm-window (buffer)
   "Display the Helm window respecting `qingeditor/config/helm-position'."
   (let ((display-buffer-alist

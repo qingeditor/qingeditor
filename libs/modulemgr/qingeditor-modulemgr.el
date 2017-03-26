@@ -456,7 +456,7 @@ defined in `module.el' of target module."
           (condition-case-unless-debug err
               (qingeditor/modulemgr/installer/install-package package)
             ('error
-             (qingeditor/cls/increment-error-count modulemgr)
+             (qingeditor/modulemgr/increment-error-count)
              (qingeditor/startup-buffer/append
               (format (concat "\nAn error occurred while installing %s "
                               "(error: %s)\n") err))
@@ -809,6 +809,10 @@ that `qingeditor' support and all the packages that module require."
 (defun qingeditor/modulemgr/get-error-count ()
   "Get this error count during startup."
   qingeditor/modulemgr/error-count)
+
+(defun qingeditor/modulemgr/increment-error-count ()
+  (setq qingeditor/modulemgr/error-count
+        (1+ qingeditor/modulemgr/error-count)))
 
 (defun qingeditor/modulemgr/warning (msg &rest args)
   "Display `msg' as a warning message in buffer `*Message*'.

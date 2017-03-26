@@ -52,7 +52,7 @@ MODE parameter must match the parameter used in the call to
        (remove-hook ',mode-hook 'company-mode))))
 
 (defun qingeditor/show-snippets-in-company (backend)
-  (if (or (not auto-completion-enable-snippets-in-popup)
+  (if (or (not qingeditor/auto-completion/enable-snippets-in-popup)
           (and (listp backend) (member 'company-yasnippet backend)))
       backend
     (append (if (consp backend) backend (list backend))

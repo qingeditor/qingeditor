@@ -106,3 +106,19 @@
       (qingeditor/key-binder/set-leader-keys-for-major-mode
        'emacs-lisp-mode
        "dm" 'qing-macrostep-transient-state/body))))
+
+(defun qingeditor/emacs-lisp/post-init-flycheck ()
+  ;; Don't activate flycheck by default in elisp
+  ;; because of too much false warnings
+  ;; (spacemacs/add-flycheck-hook 'emacs-lisp-mode)
+  ;; Make flycheck recognize packages in loadpath
+  ;; i.e (require 'company) will not give an error now
+  (setq flycheck-emacs-lisp-load-path 'inherit))
+
+(defun qingeditor/emacs-lisp/post-init-semantic ()
+  (add-hook 'emacs-lisp-mode 'semantic-mode)
+  (with-eval-after-load 'semantic
+    (semantic-default-elisp-setup)))
+
+(defun qingeditor/emacs-lisp/post-init-smartparens ()
+  )
