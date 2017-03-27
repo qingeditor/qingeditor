@@ -73,6 +73,13 @@ if `log' is non-nil a message is displayed in `qinegditor-buffer-mode' buffer.
           (load-file (concat pkg-elpa-dir file-to-load)))
         pkg-elpa-dir))))
 
+(defun qingeditor/modulemgr/installer/load-or-install-protected-package
+    (pkg-name &optional log file-to-load)
+  "Load `pkg' package, and protect it against being deleted as an orphan.
+See `qingeditor/modulemgr/installer/load-or-install-package'."
+  (push pkg-name qingeditor/modulemgr/installer/protected-packages)
+  (qingeditor/modulemgr/installer/load-or-install-package pkg-name log file-to-load))
+
 (defun qingeditor/modulemgr/installer/refresh-package-archives (&optional quiet force)
   "Refresh all archivees declared in current `package-archives'.
 
@@ -223,9 +230,30 @@ is returned."
         (qingeditor/modulemgr/installer/install-from-elpa package-name)
         (when package (qingeditor/cls/set-property package :lazy-install nil)))
        ((and (listp location) (eq 'recipe (car location)))
-        (configuration-layer//install-from-recipe pkg)
-        (cfgl-package-set-property package :lazy-install nil))
+        (qingeditor/modulemgr/installer/install-from-recipe package)
+        (qingeditor/cls/set-property package :lazy-install nil))
        (t (error "Cannot install package %S." package-name))))))
+
+(defun qingeditor/modulemgr/installer/install-quelpa ()
+  "Install `quelpa'."
+  (setq quelpa-verbose init-file-debug
+        quelpa-dir (concat qingeditor/cache-dir "quelpa/")
+        quelpa-build-dir (expand-file-name "build" quelpa-dir)
+        quelpa-persistent-cache-file (expand-file-name "cache" quelpa-dir)
+        quelpa-update-melpa-p nil)
+  (qingeditor/modulemgr/installer/load-or-install-protected-package 'package-build)
+  (qingeditor/modulemgr/installer/load-or-install-protected-package 'quelpa))
+
+(defun qingeditor/modulemgr/installer/install-from-recipe (package)
+  "Install `pkg' from a recipe."
+  (let* ((pkg-name (qingeditor/cls/get-name package))
+         (recipe (cons pkg-name (cdr (qingeditor/cls/get-location package)))))
+    (if recipe
+        (quelpa recipe)
+      (qingeditor/modulemgr/warning
+       (concat "Cannot find any recipe for package %S! Be sure "
+               "to add a recipe for it in alist %S.")
+       pkg-name recipes-var))))
 
 (defun qingeditor/modulemgr/installer/install-from-elpa (package-name)
   "Install `package' from ELPA."

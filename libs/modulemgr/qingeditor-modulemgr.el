@@ -426,6 +426,7 @@ defined in `module.el' of target module."
              (window-height . 0.2))))
          package-names
          need-install-packages)
+    (qingeditor/modulemgr/installer/install-quelpa)
     (dolist (package-name qingeditor/modulemgr/used-packages)
       (let ((package (qingeditor/hash-table/get
                       qingeditor/modulemgr/package-repo

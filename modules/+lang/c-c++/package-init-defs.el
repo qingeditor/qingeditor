@@ -66,5 +66,3 @@
   (use-package company-c-headers
     :defer t
     :init (push 'company-c-headers company-backends-c-mode-common)))
-
-
