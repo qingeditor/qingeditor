@@ -45,9 +45,9 @@
         :documentation "Automatic highlight of the current symbol."
         :leader "tha")
 
-      (qingeditor/add-to-hooks #'auto-highlight-symbol-mode
-                               '(prog-mode
-                                 markdown-mode)))
+      (qingeditor/add-to-hooks '(prog-mode-hook
+                                 markdown-mode-hook)
+                               #'auto-highlight-symbol-mode))
     :config
     (progn
       (qingeditor/font/hide-lighter auto-highlight-symbol-mode)
@@ -320,7 +320,7 @@
     (progn
       (qingeditor/key-binder/set-leader-keys "tCd" #'rainbow-delimiters-mode)
       (when (member qingeditor/config/highlight-delimiters '(any all))
-        (qingeditor/add-to-hooks 'rainbow-delimiters-mode '(prog-mode-hook))))))
+        (qingeditor/add-to-hooks '(prog-mode-hook) #'rainbow-delimiters-mode)))))
 
 (defun qingeditor/editor-editing-visual/init-volatile-highlights ()
   (use-package volatile-highlights

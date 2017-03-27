@@ -98,8 +98,7 @@ with 2 theme variables, one dark and one light.)")
   "The leader key.")
 
 (defvar qingeditor/config/major-mode-leader-key "C-M-m"
-  "Major mode leader key is a shortcut key which is the equivalent of
-pressing `<leader> m'. Set it to `nil' to disable it.")
+  "Major mode leader key accessible in `emacs state' and `insert state'")
 
 (defvar qingeditor/config/command-key "SPC"
   "The key used for Emacs commands (M-x) (after pressing on the leader key).")

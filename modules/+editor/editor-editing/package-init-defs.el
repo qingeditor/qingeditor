@@ -245,10 +245,10 @@
             sp-highlight-pair-overlay nil
             sp-highlight-wrap-overlay nil
             sp-highlight-wrap-tag-overlay nil)
-      (qingeditor/add-to-hooks (if qingeditor/config/smartparens-strict-mode
+      (qingeditor/add-to-hooks '(prog-mode-hook comint-mode-hook)
+                               (if qingeditor/config/smartparens-strict-mode
                                    'smartparens-strict-mode
-                                 'smartparens-mode)
-                               '(prog-mode-hook comint-mode-hook))
+                                 'smartparens-mode))
       ;; enable smartparens-mode in `eval-expression'
       (add-hook 'minibuffer-setup-hook 'qingeditor/editor-editing/conditionally-enable-smartparens-mode)
       ;; toggles

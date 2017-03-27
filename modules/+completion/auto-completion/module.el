@@ -13,5 +13,8 @@
  :has-extra-funcs-defs t
  :require-packages
  '(company
-   (helm-company :toggle (qingeditor/modulemgr/package-usedp 'helm)))
+   (helm-company :toggle (qingeditor/modulemgr/package-usedp 'helm))
+   company-statistics
+   hippie-exp
+   smartparens)
  )

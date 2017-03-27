@@ -112,8 +112,9 @@
 (defun qingeditor/editor-ui-visual/init-hl-todo ()
   (use-package hl-todo
     :defer t
-    :init (qingeditor/add-to-hooks 'hl-todo-mode '(text-mode-hook
-                                                   prog-mode-hook))))
+    :init (qingeditor/add-to-hooks '(text-mode-hook
+                                     prog-mode-hook)
+                                   #'hl-todo-mode)))
 
 (defun qingeditor/editor-ui-visual/init-neotree ()
   (use-package neotree

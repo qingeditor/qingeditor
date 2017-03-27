@@ -230,9 +230,9 @@ changing the value of `foo'."
               tail (cdr tail)))))
     list))
 
-(defun qingeditor/add-to-hooks (hook funcs)
+(defun qingeditor/add-to-hooks (hooks func)
   "Add list of functions to hook."
-  (dolist (func funcs)
+  (dolist (hook hooks)
     (add-hook hook func)))
 
 (defun qingeditor/register-repl (feature repl-func &optional tag)

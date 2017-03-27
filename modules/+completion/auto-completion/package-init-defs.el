@@ -46,3 +46,9 @@
     :init
     (with-eval-after-load 'company
       (define-key company-active-map (kbd "C-/") 'helm-company))))
+
+(defun qingeditor/auto-completion/init-hippie-exp ()
+  ;; replace dabbrev-expand
+  (global-set-key (kbd "M-/") #'hippie-expand)
+  (prin1 "------------------")
+  )
