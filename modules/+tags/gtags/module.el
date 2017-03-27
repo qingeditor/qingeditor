@@ -1,4 +1,3 @@
-;;; qingeditor --- a distribution of Emacs editor
 ;; Copyright (c) 2016-2017 zzu_softboy & Contributors
 ;;
 ;; Author: zzu_softboy <zzu_softboy@163.com>
@@ -8,24 +7,11 @@
 ;; License: GPLv3
 
 (qingeditor/define-module
- helm
- "The helm config module"
+ gtags
+ "The gtags config module"
  :has-extra-funcs-defs t
  :has-extra-config t
  :require-packages
- '(ace-jump-helm-line
-   auto-highlight-symbol
-   bookmark
-   helm
-   helm-ag
-   helm-descbinds
-   helm-flx
-   helm-make
-   helm-mode-manager
-   helm-projectile
-   helm-swoop
-   helm-themes
-   imenu
-   popwin
-   projectile)
+ '(ggtags
+   (helm-gtags :toggle (qingeditor/modulemgr/package-usedp 'helm)))
  )

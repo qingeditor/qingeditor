@@ -4,8 +4,7 @@
 ;; Github: https://www.github.com/qingeditor/qingeditor
 ;;
 ;; This file is not part of GNU Emacs.
-;; License: MIT
-;;
+;; License: GPLv3
 
 (require 'qingeditor-funcs)
 
