@@ -13,6 +13,7 @@
   "Default mode to open header files. Can be `c-mode' or `c++-mode'.")
 
 (qingeditor/defvar-company-backends c-mode-common)
+(qingeditor/defvar-company-backends irony-mode)
 (qingeditor/defvar-company-backends cmake-mode)
 
 (qingeditor/define-jump-handlers c++-mode)

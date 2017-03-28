@@ -704,6 +704,10 @@ defined in `module.el' of target module."
                 ;; module not found, add it to search path, recursively to search
                 (setq search-paths (cons sub search-paths)))))))))))
 
+(defun qingeditor/modulemgr/get-module-dir (module-name)
+  (qingeditor/cls/get-module-dir (qingeditor/hash-table/get
+                                  qingeditor/modulemgr/module-repo module-name)))
+
 (defun qingeditor/modulemgr/get-directory-type (path)
   "Get the type of directory pointed by `path'
 Possible return values:

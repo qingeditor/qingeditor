@@ -26,6 +26,25 @@
        "ga" 'projectile-find-other-file
        "gA" 'projectile-find-other-file-other-window))))
 
+;; (defun qingeditor/c-c++/init-irony ()
+;;   (use-package irony
+;;     :ensure t
+;;     :defer t
+;;     :init
+;;     (progn
+;;       (add-hook 'c-mode-hook #'irony-mode)
+;;       (add-hook 'c++-mode-hook #'irony-mode))
+;;     :config
+;;     (progn
+;;       (define-key irony-mode-map [remap completion-at-point]
+;;         #'irony-completion-at-point-async)
+;;       (define-key irony-mode-map [remap completion-symbol]
+;;         #'irony-completion-at-point-async)
+;;       (irony-cdb-autosetup-compile-options))))
+
+;; (defun qingeditor/c-c++/init-company-irony ()
+;;   (push 'company-irony company-backends-irony-mode))
+
 (defun qingeditor/c-c++/init-disaster ()
   (use-package disaster
     :defer t
@@ -52,6 +71,7 @@
 (defun qingeditor/c-c++/post-init-company ()
   (qingeditor/add-company-hook c-mode-common c-c++)
   (qingeditor/add-company-hook cmake-mode c-c++)
+  (qingeditor/add-company-hook irony-mode c-c++)
   (when qingeditor/c-c++/enable-clang-support
     (push 'company-clang company-backends-c-mode-common)
     (defun qingeditor/c-c++/more-than-prefix-guesser ()
@@ -66,3 +86,16 @@
   (use-package company-c-headers
     :defer t
     :init (push 'company-c-headers company-backends-c-mode-common)))
+
+(defun qingeditor/c-c++/post-init-ycmd ()
+  (add-hook 'c++-mode-hook 'ycmd-mode)
+  (add-hook 'c-mode-hook 'ycmd-mode)
+  (add-to-list 'qingeditor/jump-handlers-c++-mode '(ycmd-goto :async t))
+  (add-to-list 'qingeditorjump-handlers-c-mode '(ycmd-goto :async t))
+  (prin1 "--------------------------------------")
+  (dolist (mode '(c++-mode c-mode))
+    (qingeditor/keu-binder/set-leader-keys-for-major-mode mode
+      "gG" 'ycmd-goto-imprecise)))
+
+(defun qingeditor/c-c++/post-init-company-ycmd ()
+  (push 'company-ycmd company-backends-c-mode-common))

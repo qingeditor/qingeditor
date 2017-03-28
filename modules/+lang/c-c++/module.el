@@ -14,11 +14,14 @@
  :require-packages
  '(cc-mode
    disaster
+   irony
+   company-irony
    clang-format
    cmake-mode
+   cmake-ide
    company
-   (company-c-headers :toggle (qingeditor/modulemgr/package-usedp 'company))
    company-ycmd
+   (company-c-headers :toggle (qingeditor/modulemgr/package-usedp 'company))
    flycheck
    gdb-mi
    ggtags
@@ -28,4 +31,5 @@
    srefactor
    stickyfunc-enhance
    ycmd
+   rtags
    xcscope))

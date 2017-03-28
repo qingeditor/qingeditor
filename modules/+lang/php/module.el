@@ -13,11 +13,11 @@
  :has-extra-config t
  :require-packages
  '(company
+   company-php
    eldoc
    flycheck
    ggtags
    helm-gtags
-   company-php
    (php-extras :location (recipe :fetcher github :repo "arnested/php-extras"))
    php-mode
    phpcbf

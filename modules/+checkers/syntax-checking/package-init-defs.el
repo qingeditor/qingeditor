@@ -105,7 +105,7 @@ If the error list is visible, hide it.  Otherwise, show it."
 
 (defun qingeditor/syntax-checking/init-flycheck-pos-tip ()
   (use-package flycheck-pos-tip
-    :if syntax-checking-enable-tooltips
+    :if qingeditor/syntax-checking/syntax-checking-enable-tooltips
     :defer t
     :init
     (with-eval-after-load 'flycheck
@@ -118,4 +118,4 @@ If the error list is visible, hide it.  Otherwise, show it."
           :position bottom
           :stick t
           :noselect t)
-        :popwin:special-display-config))
+        popwin:special-display-config))
